@@ -42,6 +42,9 @@
 		    	<li class="nav-item">
 	        	<a class="nav-link" href="{% url 'login' %}">Login <span class="sr-only">(current)</span></a>
 		      </li>
+		      <li class="nav-item">
+	        	<a class="nav-link" href="{% url 'register' %}">Register <span class="sr-only">(current)</span></a>
+		      </li>
 	    	{% endif %}
 
 	    </ul>
@@ -62,13 +65,6 @@
 		  {% endfor %}
 		{% endif %}
 
-<!-- 		{% if messages %}
-		<ul class="messages">
-		    {% for message in messages %}
-		    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-		    {% endfor %}
-		</ul>
-		{% endif %} -->
 
 		<br>
 		{% block content %}

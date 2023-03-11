@@ -32,3 +32,12 @@ def logout_user(request):
 
 def user_profile(request):
 	return render(request, 'userprofile.html', {})
+
+def register(request):
+	return render(request, 'register.html', {})
+
+def register_user(request):
+	return render(request, 'registeruser.html', {})
+
+def register_business(request):
+	return render(request, 'registerbusiness.html', {})
