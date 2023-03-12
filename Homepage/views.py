@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import FoodCategory
 from .forms import FoodCategoryForm
+
+import sys
 
 
 def home(request):
@@ -47,18 +50,25 @@ def register_business(request):
 def food_category(request):
 
 	foodCategory = FoodCategory.objects.all()
+	form = FoodCategoryForm()
 
-	return render(request, 'foodcategory.html', {'foodCategory':foodCategory})
+	return render(request, 'foodcategory.html', {'foodCategory':foodCategory,'form':form})
 
 def add_food_category(request):
 	if request.method == 'POST':
-		form = FoodCategoryForm(request.POST or None)
+		form = FoodCategoryForm(request.POST or None, request=request)
+		print('zx1')
 		print(form)
+		sys.stdout.flush()
 
-		# if form.is_valid():
-		# 	form.save()
-		# 	messages.success(request, ("Food Category has been added!"))
-		# 	return redirect(food_category)
+		if form.is_valid():
+			print('zx2')
+			sys.stdout.flush()
+			form.save()
+			messages.success(request, ("Food Category has been added!"))
+			return redirect(food_category)
+		else:
+			form = FoodCategoryForm()
 
 	return redirect(food_category)
 

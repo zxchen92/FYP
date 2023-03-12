@@ -6,7 +6,8 @@
 
 <form action="{% url 'addfoodcategory' %}" class="form-inline my-2 my-lg-0" method="POST"> 
 	{% csrf_token %}
-  <input class="form-control mr-sm-2" type="search" placeholder="New Food Category" aria-label="Search" name="ticker">
+  {{ form.categoryName }}
+  <!-- <input class="form-control mr-sm-2" type="search" placeholder="New Food Category" aria-label="Search" name="categoryName"> -->
   <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Add Food Category</button>
 </form>
 <br>
