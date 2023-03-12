@@ -12,5 +12,5 @@ urlpatterns = [
 	path('register/business',views.register_business, name='registerbusiness'),
 	path('administrative/foodcategory',views.food_category, name='foodcategory'),
 	path('administrative/addfoodcategory',views.add_food_category, name='addfoodcategory'),
-	path('administrative/deletefoodcategory',views.delete_food_category, name='deletefoodcategory'),
+	path('administrative/deletefoodcategory/<food_category_id>',views.delete_food_category, name='deletefoodcategory'),
 ]

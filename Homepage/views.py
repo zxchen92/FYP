@@ -72,5 +72,8 @@ def add_food_category(request):
 
 	return redirect(food_category)
 
-def delete_food_category(request):
+def delete_food_category(request, food_category_id):
+	item = FoodCategory.objects.get(pk=food_category_id)
+	item.delete()
+	messages.success(request,("Food Category Deleted!"))
 	return redirect(food_category)
