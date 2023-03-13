@@ -1,6 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Homepage</h1>
+<div class="container">
+	<h1>Welcome to CollabFood</h1>
+</div>
+<br>
+<!-- This container splits the page into half -->
+<style>
+  .container-vertical-line {
+    height: 620px;
+    position: relative;
+  }
+  .vertical-line {
+    border-left: 1px solid black;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+  .section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+</style>
+
+<div class="container container-vertical-line">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="section">
+        <div class="text-center"><h3>For Food Lovers</h2></div>
+      </div>
+      <p>Don't know what to eat for today's lunch? Let us recommend some food to you based on users with similar preferences! Join us now to discover more!</p>
+      <p>We have a total of &ltplaceholder&gt registered Businesses and the numbers are still climbing! Register now in order to find out more about what kind of promotions you can get!</p>
+    </div>
+    <div class="col-md-6">
+      <div class="section">
+        <div class="text-center"><h3>For Business Owners</h3></div>
+      </div>
+      <p>Ever wondered what directions you should steer your food stall/resturant to for success? Let our Big Data tell you the stories! Join us now to have more insights of what the local preferences are!</p>
+      <p>We have a total of &ltplaceholder&gt registered Users and the numbers are still increasing daily! Register now to reach out to all these users!</p>
+    </div>
+    <div class="vertical-line"></div>
+  </div>
+</div>
 
 {% endblock %}
