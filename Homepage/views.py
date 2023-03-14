@@ -82,3 +82,6 @@ def delete_food_category(request, food_category_id):
 
 def recommender_page(request):
 	return render(request, 'recommender.html', {})
+
+def customer_support(request):
+	return render(request, 'customersupport.html', {})
