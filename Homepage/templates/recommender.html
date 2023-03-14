@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<div class="container">
+	<h1>Food Recommender</h1>
+</div>
+<br>
+<!-- This container splits the page into half -->
+<style>
+  .container-vertical-line {
+    height: 620px;
+    position: relative;
+  }
+  .vertical-line {
+    border-left: 1px solid black;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+  .section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+</style>
+
+<div class="container container-vertical-line">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="section">
+        <div class="text-center"><h3>Food Recommendations based on Food Category</h2></div>
+      </div>
+      <p>Craving for a cuisine but dont know what exactly to eat? Click on the recommend button below to get some food recommendations!</p>
+      <br>
+      <a href="#" class="list-group-item list-group-item-action active text-center" aria-current="true">Recommend me!</a>
+    </div>
+    <div class="col-md-6">
+      <div class="section">
+        <div class="text-center"><h3>Food Recommendations based on Collaborative filtering</h3></div>
+      </div>
+      <p>Feeling adventurous today? Click on the recommend button below to get food recommendations based on users like you!</p>
+      <br>
+	  <a href="#" class="list-group-item list-group-item-action active text-center" aria-current="true">Recommend me!</a>
+    </div>
+    <div class="dvertical-line"></div>
+  </div>
+</div>
+
+{% endblock %}

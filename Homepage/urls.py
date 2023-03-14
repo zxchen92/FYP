@@ -13,4 +13,5 @@ urlpatterns = [
 	path('administrative/foodcategory',views.food_category, name='foodcategory'),
 	path('administrative/addfoodcategory',views.add_food_category, name='addfoodcategory'),
 	path('administrative/deletefoodcategory/<food_category_id>',views.delete_food_category, name='deletefoodcategory'),
+	path('recommender',views.recommender_page,name='recommenderpage'),
 ]

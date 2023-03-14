@@ -79,3 +79,6 @@ def delete_food_category(request, food_category_id):
 	item.delete()
 	messages.success(request,("Food Category Deleted!"))
 	return redirect(food_category)
+
+def recommender_page(request):
+	return render(request, 'recommender.html', {})

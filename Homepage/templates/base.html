@@ -30,11 +30,23 @@
 					<li class="nav-item active">
 					  <a class="nav-link" href="{% url 'profile' %}">Profile <span class="sr-only">(current)</span></a>
 					</li>
+					<li class="nav-item active">
+					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender <span class="sr-only">(current)</span></a>
+					</li>
 
 					{% if user.id == 1%}
+					<!-- links that admins should see -->
 						<li class="nav-item active">
 					    <a class="nav-link" href="{% url 'foodcategory' %}">Food Category <span class="sr-only">(current)</span></a>
 					  </li>
+					{% endif %}
+
+					{% if user.type == 'user'%}
+					<!-- links that regular users should see -->
+					{% endif %}
+
+					{% if user.type == 'user'%}
+					<!-- links that business users should see -->
 					{% endif %}
 
 	      {% endif %}
