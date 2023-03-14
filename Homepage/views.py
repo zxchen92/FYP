@@ -42,10 +42,12 @@ def register(request):
 	return render(request, 'register.html', {})
 
 def register_user(request):
-	return render(request, 'registeruser.html', {})
+	foodCategory = FoodCategory.objects.all()
+	return render(request, 'registeruser.html', {'foodCategory':foodCategory})
 
 def register_business(request):
-	return render(request, 'registerbusiness.html', {})
+	foodCategory = FoodCategory.objects.all()
+	return render(request, 'registerbusiness.html', {'foodCategory':foodCategory})
 
 def food_category(request):
 

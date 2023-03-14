@@ -30,14 +30,14 @@
   <tbody id="Category">
   	
   	{% if foodCategory %}
-		{% for item in foodCategory%}
-			<tr>
-			<th scope="row">{{ item.categoryName }}</th>
-			<td>{{item.adminID}}</td>
-			<td><a href="{% url 'deletefoodcategory' item.id %}">Delete</a><br></td>
-			</tr>
-		{% endfor %}
-	{% endif %}
+  		{% for item in foodCategory%}
+  			<tr>
+  			<th scope="row">{{ item.categoryName }}</th>
+  			<td>{{item.adminID}}</td>
+  			<td><a href="{% url 'deletefoodcategory' item.id %}">Delete</a><br></td>
+  			</tr>
+  		{% endfor %}
+  	{% endif %}
 
   </tbody>
 </table>
