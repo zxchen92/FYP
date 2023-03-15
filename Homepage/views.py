@@ -22,7 +22,10 @@ def login_user(request):
 	    if user is not None:
 	        login(request, user)
 	        messages.success(request,('Login succesful!'))
-	        return redirect('home')
+	        if user.id == 1:
+	        	return redirect('adminhome')
+	        else:
+	        	return redirect('landing')
 	    else:
 	    	messages.error(request,('Login unsuccesful! Please try again!'))
 	    	return redirect('login')
@@ -33,7 +36,7 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, ('Logout succesful!'))
-    return redirect('home')
+    return redirect('landing')
 
 def user_profile(request):
 	return render(request, 'userprofile.html', {})
@@ -85,3 +88,6 @@ def recommender_page(request):
 
 def customer_support(request):
 	return render(request, 'customersupport.html', {})
+
+def admin_home(request):
+	return render(request, 'adminhome.html', {})
