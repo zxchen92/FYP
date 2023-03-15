@@ -8,8 +8,8 @@ from .forms import FoodCategoryForm
 import sys
 
 
-def home(request):
-	return render(request, 'home.html', {})
+def landing(request):
+	return render(request, 'landing.html', {})
 
 def about(request):
 	return render(request, 'about.html', {})
