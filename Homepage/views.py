@@ -2,8 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import FoodCategory
-from .forms import FoodCategoryForm
+from django.shortcuts import get_object_or_404
+
+from .models import FoodCategory, UserType, UserProfile, BusinessProfile
+from .forms import FoodCategoryForm, UserRegistrationForm
+
 
 import sys
 
@@ -16,27 +19,28 @@ def about(request):
 
 def login_user(request):
 	if request.method == 'POST':
-	    username = request.POST['username']
-	    password = request.POST['password']
-	    user = authenticate(request, username=username, password=password)
-	    if user is not None:
-	        login(request, user)
-	        messages.success(request,('Login succesful!'))
-	        if user.id == 1:
-	        	return redirect('adminhome')
-	        else:
-	        	return redirect('landing')
-	    else:
-	    	messages.error(request,('Login unsuccesful! Please try again!'))
-	    	return redirect('login')
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(request, username=username, password=password)
+		if user is not None:
+			login(request, user)
+			messages.success(request,('Login succesful!'))
+			user_type = get_object_or_404(UserType, user=user)
+			if user_type.userType == 'admin':
+				return redirect('adminhome')
+			else:
+				return redirect('landing')
+		else:
+			messages.error(request,('Login unsuccesful! Please try again!'))
+			return redirect('login')
 	else:
 
 		return render(request, 'login.html', {})
 
 def logout_user(request):
-    logout(request)
-    messages.success(request, ('Logout succesful!'))
-    return redirect('landing')
+	logout(request)
+	messages.success(request, ('Logout succesful!'))
+	return redirect('landing')
 
 def user_profile(request):
 	return render(request, 'userprofile.html', {})
@@ -46,7 +50,31 @@ def register(request):
 
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
-	return render(request, 'registeruser.html', {'foodCategory':foodCategory})
+	form = UserRegistrationForm(request.POST or None, request=request)
+	if request.method == 'POST':
+		print('zx:')
+		print(form)
+		sys.stdout.flush()
+		if form.is_valid():
+			user = form.save(commit=False)
+			password = form.cleaned_data.get('password')
+			user.set_password(password)
+			user.save()
+			username = form.cleaned_data.get('username')
+			user = authenticate(request, username=username, password=password)
+			if user is not None:
+				login(request, user)
+				messages.success(request, ('User registered!'))
+				user_type = get_object_or_404(UserType, user=user)
+				if user_type.userType == 'admin':
+					return redirect('adminhome')
+				else:
+					return redirect('landing')
+		else:
+			messages.error(request,('User registration unsuccesful! Please try again!'))
+			form = UserRegistrationForm()
+	
+	return render(request, 'registeruser.html', {'foodCategory':foodCategory,'form':form})
 
 def register_business(request):
 	foodCategory = FoodCategory.objects.all()
@@ -62,13 +90,8 @@ def food_category(request):
 def add_food_category(request):
 	if request.method == 'POST':
 		form = FoodCategoryForm(request.POST or None, request=request)
-		print('zx1')
-		print(form)
-		sys.stdout.flush()
 
 		if form.is_valid():
-			print('zx2')
-			sys.stdout.flush()
 			form.save()
 			messages.success(request, ("Food Category has been added!"))
 			return redirect(food_category)
