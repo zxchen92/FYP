@@ -91,3 +91,6 @@ def customer_support(request):
 
 def admin_home(request):
 	return render(request, 'adminhome.html', {})
+
+def registeredBusinesses(request):
+	return render(request, 'registeredbusinesses.html', {})
