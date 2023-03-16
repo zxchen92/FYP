@@ -22,12 +22,17 @@ def login_user(request):
 		username = request.POST['username']
 		password = request.POST['password']
 		user = authenticate(request, username=username, password=password)
+		print('zx')
+		print(user)
+		sys.stdout.flush()
 		if user is not None:
 			login(request, user)
 			messages.success(request,('Login succesful!'))
 			user_type = get_object_or_404(UserType, user=user)
 			if user_type.userType == 'admin':
 				return redirect('adminhome')
+			elif user_type.userType == 'user':
+				return redirect('userhome')
 			else:
 				return redirect('landing')
 		else:
@@ -43,7 +48,21 @@ def logout_user(request):
 	return redirect('landing')
 
 def user_profile(request):
-	return render(request, 'userprofile.html', {})
+	foodCategory = FoodCategory.objects.all()
+	location_options = [
+        ('1', 'North'),
+		('2', 'South'),
+		('3', 'East'),
+		('4', 'West'),
+		('5', 'Central'),
+    ]
+	if request.user.is_authenticated:
+		user_type = UserType.objects.get(user=request.user)
+		user_profile = UserProfile.objects.get(user=request.user)
+	else:
+		user_type=None
+		user_profile=None
+	return render(request, 'userprofile.html', {'foodCategory':foodCategory, 'user_type':user_type, 'user_profile':user_profile, 'location_options': location_options})
 
 def register(request):
 	return render(request, 'register.html', {})
@@ -56,18 +75,20 @@ def register_user(request):
 		print(form)
 		sys.stdout.flush()
 		if form.is_valid():
-			user = form.save(commit=False)
-			password = form.cleaned_data.get('password')
-			user.set_password(password)
+			user, user_profile, user_type = form.save(commit=False)
 			user.save()
-			username = form.cleaned_data.get('username')
-			user = authenticate(request, username=username, password=password)
+			user_profile.userId = user
+			user_profile.save()
+			user_type.user = user
+			user_type.save()
 			if user is not None:
 				login(request, user)
 				messages.success(request, ('User registered!'))
 				user_type = get_object_or_404(UserType, user=user)
 				if user_type.userType == 'admin':
 					return redirect('adminhome')
+				elif user_type.userType == 'user':
+					return redirect('userhome')
 				else:
 					return redirect('landing')
 		else:
@@ -115,7 +136,7 @@ def customer_support(request):
 def admin_home(request):
 	return render(request, 'adminhome.html', {})
 
-def registeredBusinesses(request):
+def registered_businesses(request):
 	return render(request, 'registeredbusinesses.html', {})
 
 def user_home(request):

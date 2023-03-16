@@ -24,18 +24,26 @@ class UserType(models.Model):
 		return f"{self.user.username}'s type: {self.userType}"
 
 class UserProfile(models.Model):
-	userId = models.OneToOneField(User, on_delete=models.CASCADE)
+	locations = [
+		('', '---------'),
+		('1', 'North'),
+		('2', 'South'),
+		('3', 'East'),
+		('4', 'West'),
+		('5', 'Central'),
+	]
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	age = models.IntegerField()
 	phone = models.CharField(max_length=8)
 	favFood = models.CharField(max_length=30)
-	prefLocation = models.CharField(max_length=30)
+	prefLocation = models.CharField(max_length=30, choices=locations)
 	foodCategory = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name='user_food_category')
 
 	def __str__(self):
 		return f"{self.user.username}'s profile: age {self.age}, phone {self.phone}, favorite food {self.favFood}, preferred location {self.prefLocation}, food category {self.foodCategory}"
 
 class BusinessProfile(models.Model):
-	userId = models.ForeignKey(User, on_delete=models.CASCADE)
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	companyName = models.CharField(max_length=50)
 	uen = models.CharField(max_length=10)
 	phone = models.CharField(max_length=8)

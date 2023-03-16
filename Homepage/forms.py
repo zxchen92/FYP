@@ -26,12 +26,12 @@ class FoodCategoryForm(forms.ModelForm):
 
 class UserRegistrationForm(forms.Form):
 	location_choices = [
-		(' ', '---------'),
-		('north', 'North'),
-		('south', 'South'),
-		('east', 'East'),
-		('west', 'West'),
-		('central', 'Central'),
+		('', '---------'),
+		('1', 'North'),
+		('2', 'South'),
+		('3', 'East'),
+		('4', 'West'),
+		('5', 'Central'),
 	]
 	first_name = forms.CharField(max_length=30)
 	last_name = forms.CharField(max_length=30)
@@ -61,7 +61,7 @@ class UserRegistrationForm(forms.Form):
 		return phone
 
 	# Override the default save method to save to UserProfile and UserType models
-	def save(self):
+	def save(self, commit=True):
 		user = User.objects.create_user(
 			username=self.cleaned_data['username'],
 			password=self.cleaned_data['password'],
@@ -81,7 +81,7 @@ class UserRegistrationForm(forms.Form):
 
 		user_type = UserType.objects.create(
 			user=user,
-			type='user'
+			userType='user'
 		)
 
 		return (user, user_profile, user_type)
