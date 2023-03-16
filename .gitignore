@@ -3,7 +3,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.log
-*.sqlite3
+# *.sqlite3
 *.env
 *.swp
 .DS_Store
