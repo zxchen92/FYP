@@ -117,3 +117,6 @@ def admin_home(request):
 
 def registeredBusinesses(request):
 	return render(request, 'registeredbusinesses.html', {})
+
+def user_home(request):
+	return render(request, 'userhome.html', {})

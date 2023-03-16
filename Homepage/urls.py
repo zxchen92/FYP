@@ -17,4 +17,5 @@ urlpatterns = [
 	path('customersupport',views.customer_support,name='customersupport'),
 	path('administrative/home',views.admin_home,name='adminhome'),
 	path('registeredbusinesses',views.registeredBusinesses ,name='registeredBusinesses'),
+	path('user_home',views.user_home ,name='userhome'),
 ]
