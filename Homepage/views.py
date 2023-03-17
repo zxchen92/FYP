@@ -41,7 +41,7 @@ def login_user(request):
 			elif user_type.userType == 'user':
 				return redirect('userhome')
 			else:
-				return redirect('landing')
+				return redirect('businesshome')
 		else:
 			messages.error(request,('Login unsuccesful! Please try again!'))
 			return redirect('login')
@@ -108,16 +108,15 @@ def register_business(request):
 	if request.method == 'POST':
 		if form.is_valid():
 			user, business_profile, user_type = form.save(commit=False)
+			user.is_active = False
 			user.save()
 			business_profile.user = user
 			business_profile.save()
 			user_type.user = user
 			user_type.save()
 			if user is not None:
-				login(request, user)
-				messages.success(request, ('User registered!'))
-				user_type = get_object_or_404(UserType, user=user)
-				return redirect('business_home')
+				messages.success(request, ('User registered! We will send a verifcation email to you when your business is verfied!'))
+				return redirect('landing')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
@@ -170,8 +169,11 @@ def admin_home(request):
 	return render(request, 'adminhome.html', context)
 
 def registered_businesses(request):
-	businesses = BusinessProfile.objects.all()
 	user_type = UserType.objects.get(user=request.user)
+	if user_type.userType in ['user','business']:
+		businesses = BusinessProfile.objects.filter(user__is_active=True)
+	else:
+		businesses = BusinessProfile.objects.all()
 	context = {'user_type': user_type, 'businesses':businesses}
 	return render(request, 'registeredbusinesses.html', context)
 
