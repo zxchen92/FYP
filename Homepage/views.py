@@ -5,17 +5,24 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 
 from .models import FoodCategory, UserType, UserProfile, BusinessProfile
-from .forms import FoodCategoryForm, UserRegistrationForm
+from .forms import FoodCategoryForm, UserRegistrationForm, BusinessRegistrationForm
 
 
 import sys
 
-
 def landing(request):
-	return render(request, 'landing.html', {})
+	context = {}
+	if request.user.is_authenticated:
+		user_type = UserType.objects.get(user=request.user)
+		context = {'user_type': user_type}
+	return render(request, 'landing.html', context)
 
 def about(request):
-	return render(request, 'about.html', {})
+	context = {}
+	if request.user.is_authenticated:
+		user_type = UserType.objects.get(user=request.user)
+		context = {'user_type': user_type}
+	return render(request, 'about.html', context)
 
 def login_user(request):
 	if request.method == 'POST':
@@ -39,7 +46,6 @@ def login_user(request):
 			messages.error(request,('Login unsuccesful! Please try again!'))
 			return redirect('login')
 	else:
-
 		return render(request, 'login.html', {})
 
 def logout_user(request):
@@ -48,6 +54,7 @@ def logout_user(request):
 	return redirect('landing')
 
 def user_profile(request):
+	context = {}
 	foodCategory = FoodCategory.objects.all()
 	location_options = [
         ('1', 'North'),
@@ -58,11 +65,17 @@ def user_profile(request):
     ]
 	if request.user.is_authenticated:
 		user_type = UserType.objects.get(user=request.user)
-		user_profile = UserProfile.objects.get(user=request.user)
+		context = {'user_type':user_type}
+		if user_type.userType == 'user':
+			user_profile = UserProfile.objects.get(user=request.user)
+			context = {'foodCategory':foodCategory, 'user_type':user_type, 'user_profile':user_profile, 'location_options': location_options}
+		if user_type.userType == 'business':
+			business_profile = BusinessProfile.objects.get(user=request.user)
+			context = {'foodCategory':foodCategory, 'user_type':user_type, 'business_profile':business_profile}
 	else:
 		user_type=None
 		user_profile=None
-	return render(request, 'userprofile.html', {'foodCategory':foodCategory, 'user_type':user_type, 'user_profile':user_profile, 'location_options': location_options})
+	return render(request, 'userprofile.html', context)
 
 def register(request):
 	return render(request, 'register.html', {})
@@ -71,13 +84,10 @@ def register_user(request):
 	foodCategory = FoodCategory.objects.all()
 	form = UserRegistrationForm(request.POST or None, request=request)
 	if request.method == 'POST':
-		print('zx:')
-		print(form)
-		sys.stdout.flush()
 		if form.is_valid():
 			user, user_profile, user_type = form.save(commit=False)
 			user.save()
-			user_profile.userId = user
+			user_profile.user = user
 			user_profile.save()
 			user_type.user = user
 			user_type.save()
@@ -85,12 +95,7 @@ def register_user(request):
 				login(request, user)
 				messages.success(request, ('User registered!'))
 				user_type = get_object_or_404(UserType, user=user)
-				if user_type.userType == 'admin':
-					return redirect('adminhome')
-				elif user_type.userType == 'user':
-					return redirect('userhome')
-				else:
-					return redirect('landing')
+				return redirect('userhome')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
@@ -99,14 +104,34 @@ def register_user(request):
 
 def register_business(request):
 	foodCategory = FoodCategory.objects.all()
-	return render(request, 'registerbusiness.html', {'foodCategory':foodCategory})
+	form = BusinessRegistrationForm(request.POST or None, request=request)
+	if request.method == 'POST':
+		if form.is_valid():
+			user, business_profile, user_type = form.save(commit=False)
+			user.save()
+			business_profile.user = user
+			business_profile.save()
+			user_type.user = user
+			user_type.save()
+			if user is not None:
+				login(request, user)
+				messages.success(request, ('User registered!'))
+				user_type = get_object_or_404(UserType, user=user)
+				return redirect('business_home')
+		else:
+			messages.error(request,('User registration unsuccesful! Please try again!'))
+			form = UserRegistrationForm()
+
+
+	return render(request, 'registerbusiness.html', {'foodCategory':foodCategory,'form':form})
 
 def food_category(request):
-
+	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
 	form = FoodCategoryForm()
 
-	return render(request, 'foodcategory.html', {'foodCategory':foodCategory,'form':form})
+	context = {'user_type': user_type, 'foodCategory':foodCategory,'form':form}
+	return render(request, 'foodcategory.html', context)
 
 def add_food_category(request):
 	if request.method == 'POST':
@@ -128,16 +153,34 @@ def delete_food_category(request, food_category_id):
 	return redirect(food_category)
 
 def recommender_page(request):
-	return render(request, 'recommender.html', {})
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type}
+	return render(request, 'recommender.html', context)
 
 def customer_support(request):
-	return render(request, 'customersupport.html', {})
+	context = {}
+	if request.user.is_authenticated:
+		user_type = UserType.objects.get(user=request.user)
+		context = {'user_type': user_type}
+	return render(request, 'customersupport.html', context)
 
 def admin_home(request):
-	return render(request, 'adminhome.html', {})
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type}
+	return render(request, 'adminhome.html', context)
 
 def registered_businesses(request):
-	return render(request, 'registeredbusinesses.html', {})
+	businesses = BusinessProfile.objects.all()
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type, 'businesses':businesses}
+	return render(request, 'registeredbusinesses.html', context)
 
 def user_home(request):
-	return render(request, 'userhome.html', {})
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type}
+	return render(request, 'userhome.html', context)
+
+def business_home(request):
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type}
+	return render(request, 'landing.html', context)

@@ -25,28 +25,48 @@
 	      
 
 	      {% if user.is_authenticated %}
-	      <li class="nav-item active">
+					{% if user_type.userType == 'admin' %}
+					<!-- links that admins should see -->
+		      <li class="nav-item active">
+					  <a class="nav-link" href="{% url 'adminhome' %}">Home <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+					    <a class="nav-link" href="{% url 'foodcategory' %}">Food Category <span class="sr-only">(current)</span></a>
+				  </li>
+				  <li class="nav-item active">
+					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender <span class="sr-only">(current)</span></a>
+					</li>
+
+					{% elif user_type.userType == 'user' %}
+					<!-- links that regular users should see -->
+		      <li class="nav-item active">
 					  <a class="nav-link" href="{% url 'userhome' %}">Home <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
 					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender <span class="sr-only">(current)</span></a>
 					</li>
+
+					{% elif user_type.userType == 'business'%}
+					<!-- links that business users should see -->
+		      <li class="nav-item active">
+					  <a class="nav-link" href="{% url 'landing' %}">Home <span class="sr-only">(current)</span></a>
+					</li>
+					{% endif %}
+
+
+					
 					<li class="nav-item active">
 					    <a class="nav-link" href="{% url 'registeredBusinesses' %}">Registered Businesses <span class="sr-only">(current)</span></a>
-					  </li>
+				  </li>
 
-					{% if user.id == 1%}
+					{% if user_type.userType == 'admin' %}
 					<!-- links that admins should see -->
-						<li class="nav-item active">
-					    <a class="nav-link" href="{% url 'foodcategory' %}">Food Category <span class="sr-only">(current)</span></a>
-					  </li>
-					{% endif %}
+						
 
-					{% if user.type == 'user'%}
+					{% elif user_type.userType == 'user' %}
 					<!-- links that regular users should see -->
-					{% endif %}
 
-					{% if user.type == 'user'%}
+					{% elif user_type.userType == 'business'%}
 					<!-- links that business users should see -->
 					{% endif %}
 

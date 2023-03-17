@@ -71,7 +71,7 @@ class UserRegistrationForm(forms.Form):
 		)
 
 		user_profile = UserProfile.objects.create(
-			userId=user,
+			user=user,
 			age=self.cleaned_data['age'],
 			phone=self.cleaned_data['phone'],
 			favFood=self.cleaned_data['favorite_food'],
@@ -85,3 +85,53 @@ class UserRegistrationForm(forms.Form):
 		)
 
 		return (user, user_profile, user_type)
+
+class BusinessRegistrationForm(forms.Form):
+	company_name = forms.CharField(max_length=50)
+	uen = forms.CharField(max_length=10)
+	first_name = forms.CharField(max_length=30)
+	last_name = forms.CharField(max_length=30)
+	email = forms.EmailField()
+	phone = forms.CharField(max_length=8)
+	address = forms.CharField(max_length=100)
+	postal_code = forms.CharField(max_length=6)
+	food_category = forms.ModelChoiceField(queryset=FoodCategory.objects.all())
+	username = forms.CharField(max_length=30)
+	password = forms.CharField(widget=forms.PasswordInput)
+
+	def __init__(self, *args, **kwargs):
+		self.request = kwargs.pop('request', None)
+		super(BusinessRegistrationForm, self).__init__(*args, **kwargs)
+
+	def clean_phone(self):
+		phone = self.cleaned_data.get('phone')
+		if not re.match(r'^\d{8}$', phone):
+			raise forms.ValidationError("Please enter a valid phone number")
+		return phone
+
+	# Override the default save method to save to BusinessProfile and UserType models
+	def save(self, commit=True):
+		user = User.objects.create_user(
+			username=self.cleaned_data['username'],
+			password=self.cleaned_data['password'],
+			email=self.cleaned_data['email'],
+			first_name=self.cleaned_data['first_name'],
+			last_name=self.cleaned_data['last_name']
+		)
+
+		business_profile = BusinessProfile.objects.create(
+			user=user,
+			companyName=self.cleaned_data['company_name'],
+			uen=self.cleaned_data['uen'],
+			phone=self.cleaned_data['phone'],
+			address=self.cleaned_data['address'],
+			postalCode=self.cleaned_data['postal_code'],
+			foodCategory=self.cleaned_data['food_category']
+		)
+
+		user_type = UserType.objects.create(
+			user=user,
+			userType='business'
+		)
+
+		return (user, business_profile, user_type)

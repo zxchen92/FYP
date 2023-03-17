@@ -14,17 +14,17 @@
     <tr>
       <th scope="col">Business</th>
       <th scope="col">Postal Code</th>
-      <th scope="col">Ratings</th>
+      <th scope="col">Food Category</th>
     </tr>
   </thead>
   <tbody id="Category">
   	
-  	{% if foodCategory %}
-  		{% for item in foodCategory%}
+  	{% if businesses %}
+  		{% for item in businesses%}
   			<tr>
-  			<th scope="row">{{ item.categoryName }}</th>
-  			<td>{{item.adminID}}</td>
-  			<td><a href="{% url 'deletefoodcategory' item.id %}">Delete</a><br></td>
+  			<th scope="row">{{ item.companyName }}</th>
+  			<td>{{item.address}} {{item.postalCode}}</td>
+  			<td>{{item.foodCategory.categoryName}}</td>
   			</tr>
   		{% endfor %}
   	{% endif %}
