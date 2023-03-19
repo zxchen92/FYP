@@ -8,6 +8,7 @@ from .models import FoodCategory, UserType, UserProfile, BusinessProfile
 class FoodCategoryForm(forms.ModelForm):
 	categoryName = forms.CharField(max_length=30)
 
+	
 	def __init__(self, *args, **kwargs):
 		self.request = kwargs.pop('request', None)
 		super(FoodCategoryForm, self).__init__(*args, **kwargs)
