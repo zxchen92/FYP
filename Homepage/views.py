@@ -186,7 +186,7 @@ def user_home(request):
 def business_home(request):
 	user_type = UserType.objects.get(user=request.user)
 	context = {'user_type': user_type}
-	return render(request, 'landing.html', context)
+	return render(request, 'businesshome.html', context)
 #not yet done
 def search_users(request):
 	users = User.objects.all()
