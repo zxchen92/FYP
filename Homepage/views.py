@@ -135,7 +135,8 @@ def food_category(request):
 def add_food_category(request):
 	if request.method == 'POST':
 		form = FoodCategoryForm(request.POST or None, request=request)
-
+		print(form)
+		sys.stdout.flush()
 		if form.is_valid():
 			form.save()
 			messages.success(request, ("Food Category has been added!"))
@@ -186,3 +187,9 @@ def business_home(request):
 	user_type = UserType.objects.get(user=request.user)
 	context = {'user_type': user_type}
 	return render(request, 'landing.html', context)
+#not yet done
+def search_users(request):
+	users = User.objects.all()
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type, 'users':users}
+	return render(request, 'searchusers.html', context)

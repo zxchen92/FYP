@@ -23,7 +23,7 @@
 	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 	    <ul class="navbar-nav mr-auto">
 	      
-
+    		<!-- links to the left -->
 	      {% if user.is_authenticated %}
 					{% if user_type.userType == 'admin' %}
 					<!-- links that admins should see -->
@@ -35,6 +35,9 @@
 				  </li>
 				  <li class="nav-item active">
 					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+					  <a class="nav-link" href="{% url 'searchusers' %}">Users <span class="sr-only">(current)</span></a>
 					</li>
 
 					{% elif user_type.userType == 'user' %}
@@ -56,7 +59,7 @@
 
 					
 					<li class="nav-item active">
-					    <a class="nav-link" href="{% url 'registeredBusinesses' %}">Registered Businesses <span class="sr-only">(current)</span></a>
+					    <a class="nav-link" href="{% url 'registeredBusinesses' %}">Businesses <span class="sr-only">(current)</span></a>
 				  </li>
 
 					{% if user_type.userType == 'admin' %}
@@ -73,7 +76,7 @@
 	      {% endif %}
 
 	    </ul>
-
+    	<!-- Links to the right -->
 	    <ul class="navbar-nav ml-auto">
 	    	<li class="nav-item">
 	        <a class="nav-link" href="{% url 'about' %}">About <span class="sr-only">(current)</span></a>
