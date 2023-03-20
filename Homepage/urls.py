@@ -20,4 +20,5 @@ urlpatterns = [
 	path('userhome',views.user_home ,name='userhome'),
 	path('businesshome',views.business_home ,name='businesshome'),
 	path('searchusers',views.search_users ,name='searchusers'),
+	path('userpromotion',views.user_promotion ,name='userpromotion'),
 ]
