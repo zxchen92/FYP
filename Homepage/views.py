@@ -193,3 +193,9 @@ def search_users(request):
 	user_type = UserType.objects.get(user=request.user)
 	context = {'user_type': user_type, 'users':users}
 	return render(request, 'searchusers.html', context)
+
+def user_promotion(request):
+	users = User.objects.all()
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type, 'users':users}
+	return render(request, 'userpromotion.html', context)
