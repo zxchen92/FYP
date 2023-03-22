@@ -153,8 +153,12 @@ def delete_food_category(request, food_category_id):
 	return redirect(food_category)
 
 def recommender_page(request):
+	user_profile = None
 	user_type = UserType.objects.get(user=request.user)
-	context = {'user_type': user_type}
+	if user_type.userType == 'user':
+		user_profile = UserProfile.objects.get(user=request.user)
+	foodCategory = FoodCategory.objects.all()
+	context = {'user_type': user_type, 'foodCategory':foodCategory, 'user_profile':user_profile}
 	return render(request, 'recommender.html', context)
 
 def customer_support(request):
