@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Ta da!</h1>
+<br>
+<h2>Here's your recommendation for today!</h2>
+<br>
+<h3>It's Curry chicken noodles!!</h3>
+<br>
+
+<table class="table table-striped table-bordered table-hover">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Hawkers</th>
+      <th scope="col">Postal Code</th>
+      <th scope="col">Ratings(out of 5)</th>
+    </tr>
+  </thead>
+  <tbody id="Category">
+    
+
+        <tr>
+        <th scope="row">Ah Hock Noodles</th>
+        <td>Maxwell Foodcourt</td>
+        <td>4.5 stars</td>
+        </tr>
+
+
+  </tbody>
+</table>
+
+<!-- <div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="d-flex flex-column align-items-center">
+
+        <a href="#" class="list-group-item list-group-item-action active text-center" aria-current="true">View your past Ratings!</a>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<script>
+$(document).ready(function(){
+  $("#searchCategory").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#Category tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+{% endblock %}
