@@ -18,7 +18,7 @@ location_options = [
 		('5', 'Central'),
     ]
 
-foodCategory = FoodCategory.objects.all()
+
 
 def landing(request):
 	context = {}
@@ -83,6 +83,7 @@ def register(request):
 	return render(request, 'register.html', {})
 
 def register_user(request):
+	foodCategory = FoodCategory.objects.all()
 	form = UserRegistrationForm(request.POST or None, request=request)
 	if request.method == 'POST':
 		if form.is_valid():
@@ -104,6 +105,7 @@ def register_user(request):
 	return render(request, 'registeruser.html', {'foodCategory':foodCategory,'form':form})
 
 def register_business(request):
+	foodCategory = FoodCategory.objects.all()
 	form = BusinessRegistrationForm(request.POST or None, request=request)
 	if request.method == 'POST':
 		if form.is_valid():
@@ -127,7 +129,7 @@ def register_business(request):
 def food_category(request):
 	user_type = UserType.objects.get(user=request.user)
 	form = FoodCategoryForm()
-
+	foodCategory = FoodCategory.objects.all()
 	context = {'user_type': user_type, 'foodCategory':foodCategory,'form':form}
 	return render(request, 'foodcategory.html', context)
 
@@ -154,9 +156,9 @@ def delete_food_category(request, food_category_id):
 def recommender_page(request):
 	user_profile = None
 	user_type = UserType.objects.get(user=request.user)
+	foodCategory = FoodCategory.objects.all()
 	if user_type.userType == 'user':
 		user_profile = UserProfile.objects.get(user=request.user)
-	
 	context = {'user_type': user_type, 'foodCategory':foodCategory, 'user_profile':user_profile}
 	return render(request, 'recommender.html', context)
 
