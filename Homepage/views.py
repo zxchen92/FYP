@@ -203,3 +203,7 @@ def user_promotion(request):
 	user_type = UserType.objects.get(user=request.user)
 	context = {'user_type': user_type, 'users':users}
 	return render(request, 'userpromotion.html', context)
+
+def recommenderresults(request):
+	
+	return render(request, 'recommenderresults.html')
