@@ -22,7 +22,7 @@
   	{% if businesses %}
   		{% for item in businesses%}
   			<tr>
-  			<th scope="row">{{ item.companyName }}</th>
+        <th scope="row"><a href="{% url 'viewbusinessprofile'%}">{{ item.companyName }}</a></th>
   			<td>{{item.address}} {{item.postalCode}}</td>
   			<td>{{item.foodCategory.categoryName}}</td>
   			</tr>

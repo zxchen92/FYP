@@ -28,6 +28,14 @@
     justify-content: center;
     height: 100%;
   }
+  .list-group-item.disabled {
+  pointer-events: none;
+  cursor: default;
+  color: #999;
+  background-color: #f8f9fa;
+  border-color: #999;
+}
+
 </style>
 
 <div class="container container-vertical-line">
@@ -60,7 +68,7 @@
   <div class="row">
     <div class="col-md-6">
       <div class="d-flex flex-column align-items-center">
-        <select class="custom-select custom-select-lg mb-3" value="{{user_profile.foodCategory.categoryName}}">
+        <select id="food-category-select" class="custom-select custom-select-lg mb-3" value="{{user_profile.foodCategory.categoryName}}">
           <option selected>Select your prefered food genre</option>
             {% if foodCategory %}
             {% for item in foodCategory %}
@@ -68,7 +76,7 @@
             {% endfor %}
           {% endif %}
         </select>
-        <a href="{% url 'recommenderresults' %}" class="list-group-item list-group-item-action active text-center" aria-current="true">Recommend me!</a>
+        <a id="recommendation-link" href="{% url 'recommenderresults' %}" class="list-group-item list-group-item-action active text-center disabled" aria-current="true">Recommend me!</a>
       </div>
     </div>
     <div class="col-md-6 d-flex align-items-end">
@@ -76,5 +84,32 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Get the select and link elements by their ids
+  const foodCategorySelect = document.getElementById("food-category-select");
+  const recommendationLink = document.getElementById("recommendation-link");
+
+  // Function to enable or disable the link based on the selected value
+  function updateLinkState() {
+    if (foodCategorySelect.value != 'Select your prefered food genre') {
+      recommendationLink.classList.remove("disabled");
+    } else {
+      recommendationLink.classList.add("disabled");
+    }
+  }
+
+  // Call the function initially to set the correct state on page load
+  updateLinkState();
+
+  // Add an event listener to the select element to update the link state when the value changes
+  foodCategorySelect.addEventListener("change", updateLinkState);
+  
+  recommendationLink.addEventListener("click", function (event) {
+    if (recommendationLink.classList.contains("disabled")) {
+      event.preventDefault();
+    }
+  });
+</script>
 
 {% endblock %}

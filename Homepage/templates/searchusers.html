@@ -20,7 +20,7 @@
     {% if users %}
       {% for item in users%}
         <tr>
-        <th scope="row"><a href="">{{ item.username }}</a></th>
+        <th scope="row"><a href="{% url 'viewuserprofile'%}">{{ item.username }}</a></th>
         {% if item.is_active%}
           <td>Enabled</td>
         {% else %}

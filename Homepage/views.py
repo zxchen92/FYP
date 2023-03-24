@@ -10,6 +10,16 @@ from .forms import FoodCategoryForm, UserRegistrationForm, BusinessRegistrationF
 
 import sys
 
+location_options = [
+        ('1', 'North'),
+		('2', 'South'),
+		('3', 'East'),
+		('4', 'West'),
+		('5', 'Central'),
+    ]
+
+foodCategory = FoodCategory.objects.all()
+
 def landing(request):
 	context = {}
 	if request.user.is_authenticated:
@@ -55,14 +65,6 @@ def logout_user(request):
 
 def user_profile(request):
 	context = {}
-	foodCategory = FoodCategory.objects.all()
-	location_options = [
-        ('1', 'North'),
-		('2', 'South'),
-		('3', 'East'),
-		('4', 'West'),
-		('5', 'Central'),
-    ]
 	if request.user.is_authenticated:
 		user_type = UserType.objects.get(user=request.user)
 		context = {'user_type':user_type}
@@ -81,7 +83,6 @@ def register(request):
 	return render(request, 'register.html', {})
 
 def register_user(request):
-	foodCategory = FoodCategory.objects.all()
 	form = UserRegistrationForm(request.POST or None, request=request)
 	if request.method == 'POST':
 		if form.is_valid():
@@ -103,7 +104,6 @@ def register_user(request):
 	return render(request, 'registeruser.html', {'foodCategory':foodCategory,'form':form})
 
 def register_business(request):
-	foodCategory = FoodCategory.objects.all()
 	form = BusinessRegistrationForm(request.POST or None, request=request)
 	if request.method == 'POST':
 		if form.is_valid():
@@ -126,7 +126,6 @@ def register_business(request):
 
 def food_category(request):
 	user_type = UserType.objects.get(user=request.user)
-	foodCategory = FoodCategory.objects.all()
 	form = FoodCategoryForm()
 
 	context = {'user_type': user_type, 'foodCategory':foodCategory,'form':form}
@@ -157,7 +156,7 @@ def recommender_page(request):
 	user_type = UserType.objects.get(user=request.user)
 	if user_type.userType == 'user':
 		user_profile = UserProfile.objects.get(user=request.user)
-	foodCategory = FoodCategory.objects.all()
+	
 	context = {'user_type': user_type, 'foodCategory':foodCategory, 'user_profile':user_profile}
 	return render(request, 'recommender.html', context)
 
@@ -204,6 +203,16 @@ def user_promotion(request):
 	context = {'user_type': user_type, 'users':users}
 	return render(request, 'userpromotion.html', context)
 
-def recommenderresults(request):
+def recommender_results(request):
 	
 	return render(request, 'recommenderresults.html')
+
+def view_user_profile(request):
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type, 'foodCategory':foodCategory, 'location_options':location_options}
+	return render(request, 'viewuserprofile.html', context)
+
+def view_business_profile(request):
+	user_type = UserType.objects.get(user=request.user)
+	context = {'user_type': user_type, 'foodCategory':foodCategory, 'location_options':location_options}
+	return render(request, 'viewbusinessprofile.html', context)
