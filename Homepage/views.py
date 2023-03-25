@@ -212,10 +212,12 @@ def recommender_results(request):
 
 def view_user_profile(request):
 	user_type = UserType.objects.get(user=request.user)
+	foodCategory = FoodCategory.objects.all()
 	context = {'user_type': user_type, 'foodCategory':foodCategory, 'location_options':location_options}
 	return render(request, 'viewuserprofile.html', context)
 
 def view_business_profile(request):
 	user_type = UserType.objects.get(user=request.user)
+	foodCategory = FoodCategory.objects.all()
 	context = {'user_type': user_type, 'foodCategory':foodCategory, 'location_options':location_options}
 	return render(request, 'viewbusinessprofile.html', context)
