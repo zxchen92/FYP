@@ -65,6 +65,7 @@ def logout_user(request):
 
 def user_profile(request):
 	context = {}
+	foodCategory = FoodCategory.objects.all()
 	if request.user.is_authenticated:
 		user_type = UserType.objects.get(user=request.user)
 		context = {'user_type':user_type}
