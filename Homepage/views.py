@@ -18,7 +18,10 @@ location_options = [
 		('5', 'Central'),
     ]
 
-
+gender_options = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+    ]
 
 def landing(request):
 	context = {}
@@ -71,7 +74,7 @@ def user_profile(request):
 		context = {'user_type':user_type}
 		if user_type.userType == 'user':
 			user_profile = UserProfile.objects.get(user=request.user)
-			context = {'foodCategory':foodCategory, 'user_type':user_type, 'user_profile':user_profile, 'location_options': location_options}
+			context = {'foodCategory':foodCategory, 'user_type':user_type, 'user_profile':user_profile, 'location_options': location_options, 'gender_options':gender_options}
 		if user_type.userType == 'business':
 			business_profile = BusinessProfile.objects.get(user=request.user)
 			context = {'foodCategory':foodCategory, 'user_type':user_type, 'business_profile':business_profile}
@@ -213,7 +216,7 @@ def recommender_results(request):
 def view_user_profile(request):
 	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
-	context = {'user_type': user_type, 'foodCategory':foodCategory, 'location_options':location_options}
+	context = {'user_type': user_type, 'foodCategory':foodCategory, 'location_options':location_options, 'gender_options':gender_options}
 	return render(request, 'viewuserprofile.html', context)
 
 def view_business_profile(request):
