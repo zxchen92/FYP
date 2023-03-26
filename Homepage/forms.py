@@ -34,6 +34,12 @@ class UserRegistrationForm(forms.Form):
 		('4', 'West'),
 		('5', 'Central'),
 	]
+	GENDER_CHOICES = [
+		('', 'Please Choose One'),
+        ('M', 'Male'),
+        ('F', 'Female'),
+    ]
+
 	first_name = forms.CharField(max_length=30)
 	last_name = forms.CharField(max_length=30)
 	age = forms.IntegerField()
@@ -44,6 +50,7 @@ class UserRegistrationForm(forms.Form):
 	food_category = forms.ModelChoiceField(queryset=FoodCategory.objects.all())
 	username = forms.CharField(max_length=30)
 	password = forms.CharField(widget=forms.PasswordInput)
+	gender = forms.ChoiceField(choices=GENDER_CHOICES, label='Gender')
 
 	def __init__(self, *args, **kwargs):
 		self.request = kwargs.pop('request', None)
@@ -54,6 +61,12 @@ class UserRegistrationForm(forms.Form):
 		if not preferred_location:
 			raise forms.ValidationError("Please select a valid location.")
 		return preferred_location
+
+	def clean_gender(self):
+		gender = self.cleaned_data.get('gender')
+		if not gender:
+			raise forms.ValidationError("Please select a valid gender.")
+		return gender
 
 	def clean_phone(self):
 		phone = self.cleaned_data.get('phone')
@@ -77,7 +90,8 @@ class UserRegistrationForm(forms.Form):
 			phone=self.cleaned_data['phone'],
 			favFood=self.cleaned_data['favorite_food'],
 			prefLocation=self.cleaned_data['preferred_location'],
-			foodCategory=self.cleaned_data['food_category']
+			foodCategory=self.cleaned_data['food_category'],
+			gender=self.cleaned_data['gender']
 		)
 
 		user_type = UserType.objects.create(

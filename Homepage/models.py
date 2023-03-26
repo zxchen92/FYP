@@ -25,22 +25,26 @@ class UserType(models.Model):
 
 class UserProfile(models.Model):
 	locations = [
-		('', '---------'),
 		('1', 'North'),
 		('2', 'South'),
 		('3', 'East'),
 		('4', 'West'),
 		('5', 'Central'),
 	]
+	GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+    ]
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	age = models.IntegerField()
 	phone = models.CharField(max_length=8)
 	favFood = models.CharField(max_length=30)
 	prefLocation = models.CharField(max_length=30, choices=locations)
 	foodCategory = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name='user_food_category')
+	gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name='Gender')
 
 	def __str__(self):
-		return f"{self.user.username}'s profile: age {self.age}, phone {self.phone}, favorite food {self.favFood}, preferred location {self.prefLocation}, food category {self.foodCategory}"
+		return f"{self.user.username}'s profile: age {self.age}, phone {self.phone}, favorite food {self.favFood}, preferred location {self.prefLocation}, food category {self.foodCategory}, gender {self.gender}"
 
 class BusinessProfile(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
