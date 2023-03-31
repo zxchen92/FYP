@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import FoodCategory, UserType, UserProfile, BusinessProfile
+from .models import FoodCategory, UserType, UserProfile, BusinessProfile, Rating
 
 class FoodCategoryForm(forms.ModelForm):
 	categoryName = forms.CharField(max_length=30)
@@ -150,3 +150,8 @@ class BusinessRegistrationForm(forms.Form):
 		)
 
 		return (user, business_profile, user_type)
+
+class RatingForm(forms.ModelForm):
+    class Meta:
+        model = Rating
+        fields = ['user', 'food', 'rating']

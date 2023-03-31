@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 # Create your models here.
@@ -38,7 +39,7 @@ class UserProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	age = models.IntegerField()
 	phone = models.CharField(max_length=8)
-	favFood = models.CharField(max_length=30)
+	favFood = models.CharField(max_length=50)
 	prefLocation = models.CharField(max_length=30, choices=locations)
 	foodCategory = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name='user_food_category')
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name='Gender')
@@ -57,3 +58,11 @@ class BusinessProfile(models.Model):
 
 	def __str__(self):
 		return f"{self.companyName}'s profile: uen {self.uen}, phone {self.phone}, address {self.address}, postal code {self.postalCode}, food category {self.foodCategory}"
+
+class Rating(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	food = models.CharField(max_length=50)
+	rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
+	def __str__(self):
+		return f"{self.user.username} - {self.food} - {self.rating}"

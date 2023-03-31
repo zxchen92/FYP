@@ -5,7 +5,26 @@
 <br>
 <h2>Here's your recommendation for today!</h2>
 <br>
-<h3>It's Curry chicken noodles!!</h3>
+
+<form action="{% url 'rate' %}" method="post" id="rating-form">
+  <h3>It's <h1 class = "recommenderResults">{{ recommended_food }}!!</h1> </h3>
+  {% csrf_token %}
+  <div class="star-rating">
+    <input type="radio" id="rating-5" name="rating" value="5">
+    <label for="rating-5">5</label>
+    <input type="radio" id="rating-4" name="rating" value="4">
+    <label for="rating-4">4</label>
+    <input type="radio" id="rating-3" name="rating" value="3">
+    <label for="rating-3">3</label>
+    <input type="radio" id="rating-2" name="rating" value="2">
+    <label for="rating-2">2</label>
+    <input type="radio" id="rating-1" name="rating" value="1">
+    <label for="rating-1">1</label>
+  </div>
+  <br>
+  <input type="hidden" id="food" name="food" value="{{ recommended_food }}">
+  <button type="submit">Submit</button>
+</form>
 <br>
 
 <table class="table table-striped table-bordered table-hover">
@@ -49,6 +68,13 @@ $(document).ready(function(){
     });
   });
 });
+
+document.querySelectorAll('input[name="rating"]').forEach(function(radio) {
+    radio.addEventListener('change', function(event) {
+      console.log('Selected rating: ' + event.target.value);
+    });
+  });
+
 </script>
 
 {% endblock %}
