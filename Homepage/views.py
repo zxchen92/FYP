@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -42,9 +43,6 @@ def login_user(request):
 		username = request.POST['username']
 		password = request.POST['password']
 		user = authenticate(request, username=username, password=password)
-		print('zx')
-		print(user)
-		sys.stdout.flush()
 		if user is not None:
 			login(request, user)
 			messages.success(request,('Login succesful!'))
@@ -140,8 +138,6 @@ def food_category(request):
 def add_food_category(request):
 	if request.method == 'POST':
 		form = FoodCategoryForm(request.POST or None, request=request)
-		print(form)
-		sys.stdout.flush()
 		if form.is_valid():
 			form.save()
 			messages.success(request, ("Food Category has been added!"))
@@ -161,9 +157,17 @@ def recommender_page(request):
 	user_profile = None
 	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
+	has_rating = Rating.objects.filter(user=request.user).count() > 0
+
 	if user_type.userType == 'user':
 		user_profile = UserProfile.objects.get(user=request.user)
-	context = {'user_type': user_type, 'foodCategory':foodCategory, 'user_profile':user_profile}
+
+	context = {
+		'user_type': user_type, 
+		'foodCategory':foodCategory, 
+		'user_profile':user_profile,
+		'has_rating':has_rating,
+		}
 	return render(request, 'recommender.html', context)
 
 def customer_support(request):
@@ -261,3 +265,42 @@ def create_rating(request):
 		else:
 			messages.error(request,('Please select a rating and try again!'))
 	return render(request, 'recommenderresults.html', context)
+
+def food_quiz(request):
+	foodQuizList = [
+        ('Nasi Lemak'),
+		('Fried Chicken'),
+		('Chicken Rice'),
+		('Chao Kway Tiao'),
+		('Mixed Veg Rice'),
+		('Mala'),
+		('Nasi Biryani'),
+		('Rojak'),
+		('Mc Chicken'),
+		('Dim Sum'),
+    ]
+	user_type = UserType.objects.get(user=request.user)
+	has_rating = Rating.objects.filter(user=request.user).count() > 0
+
+	context = {
+		"foodQuizList": foodQuizList,
+		"user_type": user_type,
+	}
+	if not has_rating:
+		messages.warning(request, ('Please complete the Food Quiz before using the recommender for the first time!'))
+
+	if request.method == 'POST':
+		user = request.user
+		for i in range(1,11):
+			food = request.POST.get(f'food-{i}')
+			rating_value = request.POST.get(f'rating-{i}')
+			if rating_value is not None:
+				rating_value = int(rating_value)
+				if 1 <= rating_value <= 5:
+					rating, created = Rating.objects.get_or_create(user=user, food=food, defaults={'rating': rating_value})
+					rating.rating = rating_value
+					rating.save()
+		messages.success(request, ('Successfully rated! We will take these ratings into account in your next reccomendation!'))
+		return render(request, 'foodquiz.html', context)
+	
+	return render(request, 'foodquiz.html', context)

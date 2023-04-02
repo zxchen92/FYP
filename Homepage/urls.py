@@ -25,4 +25,5 @@ urlpatterns = [
 	path('viewuserprofile',views.view_user_profile ,name='viewuserprofile'),
 	path('viewbusinessprofile',views.view_business_profile ,name='viewbusinessprofile'),
 	path('recommenderresults/rate',views.create_rating, name='rate'),
+	path('foodquiz',views.food_quiz, name ='foodquiz'),
 ]
