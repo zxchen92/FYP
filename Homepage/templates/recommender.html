@@ -71,16 +71,16 @@
         <select id="food-category-select" class="custom-select custom-select-lg mb-3" value="{{user_profile.foodCategory.categoryName}}">
           <option selected>Select your prefered food genre</option>
             {% if foodCategory %}
-            {% for item in foodCategory %}
-              <option value="{{ item.pk }}" {% if user_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
-            {% endfor %}
-          {% endif %}
+              {% for item in foodCategory %}
+                <option value="{{ item.pk }}" {% if user_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
+              {% endfor %}
+            {% endif %}
         </select>
         <a id="recommendation-link" href="{% url 'recommenderresults' %}" class="list-group-item list-group-item-action active text-center disabled" aria-current="true">Recommend me!</a>
       </div>
     </div>
     <div class="col-md-6 d-flex align-items-end">
-      <a href="{% url 'recommenderresults' %}" class="list-group-item list-group-item-action active text-center" aria-current="true">Recommend me!</a>
+        <a href="{% if has_rating %} {% url 'recommenderresults' %} {% else %} {% url 'foodquiz' %} {%endif%}" class="list-group-item list-group-item-action active text-center" aria-current="true">Recommend me!</a>
     </div>
   </div>
 </div>

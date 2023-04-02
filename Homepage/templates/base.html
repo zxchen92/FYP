@@ -86,14 +86,17 @@
 
 					{% elif user_type.userType == 'user' %}
 					<!-- links that regular users should see -->
-		      <li class="nav-item active">
+		      		<li class="nav-item active">
 					  <a class="nav-link" href="{% url 'userhome' %}">Home <span class="sr-only">(current)</span></a>
 					</li>
-		      <li class="nav-item active">
+		      		<li class="nav-item active">
 					  <a class="nav-link" href="{% url 'userpromotion' %}">Promotion <span class="sr-only">(current)</span></a>
 					</li>					
 					<li class="nav-item active">
 					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="{% url 'foodquiz' %}">Food Quiz <span class="sr-only">(current)</span></a>
 					</li>
 
 					{% elif user_type.userType == 'business'%}
@@ -156,7 +159,7 @@
 	<div class="container">
 		{% if messages %}
 		  {% for message in messages %}
-		    <div class="alert {% if message.tags %}{% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}{% endif %} alert-dismissable" role="alert" style=" top: 10px; left: 0; right: 0; margin: 0 auto; z-index: 9999; width: 500px; padding: 5px 10px;">
+		  	<div class="alert {% if message.tags %}{% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}{% endif %} alert-dismissable" role="alert" style=" top: 10px; left: 0; right: 0; margin: 0 auto; z-index: 9999; width: 500px; padding: 5px 10px;">
 
 		      <button class="close" data-dismiss="alert">
 		        <small><sup>x</sup></small>
