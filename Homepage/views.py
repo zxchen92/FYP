@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 
 from .models import FoodCategory, UserType, UserProfile, BusinessProfile, Rating
-from .forms import FoodCategoryForm, UserRegistrationForm, BusinessRegistrationForm, RatingForm, UserUpdateForm
+from .forms import FoodCategoryForm, UserRegistrationForm, BusinessRegistrationForm, RatingForm, UserUpdateForm, BusinessUpdateForm
 
 
 import sys
@@ -354,7 +354,7 @@ def update_user_profile(request):
 			user_profile.save()
 
 			messages.success(request, 'Your profile has been updated successfully.')
-			return redirect('profile')  # Change this to the URL you want to redirect the user to after updating
+			return redirect('profile')
 		else:
 			messages.error(request, 'There was an error updating your profile. Please check your input.')
 	else:
@@ -369,6 +369,53 @@ def update_user_profile(request):
 			'food_category': request.user.userprofile.foodCategory,
 			'username': request.user.username,
 			'gender': request.user.userprofile.gender,
+		})
+
+	context = {'form': form}
+	return render(request, 'userprofile.html', context)
+
+@login_required
+def update_business_profile(request):
+	if request.method == 'POST':
+		form = BusinessUpdateForm(request.POST)
+		print("zx form.is_valid(): "+str(form.is_valid()),flush=True)
+		print("Form errors: ", form.errors, flush=True)
+		if form.is_valid():
+			request.user.first_name = form.cleaned_data['first_name']
+			request.user.last_name = form.cleaned_data['last_name']
+			request.user.email = form.cleaned_data['email']
+			request.user.username = form.cleaned_data['username']
+			if form.cleaned_data['password']:
+				request.user.set_password(form.cleaned_data['password'])
+			request.user.save()
+
+			if form.cleaned_data['password']:
+				login(request, request.user)
+
+			business_profile, created = BusinessProfile.objects.get_or_create(user=request.user)
+			business_profile.companyName = form.cleaned_data['company_name']
+			business_profile.phone = form.cleaned_data['phone']
+			business_profile.address = form.cleaned_data['address']
+			business_profile.postalCode = form.cleaned_data['postal_code']
+			business_profile.foodCategory = form.cleaned_data['food_category']
+			business_profile.save()
+
+			messages.success(request, 'Your business profile has been updated successfully.')
+			return redirect('profile')
+		else:
+			messages.error(request, 'There was an error updating your business profile. Please check your input.')
+	else:
+		form = BusinessRegistrationForm(initial={
+			'company_name': request.user.businessprofile.companyName,
+			'uen': request.user.businessprofile.uen,
+			'first_name': request.user.first_name,
+			'last_name': request.user.last_name,
+			'email': request.user.email,
+			'phone': request.user.businessprofile.phone,
+			'address': request.user.businessprofile.address,
+			'postal_code': request.user.businessprofile.postalCode,
+			'food_category': request.user.businessprofile.foodCategory,
+			'username': request.user.username,
 		})
 
 	context = {'form': form}

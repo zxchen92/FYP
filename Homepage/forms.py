@@ -124,6 +124,7 @@ class BusinessRegistrationForm(forms.Form):
 
 	def __init__(self, *args, **kwargs):
 		self.request = kwargs.pop('request', None)
+		self.business_profile = kwargs.pop('business_profile', None)
 		super(BusinessRegistrationForm, self).__init__(*args, **kwargs)
 
 	def clean_phone(self):
@@ -158,6 +159,23 @@ class BusinessRegistrationForm(forms.Form):
 		)
 
 		return (user, business_profile, user_type)
+
+class BusinessUpdateForm(BusinessRegistrationForm):
+	password = forms.CharField(
+		widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+		required=False,
+		help_text="Leave this field empty if you don't want to change the password.",
+	)
+	class Meta:
+		model = BusinessProfile
+		exclude = ['uen']
+		widgets = {
+			'company_name': forms.TextInput(attrs={'class': 'form-control'}),
+			'phone': forms.TextInput(attrs={'class': 'form-control'}),
+			'address': forms.TextInput(attrs={'class': 'form-control'}),
+			'postal_code': forms.TextInput(attrs={'class': 'form-control'}),
+			'food_category': forms.Select(attrs={'class': 'custom-select custom-select-lg mb-3'}),
+		}
 
 class RatingForm(forms.ModelForm):
     class Meta:
