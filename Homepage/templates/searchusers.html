@@ -22,9 +22,9 @@
         <tr>
           <th scope="row"><a href="{% url 'viewuserprofile' item.id %}">{{ item.username }}</a></th>
           {% if item.is_active %}
-            <td>Enabled</td>
+            <td>Active</td>
           {% else %}
-            <td>Disabled</td>
+            <td>Deactivated</td>
           {% endif %}
         </tr>
       {% endfor %}
