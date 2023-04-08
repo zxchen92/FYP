@@ -28,4 +28,5 @@ urlpatterns = [
 	path('foodquiz',views.food_quiz, name ='foodquiz'),
 	path('updateuser',views.update_user_profile, name ='updateuser'),
 	path('updatebusiness',views.update_business_profile, name ='updatebusiness'),
+	path('updateadmin',views.update_admin_profile, name ='updateadmin'),
 ]

@@ -372,7 +372,7 @@ def update_user_profile(request):
 		})
 
 	context = {'form': form}
-	return render(request, 'userprofile.html', context)
+	return redirect('profile')
 
 @login_required
 def update_business_profile(request):
@@ -419,4 +419,35 @@ def update_business_profile(request):
 		})
 
 	context = {'form': form}
-	return render(request, 'userprofile.html', context)
+	return redirect('profile')
+
+@login_required
+def update_admin_profile(request):
+	if request.method == 'POST':
+		first_name = request.POST['first_name']
+		last_name = request.POST['last_name']
+		email = request.POST['email']
+		username = request.POST['username']
+		password = request.POST['password']
+
+		# Update the user's information
+		user = request.user
+		user.first_name = first_name
+		user.last_name = last_name
+		user.email = email
+		user.username = username
+
+		# Update the password only if it's not empty
+		if password:
+			user.set_password(password)
+			login(request, request.user)
+
+		user.save()
+
+		messages.success(request, 'Your profile has been updated successfully.')
+		return redirect('updateadmin')  # Replace with the URL name for your update admin page
+
+	context = {
+		'user': request.user,
+	}
+	return redirect('profile')

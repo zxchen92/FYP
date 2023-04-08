@@ -5,7 +5,7 @@
 <br>
 {% if user.is_authenticated %}
 	{% if user_type.userType == 'admin' %}
-	<form method="post" action="{% url 'updateuser' %}">
+	<form method="post" action="{% url 'updateadmin' %}">
 		{% csrf_token %}
 			<div class="form-row">
 				<div class="form-group col-md-3">
