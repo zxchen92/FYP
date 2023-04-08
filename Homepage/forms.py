@@ -54,6 +54,7 @@ class UserRegistrationForm(forms.Form):
 
 	def __init__(self, *args, **kwargs):
 		self.request = kwargs.pop('request', None)
+		self.user_profile = kwargs.pop('user_profile', None)
 		super(UserRegistrationForm, self).__init__(*args, **kwargs)
 
 	def clean_preferred_location(self):
@@ -100,6 +101,13 @@ class UserRegistrationForm(forms.Form):
 		)
 
 		return (user, user_profile, user_type)
+
+class UserUpdateForm(UserRegistrationForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=False,
+        help_text="Leave this field empty if you don't want to change the password.",
+    )
 
 class BusinessRegistrationForm(forms.Form):
 	company_name = forms.CharField(max_length=50)
