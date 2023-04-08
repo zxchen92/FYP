@@ -1,157 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-<title>User Profile</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-* {
-  box-sizing: border-box;
-  font-family: Helvetica, sans-serif;
-}
-
-body {
-  margin: 0;
-  font-family: Helvetica, sans-serif;
-}
-
-h2 {
-  background-color: #08B3E5;
-  color: white;
-  padding: 15px;
-  margin-top: 55px;
-  margin-left: 25%;
-  margin-right: 25%;
-  margin-bottom: 55px;
-  text-align: center;
-  border-radius: 10px;
-}
-
-h3 {
-  margin-left: 15%;
-  margin-right: 100%;
-}
-
-table {
-  width: 80%;
-  padding: 15px;
-  border-spacing: 25px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-
-td {
-  padding: 3%;
-  background: #fff;
-  border-radius: 15px;
-}
-
-/* Style the content */
-.profile {
-  background-color: #F4FAFB;
-  padding: 15px;
-  margin-top: 55px;
-  margin-left: 5%;
-  margin-right: 5%;
-  margin-bottom: 55px;
-  text-align: center;
-  border-radius: 15px;
-}
-
-#updateAccount {
-    color: white;
-    background-color: #77D;
-    border-radius: 10px;
-    border-color: transparent;
-    padding: 10px;
-    height: 40px;
-    width: 135px;
-    font-size: 15px;
-    margin-bottom: 10px;
-}
-
-#deleteAccount {
-    color: white;
-    background-color: #E66360;
-    border-radius: 10px;
-    border-color: transparent;
-    padding: 10px;
-    height: 40px;
-    width: 135px;
-    font-size: 15px;
-}
-
-</style>
-</head>
-<body>
 
 
-<div class="profile">
-<h2>Username</h2>
-<h3><u>Details</u></h3>
-  <table>
-    <tr>
-    <th>Gender</th>
-    <th>Birthday</th>
-  </tr>
-  <tr>
-    <td>Male</td>
-    <td>1 Jan 2023</td>
-  </tr>
-    <th>Favorite Food</th>
-    </tr>
-    <tr>
-    <td>Chicken Rice</td>
-  </tr>
-  </table>
-<h3><u>Contact</u></h3>
-  <table>
-  	<tr>
-    <th>Email</th>
-    <th>Mobile</th>
-  </tr>
-  	<tr>
-    <td>xxx@hotmail.com</td>
-    <td>+65 9123 4567</td>
-  </tr>
-    <tr>
-    <th>Postal Code</th>
-  </tr>
-  	<tr>
-    <td>123456</td>
-  </tr>
-</table>
-<button type="button" id="updateAccount">Update</button>
-<button type="button" id="deleteAccount">Delete Account</button>
-</div>
-
-</body>
-</html> -->
-
-<form method="post" action="{% url 'updateuser' %}">
+<form method="post" action="{% url 'updateuser' user_id=selected_user.id %}">
   {% csrf_token %}
   <div class="form-row">
     <div class="form-group col-md-4">
       <label for="first_name">First Name</label>
-      <input type="text" class="form-control" id="first_name" name="first_name" placeholder="eg. John" value="test">
+      <input type="text" class="form-control" id="first_name" name="first_name" placeholder="eg. John" value="{{ selected_user.first_name }}">
     </div>
     <div class="form-group col-md-4">
       <label for="last_name">Last Name</label>
-      <input type="text" class="form-control" id="last_name" name="last_name" placeholder="eg. Doe">
+      <input type="text" class="form-control" id="last_name" name="last_name" placeholder="eg. Doe" value="{{ selected_user.last_name }}">
     </div>
     <div class="form-group col-md-2">
       <label for="age">Age:</label>
-      <input type="number" id="age" name="age" min="18" max="99" step="1" class="form-control">
+      <input type="number" id="age" name="age" min="18" max="99" step="1" class="form-control" value="{{ selected_user_profile.age }}">
     </div>
     <div class="form-group col-md-2">
       <label for="gender">Gender</label>
       <select class="custom-select"name="gender" >
           <option selected>Gender</option>
           {% for value, label in gender_options %}
-              <option value="{{ value }}" {% if user_profile.gender == value %}selected{% endif %}>{{ label }}</option>
+              <option value="{{ value }}" {% if selected_user_profile.gender == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
       </select>
     </div>
@@ -160,16 +31,16 @@ td {
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="email">Email</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com">
+      <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" value="{{ selected_user.email }}">
     </div>
     <div class="form-group col-md-6">
       <label for="phone">Phone Number</label>
-      <input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678">
+      <input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" value="{{ selected_user_profile.phone }}">
     </div>
   </div>
     <div class="form-group">
       <label for="favorite_food">Favourite food</label>
-      <input type="text" class="form-control" id="favorite_food" name="favorite_food" placeholder="eg. Duck Rice">
+      <input type="text" class="form-control" id="favorite_food" name="favorite_food" placeholder="eg. Duck Rice" value="{{ selected_user_profile.favFood }}">
     </div>
     <div class="form-row">
     <div class="form-group col-md-6">
@@ -177,17 +48,17 @@ td {
       <select class="custom-select custom-select-lg mb-3" id="preferred_location" name="preferred_location">
         <option selected>Select your preferred Location</option>
           {% for value, label in location_options %}
-              <option value="{{ value }}" {% if label == 'North' %}selected{% endif %}>{{ label }}</option>
+            <option value="{{ value }}" {% if selected_user_profile.prefLocation == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
       </select>
     </div>
     <div class="form-group col-md-6">
       <label for="food_category">Food Genre</label>
-      <select class="custom-select custom-select-lg mb-3" id="food_category" name="food_category" value="{{user_profile.foodCategory.categoryName}}">
+      <select class="custom-select custom-select-lg mb-3" id="food_category" name="food_category" value="{{selected_user_profile.foodCategory.categoryName}}">
         <option selected>Select your prefered food genre</option>
           {% if foodCategory %}
           {% for item in foodCategory %}
-            <option value="{{ item.pk }}" {% if item.categoryName == 'Western' %}selected{% endif %}>{{ item.categoryName }}</option>
+          <option value="{{ item.pk }}" {% if selected_user_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
           {% endfor %}
         {% endif %}
       </select>
@@ -196,12 +67,17 @@ td {
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="username">Username</label>
-      <input type="text" class="form-control" id="username" name="username">
+      <input type="text" class="form-control" id="username" name="username" value="{{ selected_user.username }}">
     </div>
     <div class="form-group col-md-6">
       <label for="password">Password</label>
       <input type="password" class="form-control" id="password" name="password">
     </div>
+  </div>
+  <div class="form-group">
+    <label>User Status: {% if selected_user.is_active %}Active{% else %}Deactivated{% endif %}</label><br>
+    <input type="checkbox" id="is_active" name="is_active" {% if not selected_user.is_active %}checked{% endif %}>
+    <label for="is_active">{% if selected_user.is_active %}Deactivate{% else %}Activate{% endif %} User</label>
   </div>
   <button type="submit" class="btn btn-primary">Save</button>
 </form>
