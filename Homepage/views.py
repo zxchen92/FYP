@@ -214,7 +214,11 @@ def business_home(request):
 #not yet done
 @login_required
 def search_users(request):
-	users = User.objects.all()
+	# Get all UserType instances with userType equal to 'user'
+	user_types = UserType.objects.filter(userType__in=['user'])
+	# Get the related User instances
+	users = [user_type.user for user_type in user_types]
+
 	user_type = UserType.objects.get(user=request.user)
 	context = {'user_type': user_type, 'users':users}
 	return render(request, 'searchusers.html', context)
@@ -239,14 +243,18 @@ def recommender_results(request):
 	return render(request, 'recommenderresults.html',context)
 
 @login_required
-def view_user_profile(request):
+def view_user_profile(request, user_id):
+	selected_user = User.objects.get(id=user_id)
+	selected_user_profile  = UserProfile.objects.get(user=selected_user)
 	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
 	context = {
 		'user_type': user_type, 
 		'foodCategory':foodCategory, 
 		'location_options':location_options, 
-		'gender_options':gender_options
+		'gender_options':gender_options,
+		'selected_user': selected_user,
+		'selected_user_profile': selected_user_profile,
 		}
 	return render(request, 'viewuserprofile.html', context)
 
@@ -325,26 +333,35 @@ def food_quiz(request):
 
 
 @login_required
-def update_user_profile(request):
-	print("zx request: "+str(request),flush=True)
+def update_user_profile(request, user_id=None):
+	# Check if the user is an admin and a user_id is provided
+	is_admin_editing = user_id is not None and UserType.objects.get(user=request.user).userType == 'admin'
+
+	# If admin is editing, get the user instance to be edited; otherwise, use the request.user instance
+	user_to_edit = User.objects.get(id=user_id) if is_admin_editing else request.user
+
 	if request.method == 'POST':
 		form = UserUpdateForm(request.POST)
-		print("zx form: "+str(form),flush=True)
-		print("zx form.is_valid(): "+str(form.is_valid()),flush=True)
 		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
-			request.user.first_name = form.cleaned_data['first_name']
-			request.user.last_name = form.cleaned_data['last_name']
-			request.user.email = form.cleaned_data['email']
-			request.user.username = form.cleaned_data['username']
+			user_to_edit.first_name = form.cleaned_data['first_name']
+			user_to_edit.last_name = form.cleaned_data['last_name']
+			user_to_edit.email = form.cleaned_data['email']
+			user_to_edit.username = form.cleaned_data['username']
 			if form.cleaned_data['password']:
-				request.user.set_password(form.cleaned_data['password'])
-			request.user.save()
+				user_to_edit.set_password(form.cleaned_data['password'])
+			user_to_edit.save()
+
+			# If admin is editing, update the is_active status
+			if is_admin_editing:
+				is_active = request.POST.get('is_active') != 'on'
+				user_to_edit.is_active = is_active
+				user_to_edit.save()
 
 			if form.cleaned_data['password']:
-				login(request, request.user)
+				login(request, user_to_edit)
 
-			user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+			user_profile, created = UserProfile.objects.get_or_create(user=user_to_edit)
 			user_profile.age = form.cleaned_data['age']
 			user_profile.phone = form.cleaned_data['phone']
 			user_profile.favFood = form.cleaned_data['favorite_food']
@@ -353,33 +370,37 @@ def update_user_profile(request):
 			user_profile.gender = form.cleaned_data['gender']
 			user_profile.save()
 
-			messages.success(request, 'Your profile has been updated successfully.')
-			return redirect('profile')
+			messages.success(request, 'The profile has been updated successfully.')
+			if is_admin_editing and user_id:
+				return redirect('viewuserprofile', user_id=user_id)
+			else:
+				return redirect('profile')
 		else:
-			messages.error(request, 'There was an error updating your profile. Please check your input.')
+			messages.error(request, 'There was an error updating the profile. Please check your input.')
 	else:
 		form = UserRegistrationForm(initial={
-			'first_name': request.user.first_name,
-			'last_name': request.user.last_name,
-			'age': request.user.userprofile.age,
-			'email': request.user.email,
-			'phone': request.user.userprofile.phone,
-			'favorite_food': request.user.userprofile.favFood,
-			'preferred_location': request.user.userprofile.prefLocation,
-			'food_category': request.user.userprofile.foodCategory,
-			'username': request.user.username,
-			'gender': request.user.userprofile.gender,
+			'first_name': user_to_edit.first_name,
+			'last_name': user_to_edit.last_name,
+			'age': user_to_edit.userprofile.age,
+			'email': user_to_edit.email,
+			'phone': user_to_edit.userprofile.phone,
+			'favorite_food': user_to_edit.userprofile.favFood,
+			'preferred_location': user_to_edit.userprofile.prefLocation,
+			'food_category': user_to_edit.userprofile.foodCategory,
+			'username': user_to_edit.username,
+			'gender': user_to_edit.userprofile.gender,
 		})
 
-	context = {'form': form}
-	return redirect('profile')
+	context = {'form': form, 'is_admin_editing': is_admin_editing}
+	if is_admin_editing and user_id:
+		return redirect('viewuserprofile', user_id=user_id)
+	else:
+		return redirect('profile')
 
 @login_required
 def update_business_profile(request):
 	if request.method == 'POST':
 		form = BusinessUpdateForm(request.POST)
-		print("zx form.is_valid(): "+str(form.is_valid()),flush=True)
-		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
 			request.user.first_name = form.cleaned_data['first_name']
 			request.user.last_name = form.cleaned_data['last_name']

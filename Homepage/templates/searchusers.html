@@ -18,14 +18,14 @@
   </thead>
   <tbody id="Category">
     {% if users %}
-      {% for item in users%}
+      {% for item in users %}
         <tr>
-        <th scope="row"><a href="{% url 'viewuserprofile'%}">{{ item.username }}</a></th>
-        {% if item.is_active%}
-          <td>Enabled</td>
-        {% else %}
-          <td>Disabled</td>
-        {% endif %}
+          <th scope="row"><a href="{% url 'viewuserprofile' item.id %}">{{ item.username }}</a></th>
+          {% if item.is_active %}
+            <td>Active</td>
+          {% else %}
+            <td>Deactivated</td>
+          {% endif %}
         </tr>
       {% endfor %}
     {% endif %}

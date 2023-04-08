@@ -37,7 +37,7 @@
 		</form>
 
 	{% elif user_type.userType == 'user' %}
-	<form method="post" action="{% url 'updateuser' %}">
+	<form method="post" action="{% url 'updateuser_self' %}">
 		{% csrf_token %}
 			<div class="form-row">
 				<div class="form-group col-md-4">
