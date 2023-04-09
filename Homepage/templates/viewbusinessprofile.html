@@ -130,69 +130,87 @@ td {
 
 </body>
 </html> -->
-
-<form>
+<h1>Manage Business: {{ selected_business.username }}</h1><br>
+<form method="post" action="{% url 'updatebusiness' user_id=selected_business.id %}">
+  {% csrf_token %}
   <div class="form-row">
     <div class="form-group col-md-8">
-      <label for="exampleFormControlInput1">Company Name</label>
-      <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="eg. Ah Huat Duck Rice" value="Ah Hock Noodles">
+      <label for="companyName">Company Name</label>
+      <input type="text" class="form-control" id="companyName" name="company_name" placeholder="eg. Ah Huat Duck Rice" value="{{ selected_business_profile.companyName }}" {{disabled}}>
     </div>
     <div class="form-group col-md-4">
-        <label for="inputAddress2">Company UEN</label>
-        <input type="text" class="form-control" id="inputAddress2" placeholder="eg. T09LL0001B" disabled value="T1234567G">
-      </div>
+      <label for="uen">Company UEN</label>
+      <input type="text" class="form-control" id="uen" name="uen" placeholder="eg. T09LL0001B" readonly value="{{ selected_business_profile.uen }}">
+    </div>
     </div>
   <div class="form-row">
     <div class="form-group col-md-6">
-        <label for="exampleFormControlInput1">Contact Person First Name</label>
-        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="eg. John" value="Ah">
+      <label for="firstName">Contact Person First Name</label>
+      <input type="text" class="form-control" id="firstName" name="first_name" placeholder="eg. John" value="{{ selected_business.first_name }}" {{disabled}}>
     </div>
     <div class="form-group col-md-6">
-        <label for="exampleFormControlInput1">Contact Person Last Name</label>
-        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="eg. Doe" value="Hock">
+      <label for="lastName">Contact Person Last Name</label>
+      <input type="text" class="form-control" id="lastName" name="last_name" placeholder="eg. Doe" value="{{ selected_business.last_name }}" {{disabled}}>
     </div>
   </div>
   <div class="form-row">
     <div class="form-group col-md-6">
-        <label for="exampleFormControlInput1">Contact Person Phone Number</label>
-        <input type="tel" class="form-control" id="exampleFormControlInput1" placeholder="eg. 12345678" value="91234567">
+      <label for="phone">Contact Person Phone Number</label>
+      <input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" value="{{selected_business_profile.phone}}" {{disabled}}>
     </div>
     <div class="form-group col-md-6">
-      <label for="inputEmail4">Contact Person Email</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="eg. name@example.com" value="testcompany@test.com">
+      <label for="email">Contact Person Email</label>
+      <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" value="{{ selected_business.email }}" {{disabled}}>
     </div>
   </div>
     <div class="form-row">
     <div class="form-group col-md-9">
-      <label for="inputAddress">Address</label>
-      <input type="text" class="form-control" id="inputAddress" placeholder="eg. 1234 Main St" value="Ah Hock Street 34 Block 52 #01-02">
+      <label for="address">Address</label>
+      <input type="text" class="form-control" id="address" name="address" placeholder="eg. 1234 Main St" value="{{ selected_business_profile.address }}" {{disabled}}>
     </div>
     <div class="form-group col-md-3">
-      <label for="inputZip">Postal code</label>
-      <input type="text" class="form-control" id="inputZip" value="123456">
+      <label for="postal_code">Postal code</label>
+      <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ selected_business_profile.postalCode }}" {{disabled}}>
     </div>
   </div>
   <div class="form-group">
-    <label for="exampleFormControlSelect2">Food Genre</label>
-    <select class="custom-select custom-select-lg mb-3">
+    <label for="food_category">Food Genre</label>
+    <select class="custom-select custom-select-lg mb-3" name="food_category" id="food_category" {{disabled}} >
       <option selected>Select your business's food genre</option>
         {% if foodCategory %}
           {% for item in foodCategory %}
-            <option value="{{ item.pk }}" {% if item.categoryName == 'Western' %}selected{% endif %}>{{ item.categoryName }}</option>
+          <option value="{{ item.pk }}" {% if selected_business_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
           {% endfor %}
         {% endif %}
     </select>
   </div>
+  {% if user_type.userType == 'admin' %}
   <div class="form-row">
     <div class="form-group col-md-6">
-      <label for="inputEmail4">Username</label>
-      <input type="text" class="form-control" id="inputEmail4" value="testcompany">
+      <label for="username">Username</label>
+      <input type="text" class="form-control" id="username" name="username" value="{{ selected_business.username }}">
     </div>
     <div class="form-group col-md-6">
-      <label for="inputPassword4">Password</label>
-      <input type="password" class="form-control" id="inputPassword4">
+      <label for="password">Password</label>
+      <input type="password" class="form-control" id="password" name="password">
     </div>
   </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <!-- <label>User Status: {% if selected_business.is_active %}Active{% else %}Deactivated{% endif %}</label><br> -->
+      <input type="checkbox" id="is_active" name="is_active" {% if not selected_business.is_active %}checked{% endif %}>
+      <label for="is_active">Deactivate User</label>
+    </div>
+    <div class="form-group col-md-6">
+      <!-- <label>Business Verification Status: {% if selected_business_profile.isVerified %}Verified{% else %}Not Verified{% endif %}</label><br> -->
+        <input type="checkbox" id="is_verified" name="is_verified" {% if selected_business_profile.isVerified %}checked{% endif %}>
+        <label for="is_verified">Verify Business</label>
+    </div>
+  </div>
+  
+  <a href="javascript:history.back()" class="btn btn-primary">Back</a>
   <button type="submit" class="btn btn-primary">Save</button>
+  {% endif %}
 </form>
 {% endblock %}
