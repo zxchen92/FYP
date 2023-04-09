@@ -55,6 +55,7 @@ class BusinessProfile(models.Model):
 	address = models.CharField(max_length=100)
 	postalCode = models.CharField(max_length=6)
 	foodCategory = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name='business_food_category')
+	isVerified = models.BooleanField(default=False)
 
 	def __str__(self):
 		return f"{self.companyName}'s profile: uen {self.uen}, phone {self.phone}, address {self.address}, postal code {self.postalCode}, food category {self.foodCategory}"

@@ -113,7 +113,7 @@
 		</form>
 
 		{% elif user_type.userType == 'business'%}
-		<form method="post" action="{% url 'updatebusiness' %}">
+		<form method="post" action="{% url 'updatebusiness_self' %}">
 			{% csrf_token %}
 			<div class="form-row">
 				<div class="form-group col-md-8">

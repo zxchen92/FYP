@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Registered Businesses</h1>
-<br>
+<h1>Search Businesses</h1>
 
+<br>
 <br>
 
 <input class="form-control" id="searchCategory" type="text" placeholder="Search..">
@@ -15,6 +15,10 @@
       <th scope="col">Business</th>
       <th scope="col">Postal Code</th>
       <th scope="col">Food Category</th>
+      {% if user_type.userType == 'admin' %}
+        <th scope="col">Status</th>
+        <th scope="col">Verification</th>
+      {%endif%}
     </tr>
   </thead>
   <tbody id="Category">
@@ -22,9 +26,21 @@
   	{% if businesses %}
   		{% for item in businesses%}
   			<tr>
-        <th scope="row"><a href="{% url 'viewbusinessprofile'%}">{{ item.companyName }}</a></th>
+        <th scope="row"><a href="{% url 'viewbusinessprofile' item.user.id %}">{{ item.companyName }}</a></th>
   			<td>{{item.address}} {{item.postalCode}}</td>
   			<td>{{item.foodCategory.categoryName}}</td>
+        {% if user_type.userType == 'admin' %}
+          {% if item.user.is_active %}
+            <td>Active</td>
+          {% else %}
+            <td>Deactivated</td>
+          {% endif %}
+          {% if item.isVerified %}
+            <td>Verified</td>
+          {% else %}
+            <td>Unverified</td>
+          {% endif %}
+        {%endif%}
   			</tr>
   		{% endfor %}
   	{% endif %}

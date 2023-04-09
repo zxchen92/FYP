@@ -16,7 +16,7 @@ urlpatterns = [
 	path('recommender',views.recommender_page,name='recommenderpage'),
 	path('customersupport',views.customer_support,name='customersupport'),
 	path('administrative/home',views.admin_home,name='adminhome'),
-	path('registeredbusinesses',views.registered_businesses ,name='registeredBusinesses'),
+	path('searchbusinesses',views.search_businesses,name='searchbusinesses'),
 	path('userhome',views.user_home ,name='userhome'),
 	path('businesshome',views.business_home ,name='businesshome'),
 	path('searchusers',views.search_users ,name='searchusers'),
@@ -28,6 +28,7 @@ urlpatterns = [
 	path('foodquiz',views.food_quiz, name ='foodquiz'),
 	path('updateuser',views.update_user_profile, name ='updateuser_self'),
 	path('updateuser/<int:user_id>/', views.update_user_profile, name='updateuser'),
-	path('updatebusiness',views.update_business_profile, name ='updatebusiness'),
+	path('updatebusiness',views.update_business_profile, name ='updatebusiness_self'),
+	path('updatebusiness/<int:user_id>/',views.update_business_profile, name ='updatebusiness'),
 	path('updateadmin',views.update_admin_profile, name ='updateadmin'),
 ]

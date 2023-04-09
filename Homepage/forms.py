@@ -169,13 +169,6 @@ class BusinessUpdateForm(BusinessRegistrationForm):
 	class Meta:
 		model = BusinessProfile
 		exclude = ['uen']
-		widgets = {
-			'company_name': forms.TextInput(attrs={'class': 'form-control'}),
-			'phone': forms.TextInput(attrs={'class': 'form-control'}),
-			'address': forms.TextInput(attrs={'class': 'form-control'}),
-			'postal_code': forms.TextInput(attrs={'class': 'form-control'}),
-			'food_category': forms.Select(attrs={'class': 'custom-select custom-select-lg mb-3'}),
-		}
 
 class RatingForm(forms.ModelForm):
     class Meta:

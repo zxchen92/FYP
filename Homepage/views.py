@@ -1,3 +1,4 @@
+from pickle import TRUE
 import re
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -186,18 +187,24 @@ def customer_support(request):
 @login_required
 def admin_home(request):
 	user_type = UserType.objects.get(user=request.user)
-	context = {'user_type': user_type}
+	businesses = BusinessProfile.objects.filter(isVerified=False)
+	not_verified_count = businesses.count()
+	context = {
+		'user_type': user_type,
+		'businesses':businesses,
+		'not_verified_count':not_verified_count
+		}
 	return render(request, 'adminhome.html', context)
 
 @login_required
-def registered_businesses(request):
+def search_businesses(request):
 	user_type = UserType.objects.get(user=request.user)
 	if user_type.userType in ['user','business']:
 		businesses = BusinessProfile.objects.filter(user__is_active=True)
 	else:
 		businesses = BusinessProfile.objects.all()
 	context = {'user_type': user_type, 'businesses':businesses}
-	return render(request, 'registeredbusinesses.html', context)
+	return render(request, 'searchbusinesses.html', context)
 
 @login_required
 def user_home(request):
@@ -248,6 +255,9 @@ def view_user_profile(request, user_id):
 	selected_user_profile  = UserProfile.objects.get(user=selected_user)
 	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
+	disabled = ''
+	if user_type.userType != "admin":
+		disabled = "disabled"
 	context = {
 		'user_type': user_type, 
 		'foodCategory':foodCategory, 
@@ -255,14 +265,27 @@ def view_user_profile(request, user_id):
 		'gender_options':gender_options,
 		'selected_user': selected_user,
 		'selected_user_profile': selected_user_profile,
+		'disabled':disabled,
 		}
 	return render(request, 'viewuserprofile.html', context)
 
 @login_required
-def view_business_profile(request):
+def view_business_profile(request, user_id):
+	selected_business = User.objects.get(id=user_id)
+	selected_business_profile  = BusinessProfile.objects.get(user=selected_business)
 	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
-	context = {'user_type': user_type, 'foodCategory':foodCategory, 'location_options':location_options}
+	disabled = ''
+	if user_type.userType != "admin":
+		disabled = "disabled"
+	context = {
+		'user_type': user_type, 
+		'foodCategory':foodCategory, 
+		'location_options':location_options,
+		'selected_business':selected_business,
+		'selected_business_profile':selected_business_profile,
+		'disabled':disabled,
+		}
 	return render(request, 'viewbusinessprofile.html', context)
 
 @login_required
@@ -358,8 +381,9 @@ def update_user_profile(request, user_id=None):
 				user_to_edit.is_active = is_active
 				user_to_edit.save()
 
-			if form.cleaned_data['password']:
-				login(request, user_to_edit)
+			else:
+				if form.cleaned_data['password']:
+					login(request, user_to_edit)
 
 			user_profile, created = UserProfile.objects.get_or_create(user=user_to_edit)
 			user_profile.age = form.cleaned_data['age']
@@ -370,13 +394,13 @@ def update_user_profile(request, user_id=None):
 			user_profile.gender = form.cleaned_data['gender']
 			user_profile.save()
 
-			messages.success(request, 'The profile has been updated successfully.')
+			messages.success(request, 'Profile has been updated successfully.')
 			if is_admin_editing and user_id:
 				return redirect('viewuserprofile', user_id=user_id)
 			else:
 				return redirect('profile')
 		else:
-			messages.error(request, 'There was an error updating the profile. Please check your input.')
+			messages.error(request, 'There was an error in updating the profile. Please check your input(s).')
 	else:
 		form = UserRegistrationForm(initial={
 			'first_name': user_to_edit.first_name,
@@ -398,22 +422,36 @@ def update_user_profile(request, user_id=None):
 		return redirect('profile')
 
 @login_required
-def update_business_profile(request):
+def update_business_profile(request, user_id=None):
+	# Check if the user is an admin and a user_id is provided
+	is_admin_editing = user_id is not None and UserType.objects.get(user=request.user).userType == 'admin'
+
+	# If admin is editing, get the user instance to be edited; otherwise, use the request.user instance
+	user_to_edit = User.objects.get(id=user_id) if is_admin_editing else request.user
+
 	if request.method == 'POST':
 		form = BusinessUpdateForm(request.POST)
+		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
-			request.user.first_name = form.cleaned_data['first_name']
-			request.user.last_name = form.cleaned_data['last_name']
-			request.user.email = form.cleaned_data['email']
-			request.user.username = form.cleaned_data['username']
+			user_to_edit.first_name = form.cleaned_data['first_name']
+			user_to_edit.last_name = form.cleaned_data['last_name']
+			user_to_edit.email = form.cleaned_data['email']
+			user_to_edit.username = form.cleaned_data['username']
+			user_to_edit.save()
 			if form.cleaned_data['password']:
-				request.user.set_password(form.cleaned_data['password'])
-			request.user.save()
+				user_to_edit.set_password(form.cleaned_data['password'])
+			user_to_edit.save()
+			
+			# If admin is editing, update the is_active status
+			if is_admin_editing:
+				is_active = request.POST.get('is_active') != 'on'
+				user_to_edit.is_active = is_active
+				user_to_edit.save()
+			else:
+				if form.cleaned_data['password']:
+					login(request, user_to_edit)
 
-			if form.cleaned_data['password']:
-				login(request, request.user)
-
-			business_profile, created = BusinessProfile.objects.get_or_create(user=request.user)
+			business_profile, created = BusinessProfile.objects.get_or_create(user=user_to_edit)
 			business_profile.companyName = form.cleaned_data['company_name']
 			business_profile.phone = form.cleaned_data['phone']
 			business_profile.address = form.cleaned_data['address']
@@ -421,10 +459,19 @@ def update_business_profile(request):
 			business_profile.foodCategory = form.cleaned_data['food_category']
 			business_profile.save()
 
-			messages.success(request, 'Your business profile has been updated successfully.')
-			return redirect('profile')
+			# If admin is editing, update the is_active status
+			if is_admin_editing:
+				is_verified = request.POST.get('is_verified') == 'on'
+				business_profile.isVerified = is_verified
+				business_profile.save()
+
+			messages.success(request, 'Business profile has been updated successfully.')
+			if is_admin_editing and user_id:
+				return redirect('viewbusinessprofile', user_id=user_id)
+			else:
+				return redirect('profile')		
 		else:
-			messages.error(request, 'There was an error updating your business profile. Please check your input.')
+			messages.error(request, 'There was an error in updating the business profile. Please check your input(s).')
 	else:
 		form = BusinessRegistrationForm(initial={
 			'company_name': request.user.businessprofile.companyName,
@@ -439,8 +486,11 @@ def update_business_profile(request):
 			'username': request.user.username,
 		})
 
-	context = {'form': form}
-	return redirect('profile')
+	context = {'form': form, 'is_admin_editing': is_admin_editing}
+	if is_admin_editing and user_id:
+		return redirect('viewbusinessprofile', user_id=user_id)
+	else:
+		return redirect('profile')
 
 @login_required
 def update_admin_profile(request):
