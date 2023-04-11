@@ -6,7 +6,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+import sklearn
+from sklearn.preprocessing import MinMaxScaler
 
+
+from .food_recommender import get_recommendations
 from .models import FoodCategory, UserType, UserProfile, BusinessProfile, Rating
 from .forms import FoodCategoryForm, UserRegistrationForm, BusinessRegistrationForm, RatingForm, UserUpdateForm, BusinessUpdateForm
 
@@ -248,6 +255,12 @@ def recommender_results(request):
 		'form': form,
 		}
 	return render(request, 'recommenderresults.html',context)
+
+@login_required #RecommenderML integration test
+def recommender_ML(request):
+	user_id = '123' #User.objects.get(id=user_id)
+	recommendations = get_recommendations(user_id)
+	return render(request, 'recommenderml.html', {'recommendations': recommendations})
 
 @login_required
 def view_user_profile(request, user_id):
