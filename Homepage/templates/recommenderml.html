@@ -3,11 +3,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Recommended Food Items</h1>
+    <h1>Recommended Food Items for  {{ request.user.username }}</h1>
     <p>Here are some food items we think you might enjoy:</p>
     <ul>
-    {% for food_item in recommendations %}
+
+       <h2> {{ recommendations.0 }}</h2>
+    <!--{% for food_item in recommendations %}
         <li>{{ food_item }}</li>
-    {% endfor %}
+    {% endfor %} -->
     </ul>
 {% endblock %}

@@ -246,6 +246,9 @@ def user_promotion(request):
 
 @login_required
 def recommender_results(request):
+	user_id = request.user.id
+	recommendations = get_recommendations(user_id)
+	####### Below is the prototype code ########
 	recommended_food = "Curry chicken noodles"  # You may get this from your recommendation algorithm
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
@@ -253,12 +256,13 @@ def recommender_results(request):
 		'user_type': user_type,
 		'recommended_food': recommended_food,
 		'form': form,
+		'recommendations': recommendations,
 		}
 	return render(request, 'recommenderresults.html',context)
 
 @login_required #RecommenderML integration test
 def recommender_ML(request):
-	user_id = '123' #User.objects.get(id=user_id)
+	user_id = request.user.id
 	recommendations = get_recommendations(user_id)
 	return render(request, 'recommenderml.html', {'recommendations': recommendations})
 

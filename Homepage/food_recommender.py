@@ -4,13 +4,16 @@ import tensorflow as tf
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
 
+
 # Your code here
 
 def get_recommendations(user_id):
+    
+
     #cell[2]
-    rating = pd.read_csv('testML\\FoodRatings2.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
-    user = pd.read_csv('testML\\UserID.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
-    food = pd.read_csv('testML\\Food.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
+    rating = pd.read_csv('FoodRatings2.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
+    user = pd.read_csv('UserID.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
+    food = pd.read_csv('Food.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
     food_rating = pd.merge(rating, food, on='foodid')
     cols = ['UserID', 'FoodID', 'Rating', 'Food']
 
@@ -147,10 +150,10 @@ def get_recommendations(user_id):
     top_ten_ranked = top_ten_ranked.sort_values(['userid', 'rating'], ascending=[True, False])
     top_ten_ranked = top_ten_ranked.groupby('userid').head(10)
 
-    recommendations = top_ten_ranked.loc[top_ten_ranked['userid'] == 123]
+    recommendations = top_ten_ranked.loc[top_ten_ranked['userid'] == user_id]
     recommendations_food = recommendations['food']
 
-    print('ken: ' + str(recommendations_food), flush=True )
+    print('ken: user id is' + str(user_id) +'end' +  str(recommendations_food), flush=True )
 
 
 
