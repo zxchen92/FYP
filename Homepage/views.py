@@ -10,9 +10,8 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import sklearn
+
 from sklearn.preprocessing import MinMaxScaler
-
-
 from .food_recommender import get_recommendations
 from .models import FoodCategory, UserType, UserProfile, BusinessProfile, Rating
 from .forms import FoodCategoryForm, UserRegistrationForm, BusinessRegistrationForm, RatingForm, UserUpdateForm, BusinessUpdateForm

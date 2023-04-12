@@ -151,7 +151,7 @@ def get_recommendations(user_id):
     top_ten_ranked = top_ten_ranked.groupby('userid').head(10)
 
     recommendations = top_ten_ranked.loc[top_ten_ranked['userid'] == user_id]
-    recommendations_food = recommendations['food']
+    recommendations_food = recommendations['food'].values.tolist()
 
     print('ken: user id is' + str(user_id) +'end' +  str(recommendations_food), flush=True )
 

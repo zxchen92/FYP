@@ -7,9 +7,9 @@
 <br>
 
 <form action="{% url 'rate' %}" method="post" id="rating-form">
-  {% for food_item in recommendations %}
-  <li>{{ food_item }}</li>
-  <h3>It's <h1 class = "recommenderResults">{{ recommended_food }}!!</h1> </h3>
+
+  <h3>It is <h1 class = "recommenderResults">{{ recommendations.0 }}!!</h1> </h3>
+  <!-- <h3>It's <h1 class = "recommenderResults">{{ recommended_food }}!!</h1> </h3> -->
   {% csrf_token %}
   <div class="star-rating">
     <input type="radio" id="rating-5" name="rating" value="5">
