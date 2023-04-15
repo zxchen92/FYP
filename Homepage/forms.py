@@ -3,11 +3,10 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import FoodCategory, UserType, UserProfile, BusinessProfile, Rating
+from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food
 
 class FoodCategoryForm(forms.ModelForm):
 	categoryName = forms.CharField(max_length=30)
-
 	
 	def __init__(self, *args, **kwargs):
 		self.request = kwargs.pop('request', None)
@@ -174,3 +173,25 @@ class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
         fields = ['user', 'food', 'rating']
+
+class FoodForm(forms.ModelForm):
+	DIETARY_RESTRICTIONS = [
+		('dairy_free', 'Dairy-Free'),
+		('vegetarian', 'Vegetarian'),
+		('halal', 'Halal'),
+		('seafood_free', 'Seafood-Free'),
+	]
+
+	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple())
+
+	class Meta:
+		model = Food
+		fields = ['foodName', 'foodCategory', 'dietary_restrictions']
+
+	def save(self, commit=True):
+		instance = super().save(commit=False)
+		dietary_restrictions = self.cleaned_data.get('dietary_restrictions')
+		instance.dietary_restrictions = ','.join(dietary_restrictions) if dietary_restrictions else None
+		if commit:
+			instance.save()
+		return instance
