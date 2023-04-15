@@ -12,28 +12,31 @@ def get_recommendations(user_id):
 
     #cell[2]
     rating = pd.read_csv('FoodRatings2.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
-    food_rating = rating.copy()
-    
+    user = pd.read_csv('UserID.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
+    food = pd.read_csv('Food.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
+    food_rating = pd.merge(rating, food, on='foodid')
+    cols = ['UserID', 'FoodID', 'Rating', 'Food']
+
     rating_count = (food_rating.
-        groupby(by = ['foodid'])['rating'].
+        groupby(by = ['food'])['rating'].
         count().
         reset_index().
         rename(columns = {'rating': 'RatingCount_Food'})
-        [['foodid', 'RatingCount_Food']])
+        [['food', 'RatingCount_Food']])
     
 
     threshold = 10
     rating_count = rating_count.query('RatingCount_Food >= @threshold')
 
-    user_rating = pd.merge(rating_count, food_rating, left_on='foodid', right_on='foodid', how='left')
+    user_rating = pd.merge(rating_count, food_rating, left_on='food', right_on='food', how='left')
     
     user_count = (user_rating.
-        groupby(by = ['userid'])['rating'].
-        count().
-        reset_index().
-        rename(columns = {'rating': 'RatingCount_user'})
-        [['userid', 'RatingCount_user']])
-    
+     groupby(by = ['userid'])['rating'].
+     count().
+     reset_index().
+     rename(columns = {'rating': 'RatingCount_user'})
+     [['userid', 'RatingCount_user']]
+    )
 
     threshold = 9
     user_count = user_count.query('RatingCount_user >= @threshold')
@@ -47,19 +50,19 @@ def get_recommendations(user_id):
     combined['rating'] = rating_scaled
     combined['rating']
 
-    combined = combined.drop_duplicates(['userid', 'foodid'])
-    user_food_matrix = combined.pivot(index='userid', columns='foodid', values='rating')
+    combined = combined.drop_duplicates(['userid', 'food'])
+    user_food_matrix = combined.pivot(index='userid', columns='food', values='rating')
     user_food_matrix.fillna(0, inplace=True)
 
     users = user_food_matrix.index.tolist()
-    foods = user_food_matrix.columns.tolist()
+    books = user_food_matrix.columns.tolist()
 
     user_food_matrix = user_food_matrix.values
 
     import tensorflow.compat.v1 as tf
     tf.disable_v2_behavior()
 
-    num_input = combined['foodid'].nunique()
+    num_input = combined['food'].nunique()
     num_hidden_1 = 10
     num_hidden_2 = 5
 
@@ -135,11 +138,11 @@ def get_recommendations(user_id):
         pred_data = pd.concat([pred_data, pd.DataFrame(preds)]) #pred_data.append(pd.DataFrame(preds))
 
         pred_data = pred_data.stack().reset_index(name='rating')
-        pred_data.columns = ['userid', 'foodid', 'rating']
+        pred_data.columns = ['userid', 'food', 'rating']
         pred_data['userid'] = pred_data['userid'].map(lambda value: users[value])
-        pred_data['foodid'] = pred_data['foodid'].map(lambda value: foods[value])
+        pred_data['food'] = pred_data['food'].map(lambda value: books[value])
 
-    keys = ['userid', 'foodid']
+    keys = ['userid', 'food']
     index_1 = pred_data.set_index(keys).index
     index_2 = combined.set_index(keys).index
 
@@ -148,7 +151,7 @@ def get_recommendations(user_id):
     top_ten_ranked = top_ten_ranked.groupby('userid').head(10)
 
     recommendations = top_ten_ranked.loc[top_ten_ranked['userid'] == user_id]
-    recommendations_food = recommendations['foodid'].values.tolist()
+    recommendations_food = recommendations['food'].values.tolist()
 
     print('ken: user id is' + str(user_id) +'end' +  str(recommendations_food), flush=True )
 
