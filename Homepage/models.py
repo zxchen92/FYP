@@ -13,7 +13,7 @@ class FoodCategory(models.Model):
 	adminID = models.IntegerField()
 
 	def __str__(self):
-		return self.categoryName
+		return f"{self.id} - {self.categoryName}"
 
 class UserType(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
