@@ -1,6 +1,9 @@
+from secrets import choice
+from multiselectfield import MultiSelectField
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 
 # Create your models here.
@@ -10,7 +13,7 @@ class FoodCategory(models.Model):
 	adminID = models.IntegerField()
 
 	def __str__(self):
-		return self.categoryName
+		return f"{self.id} - {self.categoryName}"
 
 class UserType(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -67,3 +70,23 @@ class Rating(models.Model):
 
 	def __str__(self):
 		return f"{self.user.username} - {self.food} - {self.rating}"
+
+class Food(models.Model):
+	DIETARY_RESTRICTIONS = [
+		('vegetarian', 'Vegetarian'),
+		('halal', 'Halal'),
+		('seafood_free', 'Seafood-Free'),
+	]
+	foodName = models.CharField(max_length=50)
+	foodCategory = models.ForeignKey(FoodCategory, on_delete=models.SET_NULL, null=True)
+	categoryName = models.CharField(max_length=30)
+	dietary_restrictions = MultiSelectField(choices=DIETARY_RESTRICTIONS, max_choices=3, validators=[MaxValueValidator(3)], null=True, blank=True)
+	location = models.CharField(max_length=50, blank=True, null=True)
+
+	def save(self, *args, **kwargs):
+		if self.foodCategory:
+			self.categoryName = self.foodCategory.categoryName
+		super().save(*args, **kwargs)
+
+	def __str__(self):
+		return f"{self.foodName} - {self.categoryName} - {self.dietary_restrictions}"
