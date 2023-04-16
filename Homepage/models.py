@@ -90,3 +90,15 @@ class Food(models.Model):
 
 	def __str__(self):
 		return f"{self.foodName} - {self.categoryName} - {self.dietary_restrictions}"
+
+class Promotion(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.CharField(max_length=999)
+    createdBy = models.ForeignKey(User, on_delete=models.CASCADE)
+    createdDate = models.DateTimeField(auto_now_add=True)
+    startDate = models.DateField()
+    endDate = models.DateField()
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.id} - {self.title} - createdBy:{self.createdBy} - startDate:{self.startDate} - endDate:{self.endDate}"

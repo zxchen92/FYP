@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food
+from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
 
 class FoodCategoryForm(forms.ModelForm):
 	categoryName = forms.CharField(max_length=30)
@@ -195,3 +195,20 @@ class FoodForm(forms.ModelForm):
 		if commit:
 			instance.save()
 		return instance
+
+class PromotionForm(forms.ModelForm):
+	class Meta:
+		model = Promotion
+		fields = ['title', 'description', 'startDate', 'endDate']
+
+	def clean(self):
+		cleaned_data = super().clean()
+		start_date = cleaned_data.get('startDate')
+		end_date = cleaned_data.get('endDate')
+
+		if start_date and end_date and end_date < start_date:
+			self.add_error('endDate', 'End date should be later than start date.')
+			# raise forms.ValidationError('End date should be later than start date.')
+
+		return cleaned_data
+
