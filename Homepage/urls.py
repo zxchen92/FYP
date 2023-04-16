@@ -22,6 +22,7 @@ urlpatterns = [
 	path('register/business',views.register_business, name='registerbusiness'),
 	path('register/user',views.register_user, name='registeruser'),
 	path('searchbusinesses',views.search_businesses,name='searchbusinesses'),
+	path('searchpromotions',views.search_promotion,name='searchpromotions'),
 	path('searchusers',views.search_users ,name='searchusers'),
 	path('updateadmin',views.update_admin_profile, name ='updateadmin'),
 	path('updatebusiness',views.update_business_profile, name ='updatebusiness_self'),
@@ -31,6 +32,6 @@ urlpatterns = [
 	path('userhome',views.user_home ,name='userhome'),
 	path('userprofile',views.user_profile, name='profile'),
 	path('viewbusinessprofile/<int:user_id>/',views.view_business_profile ,name='viewbusinessprofile'),
-	path('viewpromotion',views.view_promotion ,name='viewpromotion'),
+	path('viewpromotion/<int:promotion_id>/',views.view_promotion ,name='viewpromotion'),
     path('viewuserprofile/<int:user_id>/', views.view_user_profile, name='viewuserprofile'),
 ]
