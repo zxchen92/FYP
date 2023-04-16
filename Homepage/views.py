@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -14,8 +15,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 from .food_recommender import get_recommendations
-from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food
-from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm
+from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
+from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm
 
 
 import sys
@@ -238,7 +239,7 @@ def search_users(request):
 	return render(request, 'searchusers.html', context)
 
 @login_required
-def user_promotion(request):
+def view_promotion(request):
 	users = User.objects.all()
 	user_type = UserType.objects.get(user=request.user)
 	context = {'user_type': user_type, 'users':users}
@@ -539,3 +540,35 @@ def update_admin_profile(request):
 		'user': request.user,
 	}
 	return redirect('profile')
+
+@login_required
+def create_promotion(request):
+	user_type = UserType.objects.get(user=request.user)
+	if request.method == 'POST':
+		form = PromotionForm(request.POST)
+		if form.is_valid():
+			promotion = form.save(commit=False)
+			promotion.createdBy = request.user
+			promotion.isActive = promotion.startDate <= timezone.now().date() <= promotion.endDate
+			promotion.save()
+			messages.success(request, 'Promotion has been created successfully.')
+			return redirect('businesshome')
+		else:
+			messages.error(request, 'There was an error in creating the promotion. Please check your input(s).')
+	else:
+		form = PromotionForm()
+	context = {
+		'form':form,
+		'user_type':user_type,
+	}
+	return render(request, 'createpromotion.html', context)
+
+
+# @login_required
+# def promotion_list(request):
+#     now = timezone.now().date()
+#     promotions = Promotion.objects.filter(endDate__gte=now).order_by('startDate')
+#     context = {
+#         'promotions': promotions,
+#     }
+#     return render(request, 'promotion_list.html', context)
