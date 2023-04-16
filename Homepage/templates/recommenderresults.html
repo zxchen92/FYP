@@ -8,7 +8,7 @@
 
 <form action="{% url 'rate' %}" method="post" id="rating-form">
 
-  <h3>It is <h1 class = "recommenderResults">{{ food_name }}!!</h1> </h3>
+  <h3>It is <h1 class = "recommenderResults">{{ maps_link|safe }}</h1> </h3>
   <!-- <h3>It's <h1 class = "recommenderResults">{{ recommended_food }}!!</h1> </h3> -->
   {% csrf_token %}
   <div class="star-rating">

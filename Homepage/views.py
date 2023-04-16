@@ -257,6 +257,9 @@ def recommender_results(request):
 	food_id = recommendations[0]  # get the first food id from the recommendations list
 	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
 	food_name = food.foodName  # get the name of the food
+	maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
+
 	####### Below is the prototype code ########
 	recommended_food = "Curry chicken noodles"  # You may get this from your recommendation algorithm
 	user_type = UserType.objects.get(user=request.user)
@@ -267,6 +270,7 @@ def recommender_results(request):
 		'form': form,
 		'recommendations': recommendations,
 		'food_name' : food_name,
+		'maps_link' : maps_link,
 		}
 	return render(request, 'recommenderresults.html',context)
 
