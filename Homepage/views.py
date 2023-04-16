@@ -239,11 +239,16 @@ def search_users(request):
 	return render(request, 'searchusers.html', context)
 
 @login_required
-def view_promotion(request):
+def view_promotion(request, promotion_id=None):
 	users = User.objects.all()
 	user_type = UserType.objects.get(user=request.user)
-	context = {'user_type': user_type, 'users':users}
-	return render(request, 'userpromotion.html', context)
+	promotion = Promotion.objects.get(id=promotion_id)
+	context = {
+		'user_type': user_type, 
+		'users':users,
+		'promotion':promotion,
+		}
+	return render(request, 'viewpromotion.html', context)
 
 @login_required
 def recommender_results(request):
@@ -572,3 +577,15 @@ def create_promotion(request):
 #         'promotions': promotions,
 #     }
 #     return render(request, 'promotion_list.html', context)
+
+@login_required
+def search_promotion(request):
+	user_type = UserType.objects.get(user=request.user)
+	promotions = Promotion.objects.all()
+	if user_type.userType in ['user','business']:
+		promotions = Promotion.objects.filter(isActive=True)
+	else:
+		promotions = Promotion.objects.all()
+	print("zx promotions: "+str(promotions),flush=True)
+	context = {'user_type': user_type, 'promotions':promotions}
+	return render(request, 'searchpromotion.html', context)
