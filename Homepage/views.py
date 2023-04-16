@@ -254,6 +254,9 @@ def view_promotion(request, promotion_id=None):
 def recommender_results(request):
 	user_id = request.user.id
 	recommendations = get_recommendations(user_id)
+	food_id = recommendations[0]  # get the first food id from the recommendations list
+	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
+	food_name = food.foodName  # get the name of the food
 	####### Below is the prototype code ########
 	recommended_food = "Curry chicken noodles"  # You may get this from your recommendation algorithm
 	user_type = UserType.objects.get(user=request.user)
@@ -263,14 +266,23 @@ def recommender_results(request):
 		'recommended_food': recommended_food,
 		'form': form,
 		'recommendations': recommendations,
+		'food_name' : food_name,
 		}
 	return render(request, 'recommenderresults.html',context)
 
-@login_required #RecommenderML integration test
-def recommender_ML(request):
-	user_id = request.user.id
-	recommendations = get_recommendations(user_id)
-	return render(request, 'recommenderml.html', {'recommendations': recommendations})
+# @login_required #RecommenderML integration test
+# def recommender_ML(request):
+# 	user_id = request.user.id
+# 	recommendations = get_recommendations(user_id)
+# 	food_id = recommendations[0]  # get the first food id from the recommendations list
+# 	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
+# 	food_name = food.foodName  # get the name of the food
+# 	context = {
+# 		'recommendations': recommendations,
+# 		'food_name' : food_name
+# 		}
+	
+#	return render(request, 'recommenderml.html', context)
 
 @login_required
 def view_user_profile(request, user_id):

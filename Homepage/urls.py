@@ -14,7 +14,6 @@ urlpatterns = [
 	path('foodquiz',views.food_quiz, name ='foodquiz'),
 	path('login',views.login_user, name="login"),
 	path('logout',views.logout_user, name='logout'),
-	path('recommendations', views.recommender_ML, name='recommendML'),
 	path('recommender',views.recommender_page,name='recommenderpage'),
 	path('recommenderresults',views.recommender_results ,name='recommenderresults'),
 	path('recommenderresults/rate',views.create_rating, name='rate'),
