@@ -278,12 +278,16 @@ def recommender_results(request):
 @login_required
 def recommender_normal(request):
 	user_id = request.user.id
+
 	food_recommendations = get_recommendations(user_id)
 	food_dict = {}
 	for foodid in food_recommendations:
 		try:
 			food =  Food.objects.get(id=foodid)
 			food_dict[foodid] = food
+			# food_name = food.foodName  # get the name of the food
+			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+			# maps_link = f'<a href="{maps_url}" target="_blank">{food_name.foodName}</a>'
 
 		except Food.DoesNotExist:
 			pass

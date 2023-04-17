@@ -39,8 +39,10 @@
     <tbody id="Category">
 
         {% for foodid, food_obj in food_dict.items %}
-        <tr>
-            <th scope="row">{{ food_obj.foodName }}</td>
+        <!-- <tr class = "clickable-row">
+            <th scope="row">{{ food_obj.foodName }}</td> -->
+            <tr class="clickable-row">
+            <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
             <td>{{ food_obj.foodCategory }}</td>
             <td>{{ food_obj.dietary_restrictions }}</td>
         </tr>
@@ -48,29 +50,6 @@
 
     </tbody>
   </table>
-
-<!-- <table> -->
-    <!-- <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Dietary</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for foodid, food_obj in food_dict.items %}
-            <tr>
-                <td>{{ foodid }}</td>
-                <td>{{ food_obj.foodName }}</td>
-                <td>{{ food_obj.foodCategory }}</td>
-                <td>{{ food_obj.dietary_restrictions }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table> -->
-
-
 
 <br>
 <table class="table table-striped table-bordered table-hover">
@@ -121,6 +100,55 @@ document.querySelectorAll('input[name="rating"]').forEach(function(radio) {
     });
   });
 
+  // get all the rows in the table
+var rows = document.querySelectorAll(".clickable-row");
+
+// get the first row in the table
+var firstRow = document.querySelector(".clickable-row");
+firstRow.classList.add("selected");
+
+// add a click event listener to each row
+rows.forEach(function(row) {
+  row.addEventListener("click", function() {
+    // remove the "selected" class from all the rows
+    rows.forEach(function(row) {
+      row.classList.remove("selected");
+    });
+    
+    // add the "selected" class to the clicked row
+    this.classList.add("selected");
+    
+    // disable all the rows except for the clicked row
+    rows.forEach(function(row) {
+      row.disabled = true;
+    });
+    this.disabled = false;
+  });
+});
+
+
+function searchOnMaps(query) {
+  // encode the query string to make it URL-safe
+  var encodedQuery = encodeURIComponent(query);
+
+  // construct the Google Maps search URL with the encoded query string
+  var searchUrl = "https://www.google.com/maps/search/?api=1&query=" + encodedQuery;
+
+  // open the search URL in a new tab
+  window.open(searchUrl, "_blank");
+}
+
 </script>
+
+<style>
+  .selected {
+    background-color: #a4c6d8 !important;
+  }
+  .clickable-row:not(.selected) {
+  opacity: 0.5;
+  filter: blur(1px);
+}
+</style>
+
 
 {% endblock %}
