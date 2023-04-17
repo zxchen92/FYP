@@ -268,11 +268,31 @@ def recommender_results(request):
 		'user_type': user_type,
 		'recommended_food': recommended_food,
 		'form': form,
+		#'full_recommendations' : full_recommendations,
 		'recommendations': recommendations,
 		'food_name' : food_name,
 		'maps_link' : maps_link,
 		}
 	return render(request, 'recommenderresults.html',context)
+
+@login_required
+def recommender_normal(request):
+	user_id = request.user.id
+	food_recommendations = get_recommendations(user_id)
+	food_dict = {}
+	for foodid in food_recommendations:
+		try:
+			food =  Food.objects.get(id=foodid)
+			food_dict[foodid] = food
+
+		except Food.DoesNotExist:
+			pass
+	
+	context = {
+		'food_dict' : food_dict,
+	}
+
+	return render(request,'nomlrecommender.html', context)
 
 # @login_required #RecommenderML integration test
 # def recommender_ML(request):

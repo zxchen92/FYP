@@ -15,6 +15,7 @@ urlpatterns = [
 	path('login',views.login_user, name="login"),
 	path('logout',views.logout_user, name='logout'),
 	path('recommender',views.recommender_page,name='recommenderpage'),
+	path('recommendernormal',views.recommender_normal ,name='recommendernormal'),
 	path('recommenderresults',views.recommender_results ,name='recommenderresults'),
 	path('recommenderresults/rate',views.create_rating, name='rate'),
 	path('register',views.register, name='register'),
