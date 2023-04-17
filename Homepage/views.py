@@ -261,12 +261,10 @@ def recommender_results(request):
 	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
 
 	####### Below is the prototype code ########
-	recommended_food = "Curry chicken noodles"  # You may get this from your recommendation algorithm
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
 	context = {
 		'user_type': user_type,
-		'recommended_food': recommended_food,
 		'form': form,
 		#'full_recommendations' : full_recommendations,
 		'recommendations': recommendations,
@@ -353,29 +351,25 @@ def view_business_profile(request, user_id):
 
 @login_required
 def create_rating(request):
-	recommended_food = "Curry chicken noodles"  # You may get this from your recommendation algorithm
+	# recommended_food = "Curry chicken noodles"  # You may get this from your recommendation algorithm
 
 	if request.method == 'POST':
 		user = request.user
 		food = request.POST.get('food', '')
 		rating_value = request.POST.get('rating', None)
 
-		context = {
-			'recommended_food': recommended_food,
-		}
-
 		if rating_value is not None:
 			rating_value = int(rating_value)
 			if 1 <= rating_value <= 5:
 				rating, created = Rating.objects.get_or_create(user=user, food=food, defaults={'rating': rating_value})
-				# rating = Rating(user=user, food=food, rating=rating_value)
 				rating.rating = rating_value
+				print("zx rating: "+str(rating),flush=True)
 				rating.save()
 				messages.success(request, ('Successfully rated! We will take this rating into account in your next reccomendation!'))
 				return redirect(user_home)
 		else:
 			messages.error(request,('Please select a rating and try again!'))
-	return render(request, 'recommenderresults.html', context)
+	return redirect(request, 'recommenderresults.html')
 
 @login_required
 def food_quiz(request):
