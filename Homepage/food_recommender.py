@@ -152,9 +152,16 @@ def get_recommendations(user_id):
 
     print('ken: user id is' + str(user_id) +'end' +  str(recommendations_food), flush=True )
 
+    #Randomizer food / or if user does not have 10 ratings
+    recommendations2 = pred_data[~index_1.isin(index_2)]
+    recommendations2 = recommendations2.sort_values(['userid', 'rating'], ascending=[True, False])
+    recommendations2 = recommendations2.sample(n=10)
 
+    recommendations_food2 = recommendations2['foodid'].values.tolist()
+
+    print('RANDOM: user id is' + str(user_id) +'end' +  str(recommendations_food2), flush=True )
 
     
     # Return recommendations
     # ...
-    return recommendations_food
+    return recommendations_food, recommendations_food2

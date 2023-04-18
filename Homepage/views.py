@@ -253,13 +253,27 @@ def view_promotion(request, promotion_id=None):
 @login_required
 def recommender_results(request):
 	user_id = request.user.id
-	recommendations = get_recommendations(user_id)
+	rand= 0 
+	recommendations, recommendationsTwo = get_recommendations(user_id)
 	food_id = recommendations[0]  # get the first food id from the recommendations list
 	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
 	food_name = food.foodName  # get the name of the food
 	maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
 	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
 
+	recommendationsTwo = get_recommendations(user_id)
+	food_dict={}
+	for foodid in recommendationsTwo:
+		try:
+			food2 =  get_object_or_404(Food, id=foodid)#Food.objects.get(Food, id=foodid)
+			food_dict[foodid] = food2
+			# food_name = food.foodName  # get the name of the food
+			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+			# maps_link = f'<a href="{maps_url}" target="_blank">{food_name.foodName}</a>'
+
+		except Food.DoesNotExist:
+			pass
+	
 	####### Below is the prototype code ########
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
@@ -268,14 +282,17 @@ def recommender_results(request):
 		'form': form,
 		#'full_recommendations' : full_recommendations,
 		'recommendations': recommendations,
+		#'recommendationsTwo' : recommendationsTwo,
 		'food_name' : food_name,
 		'maps_link' : maps_link,
+		'food_dict' : food_dict,
 		}
 	return render(request, 'recommenderresults.html',context)
 
 @login_required
 def recommender_normal(request):
 	user_id = request.user.id
+	recommendations, recommendationsTwo = get_recommendations(user_id)
 
 	food_recommendations = get_recommendations(user_id)
 	food_dict = {}
