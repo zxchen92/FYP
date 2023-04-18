@@ -114,7 +114,7 @@ def register_user(request):
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
-	
+
 	return render(request, 'registeruser.html', {'foodCategory':foodCategory,'form':form})
 
 def register_business(request):
@@ -178,8 +178,8 @@ def recommender_page(request):
 		user_profile = UserProfile.objects.get(user=request.user)
 
 	context = {
-		'user_type': user_type, 
-		'foodCategory':foodCategory, 
+		'user_type': user_type,
+		'foodCategory':foodCategory,
 		'user_profile':user_profile,
 		'has_rating':has_rating,
 		}
@@ -244,49 +244,125 @@ def view_promotion(request, promotion_id=None):
 	user_type = UserType.objects.get(user=request.user)
 	promotion = Promotion.objects.get(id=promotion_id)
 	context = {
-		'user_type': user_type, 
+		'user_type': user_type,
 		'users':users,
 		'promotion':promotion,
 		}
 	return render(request, 'viewpromotion.html', context)
 
+# @login_required
+# def recommender_results(request):
+# 	user_id = request.user.id
+# 	rand= 0
+# 	recommendations, recommendationsTwo = get_recommendations(user_id)
+# 	food_id = recommendations[0]  # get the first food id from the recommendations list
+# 	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
+# 	food_name = food.foodName  # get the name of the food
+# 	maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+# 	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
+
+
+# 	food_dict={}
+# 	for foodid in recommendationsTwo:
+# 		try:
+# 			food2 =  get_object_or_404(Food, id=foodid)#Food.objects.get(Food, id=foodid)
+# 			food_dict[foodid] = food2
+# 			# food_name = food.foodName  # get the name of the food
+# 			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+# 			# maps_link = f'<a href="{maps_url}" target="_blank">{food_name.foodName}</a>'
+
+# 		except Food.DoesNotExist:
+# 			pass
+
+# 	####### Below is the prototype code ########
+# 	user_type = UserType.objects.get(user=request.user)
+# 	form = RatingForm(request.POST)
+# 	############################################
+# 	context = {
+# 	'user_type': user_type,
+# 	'form': form,
+# 	#'full_recommendations' : full_recommendations,
+# 	#'recommendations': recommendations,
+# 	#'recommendationsTwo' : recommendationsTwo,
+# 	'food_name' : food_name,
+# 	'maps_link' : maps_link,
+# 	#'food_dict' : food_dict,
+# 	}
+
+# 	ratings = Rating.objects.filter(user=request.user).values('food')
+# 	rating_count = ratings.distinct().count()
+
+
+# 	if rating_count > 30 :
+# 		context['recommendations'] = recommendations
+
+# 	else:
+# 		context['recommendations'] = food_dict
+
+
+# 	return render(request, 'recommenderresults.html',context)
+
 @login_required
 def recommender_results(request):
 	user_id = request.user.id
-	rand= 0 
+	rand= 0
 	recommendations, recommendationsTwo = get_recommendations(user_id)
-	food_id = recommendations[0]  # get the first food id from the recommendations list
-	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
-	food_name = food.foodName  # get the name of the food
-	maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
-	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
 
-	recommendationsTwo = get_recommendations(user_id)
-	food_dict={}
-	for foodid in recommendationsTwo:
-		try:
-			food2 =  get_object_or_404(Food, id=foodid)#Food.objects.get(Food, id=foodid)
-			food_dict[foodid] = food2
-			# food_name = food.foodName  # get the name of the food
-			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
-			# maps_link = f'<a href="{maps_url}" target="_blank">{food_name.foodName}</a>'
 
-		except Food.DoesNotExist:
-			pass
-	
+
+
+
 	####### Below is the prototype code ########
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
+	############################################
 	context = {
-		'user_type': user_type,
-		'form': form,
-		#'full_recommendations' : full_recommendations,
-		'recommendations': recommendations,
-		#'recommendationsTwo' : recommendationsTwo,
-		'food_name' : food_name,
-		'maps_link' : maps_link,
-		'food_dict' : food_dict,
-		}
+	'user_type': user_type,
+	'form': form,
+	#'full_recommendations' : full_recommendations,
+	#'recommendations': recommendations,
+	#'recommendationsTwo' : recommendationsTwo,
+	#'food_name' : food_name,
+	#'maps_link' : maps_link,
+	#'food_dict' : food_dict,
+	}
+
+	ratings = Rating.objects.filter(user=request.user).values('food')
+	rating_count = ratings.distinct().count()
+
+
+	if rating_count > 1 :
+		food_dict = {}
+		food_id = recommendations[0]  # get the first food id from the recommendations list
+		food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
+		food_dict[0] = food
+		# food_name = food.foodName  # get the name of the food
+		# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+		# maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
+		#food_dict={}
+		# for foodid in recommendations:
+		# 	try:
+		# 		food2 =  get_object_or_404(Food, id=foodid)
+		# 		food_dict[foodid] = food2
+				
+		# 	except Food.DoesNotExist:
+		# 		pass
+
+		context['recommendations'] = food_dict
+		#context['maps_link'] = maps_link
+
+	else:
+		food_dict={}
+		for foodid in recommendationsTwo:
+			try:
+				food2 =  get_object_or_404(Food, id=foodid)
+				food_dict[foodid] = food2
+
+			except Food.DoesNotExist:
+				pass
+		context['recommendations'] = food_dict
+
+
 	return render(request, 'recommenderresults.html',context)
 
 @login_required
@@ -306,7 +382,7 @@ def recommender_normal(request):
 
 		except Food.DoesNotExist:
 			pass
-	
+
 	context = {
 		'food_dict' : food_dict,
 	}
@@ -324,7 +400,7 @@ def recommender_normal(request):
 # 		'recommendations': recommendations,
 # 		'food_name' : food_name
 # 		}
-	
+
 #	return render(request, 'recommenderml.html', context)
 
 @login_required
@@ -337,9 +413,9 @@ def view_user_profile(request, user_id):
 	if user_type.userType != "admin":
 		disabled = "disabled"
 	context = {
-		'user_type': user_type, 
-		'foodCategory':foodCategory, 
-		'location_options':location_options, 
+		'user_type': user_type,
+		'foodCategory':foodCategory,
+		'location_options':location_options,
 		'gender_options':gender_options,
 		'selected_user': selected_user,
 		'selected_user_profile': selected_user_profile,
@@ -357,8 +433,8 @@ def view_business_profile(request, user_id):
 	if user_type.userType != "admin":
 		disabled = "disabled"
 	context = {
-		'user_type': user_type, 
-		'foodCategory':foodCategory, 
+		'user_type': user_type,
+		'foodCategory':foodCategory,
 		'location_options':location_options,
 		'selected_business':selected_business,
 		'selected_business_profile':selected_business_profile,
@@ -425,7 +501,7 @@ def food_quiz(request):
 					rating.save()
 		messages.success(request, ('Successfully rated! We will take these ratings into account in your next reccomendation!'))
 		return render(request, 'foodquiz.html', context)
-	
+
 	return render(request, 'foodquiz.html', context)
 
 
@@ -515,7 +591,7 @@ def update_business_profile(request, user_id=None):
 			if form.cleaned_data['password']:
 				user_to_edit.set_password(form.cleaned_data['password'])
 			user_to_edit.save()
-			
+
 			# If admin is editing, update the is_active status
 			if is_admin_editing:
 				is_active = request.POST.get('is_active') != 'on'
@@ -543,7 +619,7 @@ def update_business_profile(request, user_id=None):
 			if is_admin_editing and user_id:
 				return redirect('viewbusinessprofile', user_id=user_id)
 			else:
-				return redirect('profile')		
+				return redirect('profile')
 		else:
 			messages.error(request, 'There was an error in updating the business profile. Please check your input(s).')
 	else:
