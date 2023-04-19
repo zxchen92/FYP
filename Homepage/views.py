@@ -10,7 +10,8 @@ from django.db.models import Count
 from .models import Rating, Food
 from django.utils import timezone
 import matplotlib.pyplot as plt
-
+import io
+import base64
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -724,7 +725,7 @@ def search_promotion(request):
 @login_required
 def data_insights(request):
 	user_type = UserType.objects.get(user=request.user)
-	promotions = Promotion.objects.all()
+	
 	if user_type.userType in ['user','business']:
 		# Get the count of ratings for each food
 		food_rating_counts = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
@@ -746,20 +747,25 @@ def data_insights(request):
 		plt.xticks(rotation=45, ha='right')
 		plt.tight_layout()
 
+		# Set the y-axis range
+		plt.ylim([0, max(counts) + 1])
+
 		# Save the chart as a PNG image in memory
-		buffer = BytesIO()
+		buffer = io.BytesIO()
 		plt.savefig(buffer, format='png')
 		buffer.seek(0)
 		image_data = base64.b64encode(buffer.read()).decode('utf-8')
 		plt.close()
+		try:
+			context = {'user_type': user_type, 
+			
+			'image_data':image_data,
+			}
+			return render(request, 'datainsights.html', context)
+		finally:
+			buffer.close()
 
 
-	else:
-		promotions = Promotion.objects.all()
 
 
-	context = {'user_type': user_type, 
-	    		'promotions':promotions, 
-				'image_data':image_data,
- 				}
-	return render(request, 'datainsights.html', context)
+
