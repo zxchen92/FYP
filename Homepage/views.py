@@ -102,15 +102,31 @@ def register(request):
 
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
-	form = UserRegistrationForm(request.POST or None, request=request)
+	form = UserRegistrationForm(request.POST)
 	if request.method == 'POST':
+		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
 			user, user_profile, user_type = form.save(commit=False)
+
+			user.first_name = request.POST.get('first_name')
+			user.last_name = request.POST.get('last_name')
+			user.email = request.POST.get('email')
+			user.username = request.POST.get('username')
+			user.password = request.POST.get('password')
+
+			user_profile.birthdate_str = request.POST.get('birthdate')
+			user_profile.gender = request.POST.get('gender')
+			user_profile.phone = request.POST.get('phone')
+			user_profile.favorite_food = request.POST.get('favorite_food')
+			user_profile.preferred_location = request.POST.get('preferred_location')
+			user_profile.food_category_id = request.POST.get('food_category')
+
 			user.save()
 			user_profile.user = user
 			user_profile.save()
 			user_type.user = user
 			user_type.save()
+
 			if user is not None:
 				login(request, user)
 				messages.success(request, ('User registered!'))
@@ -120,7 +136,13 @@ def register_user(request):
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
 
-	return render(request, 'registeruser.html', {'foodCategory':foodCategory,'form':form})
+	context = {
+		'foodCategory':foodCategory,
+		'form':form,
+		'location_options':location_options,
+		'gender_options':gender_options,
+	}
+	return render(request, 'registeruser.html', context)
 
 def register_business(request):
 	foodCategory = FoodCategory.objects.all()
@@ -461,7 +483,6 @@ def create_rating(request):
 			if 1 <= rating_value <= 5:
 				rating, created = Rating.objects.get_or_create(user=user, food=food, defaults={'rating': rating_value})
 				rating.rating = rating_value
-				print("zx rating: "+str(rating),flush=True)
 				rating.save()
 				messages.success(request, ('Successfully rated! We will take this rating into account in your next reccomendation!'))
 				return redirect(user_home)
@@ -541,7 +562,7 @@ def update_user_profile(request, user_id=None):
 					login(request, user_to_edit)
 
 			user_profile, created = UserProfile.objects.get_or_create(user=user_to_edit)
-			user_profile.age = form.cleaned_data['age']
+			user_profile.birthdate = form.cleaned_data['birthdate']
 			user_profile.phone = form.cleaned_data['phone']
 			user_profile.favFood = form.cleaned_data['favorite_food']
 			user_profile.prefLocation = form.cleaned_data['preferred_location']
@@ -560,7 +581,7 @@ def update_user_profile(request, user_id=None):
 		form = UserRegistrationForm(initial={
 			'first_name': user_to_edit.first_name,
 			'last_name': user_to_edit.last_name,
-			'age': user_to_edit.userprofile.age,
+			'birthdate': user_to_edit.userprofile.birthdate,
 			'email': user_to_edit.email,
 			'phone': user_to_edit.userprofile.phone,
 			'favorite_food': user_to_edit.userprofile.favFood,

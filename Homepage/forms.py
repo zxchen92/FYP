@@ -41,7 +41,7 @@ class UserRegistrationForm(forms.Form):
 
 	first_name = forms.CharField(max_length=30)
 	last_name = forms.CharField(max_length=30)
-	age = forms.IntegerField()
+	birthdate = forms.DateField()
 	email = forms.EmailField()
 	phone = forms.CharField(max_length=8)
 	favorite_food = forms.CharField(max_length=30)
@@ -86,7 +86,7 @@ class UserRegistrationForm(forms.Form):
 
 		user_profile = UserProfile.objects.create(
 			user=user,
-			age=self.cleaned_data['age'],
+			birthdate=self.cleaned_data['birthdate'],
 			phone=self.cleaned_data['phone'],
 			favFood=self.cleaned_data['favorite_food'],
 			prefLocation=self.cleaned_data['preferred_location'],

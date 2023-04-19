@@ -14,8 +14,8 @@
       <input type="text" class="form-control" id="last_name" name="last_name" placeholder="eg. Doe" value="{{ selected_user.last_name }}" {{disabled}}>
     </div>
     <div class="form-group col-md-2">
-      <label for="age">Age:</label>
-      <input type="number" id="age" name="age" min="18" max="99" step="1" class="form-control" value="{{ selected_user_profile.age }}" {{disabled}}>
+      <label for="birthdate">Birth date:</label>
+      <input type="date" id="birthdate" name="birthdate" class="form-control" value="{{ selected_user_profile.birthdate|date:'Y-m-d' }}" {{disabled}}>
     </div>
     <div class="form-group col-md-2">
       <label for="gender">Gender</label>

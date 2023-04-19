@@ -40,7 +40,7 @@ class UserProfile(models.Model):
         ('F', 'Female'),
     ]
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	age = models.IntegerField()
+	birthdate = models.DateField(null=True, blank=True)
 	phone = models.CharField(max_length=8)
 	favFood = models.CharField(max_length=50)
 	prefLocation = models.CharField(max_length=30, choices=locations)
@@ -48,7 +48,7 @@ class UserProfile(models.Model):
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name='Gender')
 
 	def __str__(self):
-		return f"{self.user.username}'s profile: age {self.age}, phone {self.phone}, favorite food {self.favFood}, preferred location {self.prefLocation}, food category {self.foodCategory}, gender {self.gender}"
+		return f"{self.user.username}'s profile: birthdate {self.birthdate}, phone {self.phone}, favorite food {self.favFood}, preferred location {self.prefLocation}, food category {self.foodCategory}, gender {self.gender}"
 
 class BusinessProfile(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
