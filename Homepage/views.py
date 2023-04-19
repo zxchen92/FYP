@@ -6,7 +6,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
+from .models import Rating, Food
 from django.utils import timezone
+import matplotlib.pyplot as plt
+
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -331,7 +335,7 @@ def recommender_results(request):
 	rating_count = ratings.distinct().count()
 
 
-	if rating_count > 1 :
+	if rating_count > 30 :
 		food_dict = {}
 		food_id = recommendations[0]  # get the first food id from the recommendations list
 		food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
@@ -370,11 +374,11 @@ def recommender_normal(request):
 	user_id = request.user.id
 	recommendations, recommendationsTwo = get_recommendations(user_id)
 
-	food_recommendations = get_recommendations(user_id)
+	#food_recommendations = recommendationsTwo(user_id)
 	food_dict = {}
-	for foodid in food_recommendations:
+	for foodid in recommendationsTwo:
 		try:
-			food =  Food.objects.get(id=foodid)
+			food =  get_object_or_404(Food, id=foodid)#food =  Food.objects.get(id=foodid)
 			food_dict[foodid] = food
 			# food_name = food.foodName  # get the name of the food
 			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
@@ -716,3 +720,46 @@ def search_promotion(request):
 	print("zx promotions: "+str(promotions),flush=True)
 	context = {'user_type': user_type, 'promotions':promotions}
 	return render(request, 'searchpromotion.html', context)
+
+@login_required
+def data_insights(request):
+	user_type = UserType.objects.get(user=request.user)
+	promotions = Promotion.objects.all()
+	if user_type.userType in ['user','business']:
+		# Get the count of ratings for each food
+		food_rating_counts = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
+
+		    # Get the names of the top 10 most rated foods
+		top_foods = [f['food'] for f in food_rating_counts[:10]]
+		print(""+ str(top_foods))
+		#top_foods = Food.objects.filter(id__in=[int(id) for id in top_food_ids]).values_list('foodName', flat=True)
+
+		# Get the names of the top 10 most rated foods
+		# top_foods = Food.objects.filter(id__in=[f['food'] for f in food_rating_counts[:10]]).values_list('foodName', flat=True)
+
+		# Create a bar chart of the top 10 most rated foods
+		counts = [f['count'] for f in food_rating_counts[:10]]
+		plt.bar(top_foods, counts)
+		plt.title('Top 10 Most Rated Foods')
+		plt.xlabel('Food Name')
+		plt.ylabel('Number of Ratings')
+		plt.xticks(rotation=45, ha='right')
+		plt.tight_layout()
+
+		# Save the chart as a PNG image in memory
+		buffer = BytesIO()
+		plt.savefig(buffer, format='png')
+		buffer.seek(0)
+		image_data = base64.b64encode(buffer.read()).decode('utf-8')
+		plt.close()
+
+
+	else:
+		promotions = Promotion.objects.all()
+
+
+	context = {'user_type': user_type, 
+	    		'promotions':promotions, 
+				'image_data':image_data,
+ 				}
+	return render(request, 'datainsights.html', context)

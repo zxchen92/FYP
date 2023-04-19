@@ -12,6 +12,7 @@ def get_recommendations(user_id):
 
     #cell[2]
     rating = pd.read_csv('FoodRatings2.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
+    #get the rating from db and insert to df
     food_rating = rating.copy()
     
     rating_count = (food_rating.
