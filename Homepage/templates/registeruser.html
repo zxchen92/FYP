@@ -3,25 +3,25 @@
 
 <h1>Register User</h1><br>
 
-<form method="post" action="{% url 'registeruser' %}">
+<form id="myForm" method="post" action="{% url 'registeruser' %}">
 	{% csrf_token %}
 	<div class="form-row">
 		<div class="form-group col-md-4">
 			<label for="first_name">First Name</label>
-			<input type="text" class="form-control" id="first_name" name="first_name" placeholder="eg. John">
+			<input type="text" class="form-control" id="first_name" name="first_name" placeholder="eg. John" required> 
 		</div>
 		<div class="form-group col-md-4">
 			<label for="last_name">Last Name</label>
-			<input type="text" class="form-control" id="last_name" name="last_name" placeholder="eg. Doe">
+			<input type="text" class="form-control" id="last_name" name="last_name" placeholder="eg. Doe" required>
 		</div>
 		<div class="form-group col-md-2">
 			<label for="birthdate">Birth Date:</label>
-			<input type="date" id="birthdate" name="birthdate" class="form-control">
+			<input type="date" id="birthdate" name="birthdate" class="form-control" required>
 		</div>
 		<div class="form-group col-md-2">
 			<label for="gender">Gender</label>
-			<select class="custom-select"name="gender">
-				<option selected>Gender</option>
+			<select class="custom-select" id="gender" name="gender" required>
+				<option value="" selected>Gender</option>
 				{% for value, label in gender_options %}
 					<option value="{{ value }}">{{ label }}</option>
 				{% endfor %}
@@ -31,22 +31,22 @@
 	<div class="form-row">
 		<div class="form-group col-md-6">
 			<label for="email">Email</label>
-			<input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com">
+			<input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" required>
 		</div>
 		<div class="form-group col-md-6">
 			<label for="phone">Phone Number</label>
-			<input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678">
+			<input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" required>
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="favorite_food">Favourite food</label>
-		<input type="text" class="form-control" id="favorite_food" name="favorite_food" placeholder="eg. Duck Rice">
+		<input type="text" class="form-control" id="favorite_food" name="favorite_food" placeholder="eg. Duck Rice" required>
 	</div>
 		<div class="form-row">
 		<div class="form-group col-md-6">
 			<label for="preferred_location">Prefered Location</label>
-			<select class="custom-select custom-select-lg mb-3" id="preferred_location" name="preferred_location">
-				<option selected>Select your preferred Location</option>
+			<select class="custom-select custom-select-lg mb-3" id="preferred_location" name="preferred_location" required>
+				<option value="" selected>Select your preferred Location</option>
 				{% for value, label in location_options %}
 					<option value="{{ value }}">{{ label }}</option>
 				{% endfor %}
@@ -54,8 +54,8 @@
 		</div>
 		<div class="form-group col-md-6">
 			<label for="food_category">Food Genre</label>
-			<select class="custom-select custom-select-lg mb-3" id="food_category" name="food_category">
-				<option selected>Select your prefered food genre</option>
+			<select class="custom-select custom-select-lg mb-3" id="food_category" name="food_category" required>
+				<option value="" selected>Select your prefered food genre</option>
 				{% if foodCategory %}
 					{% for item in foodCategory %}
 						<option value="{{ item.pk }}">{{ item.categoryName }}</option>
@@ -67,11 +67,11 @@
 	<div class="form-row">
 		<div class="form-group col-md-6">
 			<label for="username">Username</label>
-			<input type="text" class="form-control" id="username" name="username">
+			<input type="text" class="form-control" id="username" name="username" required>
 		</div>
 		<div class="form-group col-md-6">
 			<label for="password">Password</label>
-			<input type="password" class="form-control" id="password" name="password">
+			<input type="password" class="form-control" id="password" name="password" required>
 		</div>
 	</div>
 	<div class="form-group">
@@ -82,13 +82,33 @@
 			</label>
 		</div>
 		<div class="form-check">
-			<input class="form-check-input" type="checkbox" id="gridCheck"required>
+			<input class="form-check-input" type="checkbox" id="gridCheck" required>
 			<label class="form-check-label" for="gridCheck">
 				I agree that CollabFood may collect my personal data both in its own capacity for the purpose of ticket processing, and as ticketing agent and data intermediary of promoters and venue managers of events for which I purchase tickets for the purposes of event management, and venue admission. My personal data may be collected, used, processed and disclosed by CollabFood, its agents and the above parties in accordance with CollabFood's Privacy Policy. I further confirm that all information provided is accurate and complete.
 			</label>
 		</div>
 	</div>
-	<button type="submit" class="btn btn-primary">Save</button>
+	<button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+<script>
+$(function() {
+  $('#myForm').submit(function(event) {
+    var gender = $('#gender').val();
+    var preferred_location = $('#preferred_location').val();
+    var food_category = $('#food_category').val();
+    var valid = true;
+    // Check if form is valid
+    if (!this.checkValidity()) {
+      event.preventDefault();
+      $('#error-message').html('Please fill in all required fields.');
+      valid = false;
+    }
+    // Remove "submit" class from required fields to remove red border
+    $('input:required, select:required, textarea:required').removeClass('submit');
+  });
+});
+
+</script>
 
 {% endblock %}

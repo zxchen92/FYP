@@ -146,25 +146,43 @@ def register_user(request):
 
 def register_business(request):
 	foodCategory = FoodCategory.objects.all()
-	form = BusinessRegistrationForm(request.POST or None, request=request)
+	form = BusinessRegistrationForm(request.POST)
 	if request.method == 'POST':
+		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
 			user, business_profile, user_type = form.save(commit=False)
+
+			user.first_name = request.POST.get('first_name')
+			user.last_name = request.POST.get('last_name')
+			user.email = request.POST.get('email')
+			user.username = request.POST.get('username')
+			user.password = request.POST.get('password')
+
+			business_profile.companyName = request.POST.get('company_name')
+			business_profile.phone = request.POST.get('phone')
+			business_profile.address = request.POST.get('address')
+			business_profile.postalCode = request.POST.get('postal_code')
+			business_profile.food_category_id = request.POST.get('food_category')
+
 			user.is_active = False
 			user.save()
 			business_profile.user = user
 			business_profile.save()
 			user_type.user = user
+			user_type.userType = 'business'
 			user_type.save()
 			if user is not None:
-				messages.success(request, ('User registered! We will send a verifcation email to you when your business is verfied!'))
+				messages.success(request, ('Business registered! We will notify you when your business is verfied!'))
 				return redirect('landing')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
 
-
-	return render(request, 'registerbusiness.html', {'foodCategory':foodCategory,'form':form})
+	context = {
+		'foodCategory':foodCategory,
+		'form':form,
+	}
+	return render(request, 'registerbusiness.html', context)
 
 @login_required
 def food_category(request):
