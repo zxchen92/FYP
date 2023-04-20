@@ -804,7 +804,17 @@ def data_insights(request):
 		finally:
 			buffer.close()
 
-
-
-
+@login_required
+def data_insight(request):
+  user_type = UserType.objects.get(user=request.user)
+  
+  if user_type.userType in ['user','business']:
+    
+  #Generate the plot image data
+    image_data = data_insights()
+    context = {
+    'user_type': user_type, 
+    'image_data':image_data,
+    }
+  return render(request, 'datainsights.html', context)
 
