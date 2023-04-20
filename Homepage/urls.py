@@ -34,5 +34,5 @@ urlpatterns = [
 	path('viewbusinessprofile/<int:user_id>/',views.view_business_profile ,name='viewbusinessprofile'),
 	path('viewpromotion/<int:promotion_id>/',views.view_promotion ,name='viewpromotion'),
     path('viewuserprofile/<int:user_id>/', views.view_user_profile, name='viewuserprofile'),
-    path('datainsights', views.data_insights, name='datainsights'),
+    path('datainsights', views.data_insight, name='datainsights'),
 ]
