@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 from django.db.models import Count
 from .models import Rating
+from .models import UserProfile
 
 def data_insights():
     # Get the count of ratings for each food
@@ -34,4 +35,35 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    return most_rated_food_graph
+    #################################
+
+    favourite_category_count = UserProfile.objects.values('foodCategory').annotate(count1=Count('foodCategory')).order_by('-count1')
+
+    top_categories = [f['foodCategory'] for f in favourite_category_count[:10]]
+    print("" + str(top_categories))
+
+
+
+    # Create a bar chart of the top 10 most rated foods
+    countsOne = [f['count1'] for f in favourite_category_count[:10]]
+    plt.bar(top_categories, countsOne)
+    plt.title('Top Food Category')
+    plt.xlabel('Food Name')
+    plt.ylabel('Amount')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+
+    # Set the y-axis range
+    plt.ylim([0, max(counts) + 1])
+
+    # Save the chart as a PNG image in memory
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    favourite_categories_graph = base64.b64encode(buffer.read()).decode('utf-8')
+    plt.close()
+    buffer.close()
+
+
+
+    return most_rated_food_graph, favourite_categories_graph
