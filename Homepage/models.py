@@ -5,9 +5,12 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
-
+DIETARY_RESTRICTIONS = [
+	('vegetarian', 'Vegetarian'),
+	('halal', 'Halal'),
+	('seafood_free', 'Seafood-Free'),
+]
 # Create your models here.
-
 class FoodCategory(models.Model):
 	categoryName = models.CharField(max_length=30)
 	adminID = models.IntegerField()
@@ -28,6 +31,7 @@ class UserType(models.Model):
 		return f"{self.user.username}'s type: {self.userType}"
 
 class UserProfile(models.Model):
+	DIETARY_RESTRICTIONS = DIETARY_RESTRICTIONS
 	locations = [
 		('1', 'North'),
 		('2', 'South'),
@@ -45,10 +49,11 @@ class UserProfile(models.Model):
 	favFood = models.CharField(max_length=50)
 	prefLocation = models.CharField(max_length=30, choices=locations)
 	foodCategory = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name='user_food_category')
+	dietary_restrictions = MultiSelectField(choices=DIETARY_RESTRICTIONS, max_choices=3, validators=[MaxValueValidator(3)], null=True, blank=True)
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name='Gender')
 
 	def __str__(self):
-		return f"{self.user.username}'s profile: birthdate {self.birthdate}, phone {self.phone}, favorite food {self.favFood}, preferred location {self.prefLocation}, food category {self.foodCategory}, gender {self.gender}"
+		return f"{self.user.username}'s profile - birthdate: {self.birthdate}, phone: {self.phone}, favorite food: {self.favFood}, preferred location: {self.prefLocation}, food category: {self.foodCategory}, gender: {self.gender}, dietary restrictions: {self.dietary_restrictions}"
 
 class BusinessProfile(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -72,11 +77,6 @@ class Rating(models.Model):
 		return f"{self.user.username} - {self.food} - {self.rating}"
 
 class Food(models.Model):
-	DIETARY_RESTRICTIONS = [
-		('vegetarian', 'Vegetarian'),
-		('halal', 'Halal'),
-		('seafood_free', 'Seafood-Free'),
-	]
 	foodName = models.CharField(max_length=50)
 	foodCategory = models.ForeignKey(FoodCategory, on_delete=models.SET_NULL, null=True)
 	categoryName = models.CharField(max_length=30)

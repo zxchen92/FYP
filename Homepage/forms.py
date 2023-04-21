@@ -5,6 +5,27 @@ from django.contrib.auth.forms import UserCreationForm
 
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
 
+# Define your constants here
+DIETARY_RESTRICTIONS = [
+	('vegetarian', 'Vegetarian'),
+	('halal', 'Halal'),
+	('seafood_free', 'Seafood-Free'),
+]
+location_choices = [
+	('', '---------'),
+	('1', 'North'),
+	('2', 'South'),
+	('3', 'East'),
+	('4', 'West'),
+	('5', 'Central'),
+]
+GENDER_CHOICES = [
+	('', 'Please Choose One'),
+	('M', 'Male'),
+	('F', 'Female'),
+]
+
+# Define your forms here
 class FoodCategoryForm(forms.ModelForm):
 	categoryName = forms.CharField(max_length=30)
 	
@@ -25,20 +46,6 @@ class FoodCategoryForm(forms.ModelForm):
 		fields = ["categoryName"]
 
 class UserRegistrationForm(forms.Form):
-	location_choices = [
-		('', '---------'),
-		('1', 'North'),
-		('2', 'South'),
-		('3', 'East'),
-		('4', 'West'),
-		('5', 'Central'),
-	]
-	GENDER_CHOICES = [
-		('', 'Please Choose One'),
-        ('M', 'Male'),
-        ('F', 'Female'),
-    ]
-
 	first_name = forms.CharField(max_length=30)
 	last_name = forms.CharField(max_length=30)
 	birthdate = forms.DateField()
@@ -47,6 +54,7 @@ class UserRegistrationForm(forms.Form):
 	favorite_food = forms.CharField(max_length=30)
 	preferred_location = forms.ChoiceField(choices=location_choices)
 	food_category = forms.ModelChoiceField(queryset=FoodCategory.objects.all())
+	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple())
 	username = forms.CharField(max_length=30)
 	password = forms.CharField(widget=forms.PasswordInput)
 	gender = forms.ChoiceField(choices=GENDER_CHOICES, label='Gender')
@@ -91,7 +99,8 @@ class UserRegistrationForm(forms.Form):
 			favFood=self.cleaned_data['favorite_food'],
 			prefLocation=self.cleaned_data['preferred_location'],
 			foodCategory=self.cleaned_data['food_category'],
-			gender=self.cleaned_data['gender']
+			gender=self.cleaned_data['gender'],
+			dietary_restrictions=self.cleaned_data['dietary_restrictions'],
 		)
 
 		user_type = UserType.objects.create(
@@ -175,13 +184,6 @@ class RatingForm(forms.ModelForm):
         fields = ['user', 'food', 'rating']
 
 class FoodForm(forms.ModelForm):
-	DIETARY_RESTRICTIONS = [
-		('dairy_free', 'Dairy-Free'),
-		('vegetarian', 'Vegetarian'),
-		('halal', 'Halal'),
-		('seafood_free', 'Seafood-Free'),
-	]
-
 	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple())
 
 	class Meta:
@@ -209,6 +211,5 @@ class PromotionForm(forms.ModelForm):
 		if start_date and end_date and end_date < start_date:
 			self.add_error('endDate', 'End date should be later than start date.')
 			# raise forms.ValidationError('End date should be later than start date.')
-
 		return cleaned_data
 

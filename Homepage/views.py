@@ -6,7 +6,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+
+from django.db import IntegrityError
 from django.db.models import Count
+
 from .models import Rating, Food
 from .data_insights import data_insights
 from django.utils import timezone
@@ -19,7 +22,6 @@ import tensorflow as tf
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
 
-
 from .food_recommender import get_recommendations
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
 from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm
@@ -28,17 +30,23 @@ from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryFor
 import sys
 
 location_options = [
-        ('1', 'North'),
-		('2', 'South'),
-		('3', 'East'),
-		('4', 'West'),
-		('5', 'Central'),
-    ]
+	('1', 'North'),
+	('2', 'South'),
+	('3', 'East'),
+	('4', 'West'),
+	('5', 'Central'),
+]
 
 gender_options = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-    ]
+	('M', 'Male'),
+	('F', 'Female'),
+]
+
+DIETARY_RESTRICTIONS_OPTIONS = [
+	('vegetarian', 'Vegetarian'),
+	('halal', 'Halal'),
+	('seafood_free', 'Seafood-Free'),
+]
 
 def landing(request):
 	context = {}
@@ -89,7 +97,16 @@ def user_profile(request):
 		context = {'user_type':user_type}
 		if user_type.userType == 'user':
 			user_profile = UserProfile.objects.get(user=request.user)
-			context = {'foodCategory':foodCategory, 'user_type':user_type, 'user_profile':user_profile, 'location_options': location_options, 'gender_options':gender_options}
+			dietary_restrictions = [dict(UserProfile.DIETARY_RESTRICTIONS)[value] for value in user_profile.dietary_restrictions]
+			context = {
+				'foodCategory':foodCategory, 
+				'user_type':user_type, 
+				'user_profile':user_profile, 
+				'location_options': location_options, 
+				'gender_options':gender_options,
+				'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+				'dietary_restrictions':dietary_restrictions,
+			}
 		if user_type.userType == 'business':
 			business_profile = BusinessProfile.objects.get(user=request.user)
 			context = {'foodCategory':foodCategory, 'user_type':user_type, 'business_profile':business_profile}
@@ -107,32 +124,39 @@ def register_user(request):
 	if request.method == 'POST':
 		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
-			user, user_profile, user_type = form.save(commit=False)
+			try:
+				user, user_profile, user_type = form.save(commit=False)
 
-			user.first_name = request.POST.get('first_name')
-			user.last_name = request.POST.get('last_name')
-			user.email = request.POST.get('email')
-			user.username = request.POST.get('username')
-			user.password = request.POST.get('password')
+				user.first_name = request.POST.get('first_name')
+				user.last_name = request.POST.get('last_name')
+				user.email = request.POST.get('email')
+				user.username = request.POST.get('username')
+				user.password = request.POST.get('password')
 
-			user_profile.birthdate_str = request.POST.get('birthdate')
-			user_profile.gender = request.POST.get('gender')
-			user_profile.phone = request.POST.get('phone')
-			user_profile.favorite_food = request.POST.get('favorite_food')
-			user_profile.preferred_location = request.POST.get('preferred_location')
-			user_profile.food_category_id = request.POST.get('food_category')
+				user_profile.birthdate_str = request.POST.get('birthdate')
+				user_profile.gender = request.POST.get('gender')
+				user_profile.phone = request.POST.get('phone')
+				user_profile.favorite_food = request.POST.get('favorite_food')
+				user_profile.preferred_location = request.POST.get('preferred_location')
+				user_profile.food_category_id = request.POST.get('food_category')
+				user_profile.dietary_restrictions = request.POST.getlist('dietary_restrictions')
 
-			user.save()
-			user_profile.user = user
-			user_profile.save()
-			user_type.user = user
-			user_type.save()
+				user.save()
+				user_profile.user = user
+				user_profile.save()
+				user_type.user = user
+				user_type.save()
 
-			if user is not None:
-				login(request, user)
-				messages.success(request, ('User registered!'))
-				user_type = get_object_or_404(UserType, user=user)
-				return redirect('userhome')
+				if user is not None:
+					login(request, user)
+					messages.success(request, ('User registered!'))
+					user_type = get_object_or_404(UserType, user=user)
+					return redirect('userhome')
+			
+			except IntegrityError:
+				# catch the IntegrityError exception raised by trying to create a user with an existing username
+				messages.error(request, 'Username already exists. Please choose a different username.')
+				form.add_error('username', 'Username already exists. Please choose a different username.')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
@@ -142,6 +166,7 @@ def register_user(request):
 		'form':form,
 		'location_options':location_options,
 		'gender_options':gender_options,
+		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
 	}
 	return render(request, 'registeruser.html', context)
 
@@ -455,6 +480,7 @@ def view_user_profile(request, user_id):
 	selected_user_profile  = UserProfile.objects.get(user=selected_user)
 	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
+	dietary_restrictions = [dict(UserProfile.DIETARY_RESTRICTIONS)[value] for value in selected_user_profile.dietary_restrictions]
 	disabled = ''
 	if user_type.userType != "admin":
 		disabled = "disabled"
@@ -466,7 +492,9 @@ def view_user_profile(request, user_id):
 		'selected_user': selected_user,
 		'selected_user_profile': selected_user_profile,
 		'disabled':disabled,
-		}
+		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+		'dietary_restrictions':dietary_restrictions,
+	}
 	return render(request, 'viewuserprofile.html', context)
 
 @login_required
@@ -587,6 +615,7 @@ def update_user_profile(request, user_id=None):
 			user_profile.prefLocation = form.cleaned_data['preferred_location']
 			user_profile.foodCategory = form.cleaned_data['food_category']
 			user_profile.gender = form.cleaned_data['gender']
+			user_profile.dietary_restrictions = form.cleaned_data['dietary_restrictions']
 			user_profile.save()
 
 			messages.success(request, 'Profile has been updated successfully.')
@@ -608,6 +637,7 @@ def update_user_profile(request, user_id=None):
 			'food_category': user_to_edit.userprofile.foodCategory,
 			'username': user_to_edit.username,
 			'gender': user_to_edit.userprofile.gender,
+			'dietary_restrictions': user_to_edit.userprofile.dietary_restrictions
 		})
 
 	context = {'form': form, 'is_admin_editing': is_admin_editing}
