@@ -43,7 +43,7 @@
             <th scope="row">{{ food_obj.foodName }}</td> -->
             <tr class="clickable-row">
             <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
-            <td>{{ food_obj.foodCategory }}</td>
+            <td>{{ food_obj.foodCategory.categoryName}}</td>
             <td>{{ food_obj.dietary_restrictions }}</td>
         </tr>
     {% endfor %}

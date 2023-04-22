@@ -14,8 +14,8 @@
       <input type="text" class="form-control" id="last_name" name="last_name" placeholder="eg. Doe" value="{{ selected_user.last_name }}" {{disabled}}>
     </div>
     <div class="form-group col-md-2">
-      <label for="age">Age:</label>
-      <input type="number" id="age" name="age" min="18" max="99" step="1" class="form-control" value="{{ selected_user_profile.age }}" {{disabled}}>
+      <label for="birthdate">Birth date:</label>
+      <input type="date" id="birthdate" name="birthdate" class="form-control" value="{{ selected_user_profile.birthdate|date:'Y-m-d' }}" {{disabled}}>
     </div>
     <div class="form-group col-md-2">
       <label for="gender">Gender</label>
@@ -27,7 +27,6 @@
       </select>
     </div>
   </div>
-  
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="email">Email</label>
@@ -65,6 +64,15 @@
     </div>
   </div>
   {% if user_type.userType == 'admin' %}
+  <div class="form-group">
+    <label for="dietary_restrictions">Dietary Restrictions:</label>
+    {% for value, label in DIETARY_RESTRICTIONS_OPTIONS %}
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="dietary_restrictions" value="{{ value }}" id="dietary_restrictions_{{ forloop.counter }}" {% if label in dietary_restrictions %}checked{% endif %}>
+      <label class="form-check-label" for="dietary_restrictions_{{ forloop.counter }}">{{ label }}</label>
+    </div>
+    {% endfor %}			
+  </div>
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="username">Username</label>

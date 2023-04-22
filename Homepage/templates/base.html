@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/1F2mBADf8Bv7AwptH5l6gXp7gD8F10F8oM/qw//" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-bar-rating@1.2.2/dist/themes/fontawesome-stars.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
 	<style>
 		.star-rating {
@@ -58,7 +59,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/jquery-bar-rating@1.2.2/dist/jquery.barrating.min.js"></script>
 
 	<!-- Navbar -->
-  	<nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+  	<nav class="navbar sticky-top navbar-expand-lg navbar-dark" style="background-color: #789FC5;">
 	  <a class="navbar-brand" href="{% url 'landing' %}">CollabFood</a>
 	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 	    <span class="navbar-toggler-icon"></span>
@@ -84,39 +85,39 @@
 					  <a class="nav-link" href="{% url 'searchusers' %}">Users <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
-						<a class="nav-link" href="{% url 'foodquiz' %}">Food Quiz <span class="sr-only">(current)</span></a>
-					</li>
+					    <a class="nav-link" href="{% url 'searchbusinesses' %}">Businesses <span class="sr-only">(current)</span></a>
+				  	</li>
 
 					{% elif user_type.userType == 'user' %}
 					<!-- links that regular users should see -->
 		      		<li class="nav-item active">
-					  <a class="nav-link" href="{% url 'userhome' %}">Home <span class="sr-only">(current)</span></a>
+					  <a class="nav-link" href="{% url 'userhome' %}">Home<span class="sr-only">(current)</span></a>
 					</li>
 		      		<li class="nav-item active">
-					  <a class="nav-link" href="{% url 'searchpromotions' %}">Promotions <span class="sr-only">(current)</span></a>
+					  <a class="nav-link" href="{% url 'searchpromotions' %}">Promotions<span class="sr-only">(current)</span></a>
 					</li>					
 					<li class="nav-item active">
-					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender <span class="sr-only">(current)</span></a>
+					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender<span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
-						<a class="nav-link" href="{% url 'foodquiz' %}">Food Quiz <span class="sr-only">(current)</span></a>
-					</li>
+					    <a class="nav-link" href="{% url 'searchbusinesses' %}">Businesses<span class="sr-only">(current)</span></a>
+				  	</li>
+					<li class="nav-item active">
+					    <a class="nav-link" href="{% url 'viewratings' %}">Past Ratings<span class="sr-only">(current)</span></a>
+				  	</li>
 
 					{% elif user_type.userType == 'business'%}
 					<!-- links that business users should see -->
-		      		<li class="nav-item active">
+		      <li class="nav-item active">
 					  <a class="nav-link" href="{% url 'businesshome' %}">Home <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
 						<a class="nav-link" href="{% url 'createpromotion' %}">Create Promotions <span class="sr-only">(current)</span></a>
-					  </li>
-					{% endif %}
-
-
-					
+					</li>
 					<li class="nav-item active">
-					    <a class="nav-link" href="{% url 'searchbusinesses' %}">Businesses <span class="sr-only">(current)</span></a>
-				  </li>
+						<a class="nav-link" href="{% url 'datainsights' %}">Data Insights <span class="sr-only">(current)</span></a>
+					</li>
+					{% endif %}
 
 					{% if user_type.userType == 'admin' %}
 					<!-- links that admins should see -->

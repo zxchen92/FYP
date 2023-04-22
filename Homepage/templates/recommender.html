@@ -1,116 +1,65 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
-
-<div class="container">
-	<h1>Food Recommender</h1>
-</div>
-<br>
-<!-- This container splits the page into half -->
-<style>
-  .container-vertical-line {
-    height: 620px;
-    position: relative;
-  }
-  .vertical-line {
-    border-left: 1px solid black;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-  }
-  .section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
-  .list-group-item.disabled {
-  pointer-events: none;
-  cursor: default;
-  color: #999;
-  background-color: #f8f9fa;
-  border-color: #999;
-}
-
-</style>
-
-<div class="container container-vertical-line">
+<section class="container py-5">
   <div class="row">
     <div class="col-md-6">
-      <div class="section">
-        <div class="text-center"><h3>Food Recommendations based on Food Category</h2></div>
+      <div class="card shadow h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <h2 class="card-title text-center mb-4">Food Recommendations based on Food Category</h2>
+          <p class="card-text">Craving for a cuisine but don't know what exactly to eat? Click on the recommend button below to get some food recommendations!</p>
+          <div class="d-flex justify-content-center">
+            <select id="food-category-select" class="custom-select custom-select-lg mb-3" value="{{user_profile.foodCategory.categoryName}}">
+              <option selected>Select your preferred food genre</option>
+                {% if foodCategory %}
+                  {% for item in foodCategory %}
+                    <option value="{{ item.pk }}" {% if user_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
+                  {% endfor %}
+                {% endif %}
+            </select>
+          </div>
+          <a id="recommendation-link" href="{% url 'recommenderresults' %}" class="btn btn-primary btn-block disabled">Recommend me!</a>
+        </div>
       </div>
-      <p>Craving for a cuisine but dont know what exactly to eat? Click on the recommend button below to get some food recommendations!</p>
-      <br>
-      <div>
-        
-      </div>
-
-
     </div>
     <div class="col-md-6">
-      <div class="section">
-        <div class="text-center"><h3>Food Recommendations based on Collaborative filtering</h3></div>
-      </div>
-      <p>Feeling adventurous today? Click on the recommend button below to get food recommendations based on users like you!</p>
-      <br>
-
-    </div>
-    <div class="dvertical-line"></div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="row">
-    <div class="col-md-6">
-      <div class="d-flex flex-column align-items-center">
-        <select id="food-category-select" class="custom-select custom-select-lg mb-3" value="{{user_profile.foodCategory.categoryName}}">
-          <option selected>Select your prefered food genre</option>
-            {% if foodCategory %}
-              {% for item in foodCategory %}
-                <option value="{{ item.pk }}" {% if user_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
-              {% endfor %}
-            {% endif %}
-        </select>
-        <!-- left button -->
-        <a id="recommendation-link" href="{% url 'recommendernormal' %}" class="list-group-item list-group-item-action active text-center disabled" aria-current="true">Recommend mee!</a>
+      <div class="card shadow h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <h2 class="card-title text-center mb-4">Food Recommendations based on Collaborative filtering</h2>
+          <p class="card-text">Feeling adventurous today? Click on the recommend button below to get food recommendations based on users like you!</p>
+          <div class="d-flex justify-content-center">
+            <a href="{% if has_rating %} {% url 'recommenderresults' %} {% else %} {% url 'foodquiz' %} {%endif%}" class="btn btn-primary btn-block">Recommend me!</a>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="col-md-6 d-flex align-items-end">
-        <a href="{% if has_rating %} {% url 'recommenderresults' %} {% else %} {% url 'foodquiz' %} {%endif%}" class="list-group-item list-group-item-action active text-center" aria-current="true">Recommend me!</a>
-    </div>
   </div>
-</div>
+</section>
 
-<script>
-  // Get the select and link elements by their ids
-  const foodCategorySelect = document.getElementById("food-category-select");
-  const recommendationLink = document.getElementById("recommendation-link");
+  <script>
+    // Get the select and link elements by their ids
+    const foodCategorySelect = document.getElementById("food-category-select");
+    const recommendationLink = document.getElementById("recommendation-link");
 
-  // Function to enable or disable the link based on the selected value
-  function updateLinkState() {
-    if (foodCategorySelect.value != 'Select your prefered food genre') {
-      recommendationLink.classList.remove("disabled");
-    } else {
-      recommendationLink.classList.add("disabled");
+    // Function to enable or disable the link based on the selected value
+    function updateLinkState() {
+      if (foodCategorySelect.value != 'Select your preferred food genre') {
+        recommendationLink.classList.remove("disabled");
+      } else {
+        recommendationLink.classList.add("disabled");
+      }
     }
-  }
 
-  // Call the function initially to set the correct state on page load
-  updateLinkState();
+    // Call the function initially to set the correct state on page load
+    updateLinkState();
 
-  // Add an event listener to the select element to update the link state when the value changes
-  foodCategorySelect.addEventListener("change", updateLinkState);
-  
-  recommendationLink.addEventListener("click", function (event) {
-    if (recommendationLink.classList.contains("disabled")) {
-      event.preventDefault();
-    }
-  });
-</script>
-
+    // Add an event listener to the select element to update the link state when the value changes
+    foodCategorySelect.addEventListener("change", updateLinkState);
+    
+    recommendationLink.addEventListener("click", function (event) {
+      if (recommendationLink.classList.contains("disabled")) {
+        event.preventDefault();
+      }
+    });
+  </script>
 {% endblock %}
