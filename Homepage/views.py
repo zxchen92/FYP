@@ -853,3 +853,22 @@ def data_insight(request):
 		}
 	return render(request, 'datainsights.html', context)
 
+@login_required
+def view_ratings(request):
+	user = request.user
+	ratings = Rating.objects.filter(user=user)
+	user_type = UserType.objects.get(user=request.user)
+	rating_values = [(rating, range(1, rating.rating+1), range(rating.rating+1, 6)) for rating in ratings]
+	context = {
+		'rating_values': rating_values,
+		'user_type': user_type
+	}
+	return render(request, 'viewratings.html', context)
+
+def create_stars(rating):
+	full_stars = int(rating)
+	half_stars = 1 if (rating - full_stars) >= 0.5 else 0
+	empty_stars = 5 - full_stars - half_stars
+	return ' '.join(['<span class="fa fa-star checked"></span>' for _ in range(full_stars)] +
+					['<span class="fa fa-star-half-o checked"></span>'] * half_stars +
+					['<span class="fa fa-star"></span>'] * empty_stars)
