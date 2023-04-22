@@ -53,6 +53,10 @@ def landing(request):
 	if request.user.is_authenticated:
 		user_type = UserType.objects.get(user=request.user)
 		context = {'user_type': user_type}
+	user_count = UserType.objects.filter(userType='user').count()
+	business_count = UserType.objects.filter(userType='business').count()
+	context['user_count'] = user_count
+	context['business_count'] = business_count
 	return render(request, 'landing.html', context)
 
 def about(request):
