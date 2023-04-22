@@ -84,8 +84,8 @@
 					  <a class="nav-link" href="{% url 'searchusers' %}">Users <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
-						<a class="nav-link" href="{% url 'foodquiz' %}">Food Quiz <span class="sr-only">(current)</span></a>
-					</li>
+					    <a class="nav-link" href="{% url 'searchbusinesses' %}">Businesses <span class="sr-only">(current)</span></a>
+				  	</li>
 
 					{% elif user_type.userType == 'user' %}
 					<!-- links that regular users should see -->
@@ -99,24 +99,21 @@
 					  <a class="nav-link" href="{% url 'recommenderpage' %}">Recommender <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
-						<a class="nav-link" href="{% url 'foodquiz' %}">Food Quiz <span class="sr-only">(current)</span></a>
-					</li>
+					    <a class="nav-link" href="{% url 'searchbusinesses' %}">Businesses <span class="sr-only">(current)</span></a>
+				  	</li>
 
 					{% elif user_type.userType == 'business'%}
 					<!-- links that business users should see -->
 		      <li class="nav-item active">
 					  <a class="nav-link" href="{% url 'businesshome' %}">Home <span class="sr-only">(current)</span></a>
 					</li>
-			  <li class="nav-item active">
-					  <a class="nav-link" href="{% url 'createpromotion' %}">Create Promotions <span class="sr-only">(current)</span></a>
+					<li class="nav-item active">
+						<a class="nav-link" href="{% url 'createpromotion' %}">Create Promotions <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="{% url 'datainsights' %}">Data Insights <span class="sr-only">(current)</span></a>
 					</li>
 					{% endif %}
-
-
-					
-					<li class="nav-item active">
-					    <a class="nav-link" href="{% url 'searchbusinesses' %}">Businesses <span class="sr-only">(current)</span></a>
-				  </li>
 
 					{% if user_type.userType == 'admin' %}
 					<!-- links that admins should see -->

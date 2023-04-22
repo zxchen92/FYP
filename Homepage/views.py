@@ -6,13 +6,21 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+
+from django.db import IntegrityError
+from django.db.models import Count
+
+from .models import Rating, Food
+from .data_insights import data_insights
 from django.utils import timezone
+import matplotlib.pyplot as plt
+import io
+import base64
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
-
 
 from .food_recommender import get_recommendations
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
@@ -22,17 +30,23 @@ from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryFor
 import sys
 
 location_options = [
-        ('1', 'North'),
-		('2', 'South'),
-		('3', 'East'),
-		('4', 'West'),
-		('5', 'Central'),
-    ]
+	('1', 'North'),
+	('2', 'South'),
+	('3', 'East'),
+	('4', 'West'),
+	('5', 'Central'),
+]
 
 gender_options = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-    ]
+	('M', 'Male'),
+	('F', 'Female'),
+]
+
+DIETARY_RESTRICTIONS_OPTIONS = [
+	('vegetarian', 'Vegetarian'),
+	('halal', 'Halal'),
+	('seafood_free', 'Seafood-Free'),
+]
 
 def landing(request):
 	context = {}
@@ -83,7 +97,16 @@ def user_profile(request):
 		context = {'user_type':user_type}
 		if user_type.userType == 'user':
 			user_profile = UserProfile.objects.get(user=request.user)
-			context = {'foodCategory':foodCategory, 'user_type':user_type, 'user_profile':user_profile, 'location_options': location_options, 'gender_options':gender_options}
+			dietary_restrictions = [dict(UserProfile.DIETARY_RESTRICTIONS)[value] for value in user_profile.dietary_restrictions]
+			context = {
+				'foodCategory':foodCategory, 
+				'user_type':user_type, 
+				'user_profile':user_profile, 
+				'location_options': location_options, 
+				'gender_options':gender_options,
+				'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+				'dietary_restrictions':dietary_restrictions,
+			}
 		if user_type.userType == 'business':
 			business_profile = BusinessProfile.objects.get(user=request.user)
 			context = {'foodCategory':foodCategory, 'user_type':user_type, 'business_profile':business_profile}
@@ -97,47 +120,95 @@ def register(request):
 
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
-	form = UserRegistrationForm(request.POST or None, request=request)
+	form = UserRegistrationForm(request.POST)
 	if request.method == 'POST':
+		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
-			user, user_profile, user_type = form.save(commit=False)
-			user.save()
-			user_profile.user = user
-			user_profile.save()
-			user_type.user = user
-			user_type.save()
-			if user is not None:
-				login(request, user)
-				messages.success(request, ('User registered!'))
-				user_type = get_object_or_404(UserType, user=user)
-				return redirect('userhome')
+			try:
+				user, user_profile, user_type = form.save(commit=False)
+
+				user.first_name = request.POST.get('first_name')
+				user.last_name = request.POST.get('last_name')
+				user.email = request.POST.get('email')
+				user.username = request.POST.get('username')
+				user.password = request.POST.get('password')
+
+				user_profile.birthdate_str = request.POST.get('birthdate')
+				user_profile.gender = request.POST.get('gender')
+				user_profile.phone = request.POST.get('phone')
+				user_profile.favorite_food = request.POST.get('favorite_food')
+				user_profile.preferred_location = request.POST.get('preferred_location')
+				user_profile.food_category_id = request.POST.get('food_category')
+				user_profile.dietary_restrictions = request.POST.getlist('dietary_restrictions')
+
+				user.save()
+				user_profile.user = user
+				user_profile.save()
+				user_type.user = user
+				user_type.save()
+
+				if user is not None:
+					login(request, user)
+					messages.success(request, ('User registered!'))
+					user_type = get_object_or_404(UserType, user=user)
+					return redirect('userhome')
+			
+			except IntegrityError:
+				# catch the IntegrityError exception raised by trying to create a user with an existing username
+				messages.error(request, 'Username already exists. Please choose a different username.')
+				form.add_error('username', 'Username already exists. Please choose a different username.')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
-	
-	return render(request, 'registeruser.html', {'foodCategory':foodCategory,'form':form})
+
+	context = {
+		'foodCategory':foodCategory,
+		'form':form,
+		'location_options':location_options,
+		'gender_options':gender_options,
+		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+	}
+	return render(request, 'registeruser.html', context)
 
 def register_business(request):
 	foodCategory = FoodCategory.objects.all()
-	form = BusinessRegistrationForm(request.POST or None, request=request)
+	form = BusinessRegistrationForm(request.POST)
 	if request.method == 'POST':
+		print("Form errors: ", form.errors, flush=True)
 		if form.is_valid():
 			user, business_profile, user_type = form.save(commit=False)
+
+			user.first_name = request.POST.get('first_name')
+			user.last_name = request.POST.get('last_name')
+			user.email = request.POST.get('email')
+			user.username = request.POST.get('username')
+			user.password = request.POST.get('password')
+
+			business_profile.companyName = request.POST.get('company_name')
+			business_profile.phone = request.POST.get('phone')
+			business_profile.address = request.POST.get('address')
+			business_profile.postalCode = request.POST.get('postal_code')
+			business_profile.food_category_id = request.POST.get('food_category')
+
 			user.is_active = False
 			user.save()
 			business_profile.user = user
 			business_profile.save()
 			user_type.user = user
+			user_type.userType = 'business'
 			user_type.save()
 			if user is not None:
-				messages.success(request, ('User registered! We will send a verifcation email to you when your business is verfied!'))
+				messages.success(request, ('Business registered! We will notify you when your business is verfied!'))
 				return redirect('landing')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
 			form = UserRegistrationForm()
 
-
-	return render(request, 'registerbusiness.html', {'foodCategory':foodCategory,'form':form})
+	context = {
+		'foodCategory':foodCategory,
+		'form':form,
+	}
+	return render(request, 'registerbusiness.html', context)
 
 @login_required
 def food_category(request):
@@ -178,8 +249,8 @@ def recommender_page(request):
 		user_profile = UserProfile.objects.get(user=request.user)
 
 	context = {
-		'user_type': user_type, 
-		'foodCategory':foodCategory, 
+		'user_type': user_type,
+		'foodCategory':foodCategory,
 		'user_profile':user_profile,
 		'has_rating':has_rating,
 		}
@@ -244,44 +315,137 @@ def view_promotion(request, promotion_id=None):
 	user_type = UserType.objects.get(user=request.user)
 	promotion = Promotion.objects.get(id=promotion_id)
 	context = {
-		'user_type': user_type, 
+		'user_type': user_type,
 		'users':users,
 		'promotion':promotion,
 		}
 	return render(request, 'viewpromotion.html', context)
 
+# @login_required
+# def recommender_results(request):
+# 	user_id = request.user.id
+# 	rand= 0
+# 	recommendations, recommendationsTwo = get_recommendations(user_id)
+# 	food_id = recommendations[0]  # get the first food id from the recommendations list
+# 	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
+# 	food_name = food.foodName  # get the name of the food
+# 	maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+# 	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
+
+
+# 	food_dict={}
+# 	for foodid in recommendationsTwo:
+# 		try:
+# 			food2 =  get_object_or_404(Food, id=foodid)#Food.objects.get(Food, id=foodid)
+# 			food_dict[foodid] = food2
+# 			# food_name = food.foodName  # get the name of the food
+# 			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+# 			# maps_link = f'<a href="{maps_url}" target="_blank">{food_name.foodName}</a>'
+
+# 		except Food.DoesNotExist:
+# 			pass
+
+# 	####### Below is the prototype code ########
+# 	user_type = UserType.objects.get(user=request.user)
+# 	form = RatingForm(request.POST)
+# 	############################################
+# 	context = {
+# 	'user_type': user_type,
+# 	'form': form,
+# 	#'full_recommendations' : full_recommendations,
+# 	#'recommendations': recommendations,
+# 	#'recommendationsTwo' : recommendationsTwo,
+# 	'food_name' : food_name,
+# 	'maps_link' : maps_link,
+# 	#'food_dict' : food_dict,
+# 	}
+
+# 	ratings = Rating.objects.filter(user=request.user).values('food')
+# 	rating_count = ratings.distinct().count()
+
+
+# 	if rating_count > 30 :
+# 		context['recommendations'] = recommendations
+
+# 	else:
+# 		context['recommendations'] = food_dict
+
+
+# 	return render(request, 'recommenderresults.html',context)
+
 @login_required
 def recommender_results(request):
 	user_id = request.user.id
-	recommendations = get_recommendations(user_id)
-	food_id = recommendations[0]  # get the first food id from the recommendations list
-	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
-	food_name = food.foodName  # get the name of the food
-	maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
-	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
+	rand= 0
+	recommendations, recommendationsTwo = get_recommendations(user_id)
+
+
+
+
 
 	####### Below is the prototype code ########
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
+	############################################
 	context = {
-		'user_type': user_type,
-		'form': form,
-		#'full_recommendations' : full_recommendations,
-		'recommendations': recommendations,
-		'food_name' : food_name,
-		'maps_link' : maps_link,
-		}
+	'user_type': user_type,
+	'form': form,
+	#'full_recommendations' : full_recommendations,
+	#'recommendations': recommendations,
+	#'recommendationsTwo' : recommendationsTwo,
+	#'food_name' : food_name,
+	#'maps_link' : maps_link,
+	#'food_dict' : food_dict,
+	}
+
+	ratings = Rating.objects.filter(user=request.user).values('food')
+	rating_count = ratings.distinct().count()
+
+
+	if rating_count > 30 :
+		food_dict = {}
+		food_id = recommendations[0]  # get the first food id from the recommendations list
+		food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
+		food_dict[0] = food
+		# food_name = food.foodName  # get the name of the food
+		# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
+		# maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
+		#food_dict={}
+		# for foodid in recommendations:
+		# 	try:
+		# 		food2 =  get_object_or_404(Food, id=foodid)
+		# 		food_dict[foodid] = food2
+				
+		# 	except Food.DoesNotExist:
+		# 		pass
+
+		context['recommendations'] = food_dict
+		#context['maps_link'] = maps_link
+
+	else:
+		food_dict={}
+		for foodid in recommendationsTwo:
+			try:
+				food2 =  get_object_or_404(Food, id=foodid)
+				food_dict[foodid] = food2
+
+			except Food.DoesNotExist:
+				pass
+		context['recommendations'] = food_dict
+
+
 	return render(request, 'recommenderresults.html',context)
 
 @login_required
 def recommender_normal(request):
 	user_id = request.user.id
+	recommendations, recommendationsTwo = get_recommendations(user_id)
 
-	food_recommendations = get_recommendations(user_id)
+	#food_recommendations = recommendationsTwo(user_id)
 	food_dict = {}
-	for foodid in food_recommendations:
+	for foodid in recommendationsTwo:
 		try:
-			food =  Food.objects.get(id=foodid)
+			food =  get_object_or_404(Food, id=foodid)#food =  Food.objects.get(id=foodid)
 			food_dict[foodid] = food
 			# food_name = food.foodName  # get the name of the food
 			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
@@ -289,7 +453,7 @@ def recommender_normal(request):
 
 		except Food.DoesNotExist:
 			pass
-	
+
 	context = {
 		'food_dict' : food_dict,
 	}
@@ -307,7 +471,7 @@ def recommender_normal(request):
 # 		'recommendations': recommendations,
 # 		'food_name' : food_name
 # 		}
-	
+
 #	return render(request, 'recommenderml.html', context)
 
 @login_required
@@ -316,18 +480,21 @@ def view_user_profile(request, user_id):
 	selected_user_profile  = UserProfile.objects.get(user=selected_user)
 	user_type = UserType.objects.get(user=request.user)
 	foodCategory = FoodCategory.objects.all()
+	dietary_restrictions = [dict(UserProfile.DIETARY_RESTRICTIONS)[value] for value in selected_user_profile.dietary_restrictions]
 	disabled = ''
 	if user_type.userType != "admin":
 		disabled = "disabled"
 	context = {
-		'user_type': user_type, 
-		'foodCategory':foodCategory, 
-		'location_options':location_options, 
+		'user_type': user_type,
+		'foodCategory':foodCategory,
+		'location_options':location_options,
 		'gender_options':gender_options,
 		'selected_user': selected_user,
 		'selected_user_profile': selected_user_profile,
 		'disabled':disabled,
-		}
+		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+		'dietary_restrictions':dietary_restrictions,
+	}
 	return render(request, 'viewuserprofile.html', context)
 
 @login_required
@@ -340,8 +507,8 @@ def view_business_profile(request, user_id):
 	if user_type.userType != "admin":
 		disabled = "disabled"
 	context = {
-		'user_type': user_type, 
-		'foodCategory':foodCategory, 
+		'user_type': user_type,
+		'foodCategory':foodCategory,
 		'location_options':location_options,
 		'selected_business':selected_business,
 		'selected_business_profile':selected_business_profile,
@@ -363,7 +530,6 @@ def create_rating(request):
 			if 1 <= rating_value <= 5:
 				rating, created = Rating.objects.get_or_create(user=user, food=food, defaults={'rating': rating_value})
 				rating.rating = rating_value
-				print("zx rating: "+str(rating),flush=True)
 				rating.save()
 				messages.success(request, ('Successfully rated! We will take this rating into account in your next reccomendation!'))
 				return redirect(user_home)
@@ -408,7 +574,7 @@ def food_quiz(request):
 					rating.save()
 		messages.success(request, ('Successfully rated! We will take these ratings into account in your next reccomendation!'))
 		return render(request, 'foodquiz.html', context)
-	
+
 	return render(request, 'foodquiz.html', context)
 
 
@@ -443,12 +609,13 @@ def update_user_profile(request, user_id=None):
 					login(request, user_to_edit)
 
 			user_profile, created = UserProfile.objects.get_or_create(user=user_to_edit)
-			user_profile.age = form.cleaned_data['age']
+			user_profile.birthdate = form.cleaned_data['birthdate']
 			user_profile.phone = form.cleaned_data['phone']
 			user_profile.favFood = form.cleaned_data['favorite_food']
 			user_profile.prefLocation = form.cleaned_data['preferred_location']
 			user_profile.foodCategory = form.cleaned_data['food_category']
 			user_profile.gender = form.cleaned_data['gender']
+			user_profile.dietary_restrictions = form.cleaned_data['dietary_restrictions']
 			user_profile.save()
 
 			messages.success(request, 'Profile has been updated successfully.')
@@ -462,7 +629,7 @@ def update_user_profile(request, user_id=None):
 		form = UserRegistrationForm(initial={
 			'first_name': user_to_edit.first_name,
 			'last_name': user_to_edit.last_name,
-			'age': user_to_edit.userprofile.age,
+			'birthdate': user_to_edit.userprofile.birthdate,
 			'email': user_to_edit.email,
 			'phone': user_to_edit.userprofile.phone,
 			'favorite_food': user_to_edit.userprofile.favFood,
@@ -470,6 +637,7 @@ def update_user_profile(request, user_id=None):
 			'food_category': user_to_edit.userprofile.foodCategory,
 			'username': user_to_edit.username,
 			'gender': user_to_edit.userprofile.gender,
+			'dietary_restrictions': user_to_edit.userprofile.dietary_restrictions
 		})
 
 	context = {'form': form, 'is_admin_editing': is_admin_editing}
@@ -498,7 +666,7 @@ def update_business_profile(request, user_id=None):
 			if form.cleaned_data['password']:
 				user_to_edit.set_password(form.cleaned_data['password'])
 			user_to_edit.save()
-			
+
 			# If admin is editing, update the is_active status
 			if is_admin_editing:
 				is_active = request.POST.get('is_active') != 'on'
@@ -526,7 +694,7 @@ def update_business_profile(request, user_id=None):
 			if is_admin_editing and user_id:
 				return redirect('viewbusinessprofile', user_id=user_id)
 			else:
-				return redirect('profile')		
+				return redirect('profile')
 		else:
 			messages.error(request, 'There was an error in updating the business profile. Please check your input(s).')
 	else:
@@ -623,3 +791,65 @@ def search_promotion(request):
 	print("zx promotions: "+str(promotions),flush=True)
 	context = {'user_type': user_type, 'promotions':promotions}
 	return render(request, 'searchpromotion.html', context)
+
+# @login_required
+# def data_insights(request):
+# 	user_type = UserType.objects.get(user=request.user)
+	
+# 	if user_type.userType in ['user','business']:
+# 		# Get the count of ratings for each food
+# 		food_rating_counts = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
+
+# 		    # Get the names of the top 10 most rated foods
+# 		top_foods = [f['food'] for f in food_rating_counts[:10]]
+# 		print(""+ str(top_foods))
+# 		#top_foods = Food.objects.filter(id__in=[int(id) for id in top_food_ids]).values_list('foodName', flat=True)
+
+# 		# Get the names of the top 10 most rated foods
+# 		# top_foods = Food.objects.filter(id__in=[f['food'] for f in food_rating_counts[:10]]).values_list('foodName', flat=True)
+
+# 		# Create a bar chart of the top 10 most rated foods
+# 		counts = [f['count'] for f in food_rating_counts[:10]]
+# 		plt.bar(top_foods, counts)
+# 		plt.title('Top 10 Most Rated Foods')
+# 		plt.xlabel('Food Name')
+# 		plt.ylabel('Number of Ratings')
+# 		plt.xticks(rotation=45, ha='right')
+# 		plt.tight_layout()
+
+# 		# Set the y-axis range
+# 		plt.ylim([0, max(counts) + 1])
+
+# 		# Save the chart as a PNG image in memory
+# 		buffer = io.BytesIO()
+# 		plt.savefig(buffer, format='png')
+# 		buffer.seek(0)
+# 		image_data = base64.b64encode(buffer.read()).decode('utf-8')
+# 		plt.close()
+# 		try:
+# 			context = {'user_type': user_type, 
+			
+# 			'image_data':image_data,
+# 			}
+# 			return render(request, 'datainsights.html', context)
+# 		finally:
+# 			buffer.close()
+
+@login_required
+def data_insight(request):
+	user_type = UserType.objects.get(user=request.user)
+	if user_type.userType in ['user','business']:
+
+		image_data , image_data2 = data_insights()
+
+		#Generate the plot image data
+		# image_data = data_insights()
+		# image_data2 = data_insights()
+		
+		context = {
+		'user_type': user_type, 
+		'image_data':image_data,
+		'image_data2' : image_data2,
+		}
+	return render(request, 'datainsights.html', context)
+
