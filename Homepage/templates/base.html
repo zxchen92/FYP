@@ -58,7 +58,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/jquery-bar-rating@1.2.2/dist/jquery.barrating.min.js"></script>
 
 	<!-- Navbar -->
-  	<nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+  	<nav class="navbar sticky-top navbar-expand-lg navbar-dark" style="background-color: #789FC5;">
 	  <a class="navbar-brand" href="{% url 'landing' %}">CollabFood</a>
 	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 	    <span class="navbar-toggler-icon"></span>
@@ -104,7 +104,7 @@
 
 					{% elif user_type.userType == 'business'%}
 					<!-- links that business users should see -->
-		      		<li class="nav-item active">
+		      <li class="nav-item active">
 					  <a class="nav-link" href="{% url 'businesshome' %}">Home <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
