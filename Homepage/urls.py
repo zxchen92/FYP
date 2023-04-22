@@ -11,6 +11,7 @@ urlpatterns = [
 	path('businesshome',views.business_home ,name='businesshome'),
 	path('customersupport',views.customer_support,name='customersupport'),
 	path('createpromotion',views.create_promotion,name='createpromotion'),
+	path('datainsights', views.data_insight, name='datainsights'),
 	path('foodquiz',views.food_quiz, name ='foodquiz'),
 	path('login',views.login_user, name="login"),
 	path('logout',views.logout_user, name='logout'),
@@ -33,6 +34,7 @@ urlpatterns = [
 	path('userprofile',views.user_profile, name='profile'),
 	path('viewbusinessprofile/<int:user_id>/',views.view_business_profile ,name='viewbusinessprofile'),
 	path('viewpromotion/<int:promotion_id>/',views.view_promotion ,name='viewpromotion'),
-    path('viewuserprofile/<int:user_id>/', views.view_user_profile, name='viewuserprofile'),
-    path('datainsights', views.data_insight, name='datainsights'),
+	path('viewratings', views.view_ratings, name='viewratings'),
+	path('viewuserprofile/<int:user_id>/', views.view_user_profile, name='viewuserprofile'),
+
 ]
