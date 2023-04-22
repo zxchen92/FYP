@@ -1,37 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Ta da!</h1>
-<br>
-<h2>Here's your recommendation for today!</h2>
+<!-- Include Font Awesome CSS for star rating -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+  .text-center {
+    margin-top: 10px;
+  }
+  .btn-wide {
+    margin-top: 10px;
+    width: 150px; /* adjust the value to your preference */
+  }
+  .card {
+    border-radius: 10px;
+    margin-top: 15px;
+  }
+</style>
+
+<h2>Here's your recommendation for the day:</h2>
 <br>
 
+<div class="card mb-4 shadow">
+  <div class="card-body text-center">
 <form action="{% url 'rate' %}" method="post" id="rating-form">
-
-  <!-- <h3>It is <h1 class = "recommenderResults">{{ maps_link|safe }}</h1> </h3> -->
-  <!-- <h3>It's <h1 class = "recommenderResults">{{ recommendations }}!!</h1> </h3>  -->
-  <table class="table table-striped table-bordered table-hover">
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">Dish</th>
-        <th scope="col">Category</th>
-        <th scope="col">Dietary Restrictions</th>
-      </tr>
-    </thead>
-    <tbody id="Category">
-
-        {% for foodid, food_obj in recommendations.items %}
-        <!-- <tr class = "clickable-row">
-            <th scope="row">{{ food_obj.foodName }}</td> -->
-            <tr class="clickable-row">
-            <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
-            <td>{{ food_obj.foodCategory.categoryName }}</td>
-            <td>{{ food_obj.dietary_restrictions }}</td>
-        </tr>
-    {% endfor %}
-
-    </tbody>
-  </table>
+  <h3><span class = "text-primary">{{ recommended_food }}</h1> </h3>
   {% csrf_token %}
   <div class="star-rating">
     <input type="radio" id="rating-5" name="rating" value="5">
@@ -46,29 +39,53 @@
     <label for="rating-1">1</label>
   </div>
   <br>
-  <input type="hidden" id="food" name="food" value="{{ food_name }}">
-  <button type="submit">Submit</button>
+  <input type="hidden" id="food" name="food" value="{{ recommended_food }}">
+  <button class="btn btn-success btn-wide" type="submit">Rate it</button>
 </form>
 <br>
+</div>
+</div>
 
-<table class="table table-striped table-bordered table-hover">
+<div class="input-group mb-4">
+  <input type="text" class="form-control" placeholder="Search for a specific hawker" aria-label="Search hawkers" aria-describedby="button-addon2" id="searchCategory">
+</div>
+
+<table class="table table-bordered table-hover">
   <thead class="thead-dark">
     <tr>
       <th scope="col">Hawkers</th>
-      <th scope="col">Postal Code</th>
-      <th scope="col">Ratings(out of 5)</th>
+      <th scope="col">Address / Postal Code</th>
+      <th scope="col">Ratings</th>
     </tr>
   </thead>
   <tbody id="Category">
-    
-
         <tr>
         <th scope="row">Ah Hock Noodles</th>
         <td>Maxwell Foodcourt</td>
-        <td>4.5 stars</td>
+        <td><span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star-half-o checked"></span>    (4.5)</td>
         </tr>
-
-
+        <tr>
+          <th scope="row">The Delicious Noodles</th>
+          <td>Tampines Foodcourt</td>
+          <td><span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star-o checked"></span>
+            <span class="fa fa-star-o checked"></span>   (3.0)</td>
+          </tr>
+          <tr>
+            <th scope="row">LOL Noodles</th>
+            <td>Bedok Foodcourt</td>
+            <td><span class="fa fa-star checked"></span>
+              <span class="fa fa-star checked"></span>
+              <span class="fa fa-star checked"></span>
+              <span class="fa fa-star-half-o checked"></span>
+              <span class="fa fa-star-o checked"></span>    (3.5)</td>
+            </tr>
   </tbody>
 </table>
 
