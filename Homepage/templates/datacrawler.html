@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Page</title>
+  </head>
+  <body>
+    <button id="button1" onclick="openWindow()">Place crawler</button>
+    <button id="button2" onclick="openWindow()">Review crawler</button>
+
+    
+    <!------------------- Scripts ---------------------->
+    <script>
+        function openWindow() {
+          window.open("https://www.google.com", "myWindow", "width=500, height=500");
+        }
+    </script>
+  </body>
+</html>
+
+{% endblock %}

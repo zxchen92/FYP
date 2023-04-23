@@ -22,6 +22,7 @@ import tensorflow as tf
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
 
+from .data_crawler import data_crawlers
 from .food_recommender import get_recommendations
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
 from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm
@@ -876,3 +877,16 @@ def create_stars(rating):
 	return ' '.join(['<span class="fa fa-star checked"></span>' for _ in range(full_stars)] +
 					['<span class="fa fa-star-half-o checked"></span>'] * half_stars +
 					['<span class="fa fa-star"></span>'] * empty_stars)
+
+@login_required
+def data_crawler(request):
+	user_type = UserType.objects.get(user=request.user)
+	place_crawler, review_crawler = data_crawlers()
+	if user_type.userType in ['user','business']:
+
+		context = {
+			'place_crawler', place_crawler,
+			'review_crawler', review_crawler,
+
+		}
+	return render(request, 'datacrawler.html', context)
