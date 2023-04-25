@@ -7,15 +7,28 @@
     <title>My Page</title>
   </head>
   <body>
-    <button id="button1" onclick="openWindow()">Place crawler</button>
-    <button id="button2" onclick="openWindow()">Review crawler</button>
+    <button id="button1" onclick="openWindow('dataplacecrawler')">Place crawler</button>
+    <button id="button2" onclick="openWindow('datareviewcrawler')">Review crawler</button>
 
     
     <!------------------- Scripts ---------------------->
     <script>
-        function openWindow() {
-          window.open("https://www.google.com", "myWindow", "width=500, height=500");
+        function openWindow(url) {
+          window.open(url, "myWindow", "width=500, height=500");
         }
+        //         // send an AJAX request to crawl places when the button is clicked
+        // document.getElementById("dataplacecrawler").addEventListener("click", function() {
+        //   var xhr = new XMLHttpRequest();
+        //   xhr.open("GET", "dataplacecrawler");
+        //   xhr.send();
+        // });
+
+        // // send an AJAX request to crawl reviews when the button is clicked
+        // document.getElementById("datareviewcrawler").addEventListener("click", function() {
+        //   var xhr = new XMLHttpRequest();
+        //   xhr.open("GET", "datareviewcrawler");
+        //   xhr.send();
+        // });
     </script>
   </body>
 </html>

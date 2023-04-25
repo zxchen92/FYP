@@ -22,7 +22,9 @@ import tensorflow as tf
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
 
-from .data_crawler import data_crawlers
+from .data_review_crawler import data_review_crawler
+from .data_place_crawler import data_place_crawler
+
 from .food_recommender import get_recommendations
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
 from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm
@@ -879,14 +881,36 @@ def create_stars(rating):
 					['<span class="fa fa-star"></span>'] * empty_stars)
 
 @login_required
-def data_crawler(request):
+def data_crawler_page(request):
 	user_type = UserType.objects.get(user=request.user)
-	place_crawler, review_crawler = data_crawlers()
-	if user_type.userType in ['user','business']:
+	# place_crawler, review_crawler = data_crawlers()
+	if user_type.userType in ['user','admin']:
 
 		context = {
-			'place_crawler', place_crawler,
-			'review_crawler', review_crawler,
+			# 'place_crawler', place_crawler,
+			# 'review_crawler', review_crawler,
 
 		}
-	return render(request, 'datacrawler.html', context)
+		return render(request, 'datacrawler.html', context)
+
+@login_required
+def place_crawler(request):
+	user_type = UserType.objects.get(user=request.user)
+	
+	if 	user_type.userType in ['user', 'admin']:
+		context = {
+			'data_place_crawler' : data_place_crawler,
+		}
+		return render(request,'dataplacecrawler.html', context)
+
+@login_required	
+def review_crawler(request):
+	user_type = UserType.objects.get(user=request.user)
+
+	if 	user_type.userType in ['user', 'admin']:
+		context = {
+			'data_review_crawler' : data_review_crawler,
+		}
+		return render(request,'datareviewcrawler.html', context)
+	
+	
