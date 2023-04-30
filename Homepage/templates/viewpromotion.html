@@ -39,6 +39,15 @@
     {% endif %}
 
     {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
+      {% if promotion.isActive %}
+      <div>
+        Status: Active
+      </div><br>
+      {%else%}
+      <div>
+        Status: Deactivated
+      </div><br>
+      {% endif %}
       <button type="submit" class="btn btn-primary">Update</button>
     {% endif %}
   <a href="javascript:history.back()" class="btn btn-primary">Back</a>
