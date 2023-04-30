@@ -928,12 +928,24 @@ def place_crawler(request):
 	user_type = UserType.objects.get(user=request.user)
 	
 	if 	user_type.userType in ['user', 'admin']:
-		messageTwo = data_place_crawler()
-		context = {
-			'data_place_crawler' : data_place_crawler,
-			'messageTwo' : messageTwo,
+		try:
+			dfPlace, messageTwo = data_place_crawler()
+			context = {
+				'dfPlace': dfPlace,
+				'messageTwo': messageTwo,
+			}
+		except Exception as e:
+			context = {
+				'error': str(e),
+			}
+		# dfPlace , messageTwo = data_place_crawler()
+		# dfPlace
+		# context = {
+		# 	#'data_place_crawler' : data_place_crawler,
+		# 	'dfPlace' : dfPlace
+		# 	'messageTwo' : messageTwo,
 
-		}
+		# }
 		return render(request,'dataplacecrawler.html', context)
 
 @login_required	
