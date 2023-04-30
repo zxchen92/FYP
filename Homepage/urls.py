@@ -28,6 +28,7 @@ urlpatterns = [
 	path('updateadmin',views.update_admin_profile, name ='updateadmin'),
 	path('updatebusiness',views.update_business_profile, name ='updatebusiness_self'),
 	path('updatebusiness/<int:user_id>/',views.update_business_profile, name ='updatebusiness'),
+	path('updatepromotion/<int:promotion_id>', views.update_promotion, name = 'updatepromotion'),
 	path('updateuser',views.update_user_profile, name ='updateuser_self'),
 	path('updateuser/<int:user_id>/', views.update_user_profile, name='updateuser'),
 	path('userhome',views.user_home ,name='userhome'),

@@ -321,10 +321,14 @@ def view_promotion(request, promotion_id=None):
 	users = User.objects.all()
 	user_type = UserType.objects.get(user=request.user)
 	promotion = Promotion.objects.get(id=promotion_id)
+	readonly = ''
+	if user_type.userType == "user":
+		readonly = "readonly"
 	context = {
 		'user_type': user_type,
 		'users':users,
 		'promotion':promotion,
+		'readonly': readonly,
 		}
 	return render(request, 'viewpromotion.html', context)
 
@@ -766,7 +770,7 @@ def create_promotion(request):
 			promotion.isActive = promotion.startDate <= timezone.now().date() <= promotion.endDate
 			promotion.save()
 			messages.success(request, 'Promotion has been created successfully.')
-			return redirect('businesshome')
+			return redirect('searchpromotions')
 		else:
 			messages.error(request, 'There was an error in creating the promotion. Please check your input(s).')
 	else:
@@ -777,6 +781,31 @@ def create_promotion(request):
 	}
 	return render(request, 'createpromotion.html', context)
 
+@login_required
+def update_promotion(request, promotion_id=None):
+	is_admin_editing = UserType.objects.get(user=request.user).userType == 'admin'
+	promotion_to_edit = Promotion.objects.get(id=promotion_id)
+	user_type = UserType.objects.get(user=request.user)
+	if request.method == 'POST':
+		form = PromotionForm(request.POST, instance=promotion_to_edit)
+		if form.is_valid():
+			promotion_to_edit = form.save(commit=False)
+			if is_admin_editing:
+				is_active = request.POST.get('is_active') != 'on'
+				promotion_to_edit.isActive = is_active
+			promotion_to_edit.save()
+			messages.success(request, 'Promotion has been updated successfully.')
+			return redirect('businesshome')
+		else:
+			messages.error(request, 'There was an error in updating the promotion. Please check your input(s).')
+	else:
+		form = PromotionForm(instance=promotion_to_edit)
+	context = {
+		'form': form,
+		'user_type': user_type,
+		'promotion': promotion_to_edit
+	}
+	return render(request, 'updatepromotion.html', context)
 
 # @login_required
 # def promotion_list(request):
@@ -791,8 +820,10 @@ def create_promotion(request):
 def search_promotion(request):
 	user_type = UserType.objects.get(user=request.user)
 	promotions = Promotion.objects.all()
-	if user_type.userType in ['user','business']:
-		promotions = Promotion.objects.filter(isActive=True)
+	if user_type.userType in ['user']:
+		promotions = Promotion.objects.filter(isActive=True, startDate__lte=timezone.now(), endDate__gte=timezone.now())
+	elif user_type.userType in ['business']:
+		promotions = Promotion.objects.filter(createdBy = request.user)
 	else:
 		promotions = Promotion.objects.all()
 	print("zx promotions: "+str(promotions),flush=True)
