@@ -1,19 +1,32 @@
 import numpy as np
 import pandas as pd
-import tensorflow as tf
+# import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
+from .models import Rating,Food
 
 
 # Your code here
 
 def get_recommendations(user_id):
     
+    ratings_dict = Rating.objects.all().values()
+    ratings_df = pd.DataFrame.from_records(ratings_dict)
 
+    food_ids = {}
+    foods = Food.objects.all().values()
+    for food in foods:
+        food_ids[food['foodName']] = food['id']
+    ratings_df['foodid'] = ratings_df['food'].apply(lambda x: food_ids[x])
+    ratings_df['userid'] = ratings_df['user_id']
+    ratings_df.drop(columns=['food','id','user_id'], inplace=True)
     #cell[2]
     rating = pd.read_csv('FoodRatings2.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
     #get the rating from db and insert to df
     food_rating = rating.copy()
+    food_rating = pd.concat([ratings_df, food_rating])
+    print('combined: \n',food_rating, flush=True)
     
     rating_count = (food_rating.
         groupby(by = ['foodid'])['rating'].
@@ -57,7 +70,7 @@ def get_recommendations(user_id):
 
     user_food_matrix = user_food_matrix.values
 
-    import tensorflow.compat.v1 as tf
+    
     tf.disable_v2_behavior()
 
     num_input = combined['foodid'].nunique()
@@ -160,7 +173,7 @@ def get_recommendations(user_id):
 
     recommendations_food2 = recommendations2['foodid'].values.tolist()
 
-    print('RANDOM: user id is' + str(user_id) +'end' +  str(recommendations_food2), flush=True )
+    print('RANDOM: user id is' + str(user_id) +'end' +  str(recommendations_food2), flush=True)
 
     
     # Return recommendations
