@@ -883,13 +883,12 @@ def create_stars(rating):
 @login_required
 def data_crawler_page(request):
 	user_type = UserType.objects.get(user=request.user)
-	# place_crawler, review_crawler = data_crawlers()
+	
 	if user_type.userType in ['user','admin']:
-
+		
 		context = {
 			# 'place_crawler', place_crawler,
 			# 'review_crawler', review_crawler,
-
 		}
 		return render(request, 'datacrawler.html', context)
 
@@ -898,8 +897,11 @@ def place_crawler(request):
 	user_type = UserType.objects.get(user=request.user)
 	
 	if 	user_type.userType in ['user', 'admin']:
+		messageTwo = data_place_crawler()
 		context = {
 			'data_place_crawler' : data_place_crawler,
+			'messageTwo' : messageTwo,
+
 		}
 		return render(request,'dataplacecrawler.html', context)
 
