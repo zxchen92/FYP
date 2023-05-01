@@ -17,32 +17,53 @@
     margin-top: 15px;
   }
 </style>
-
+<div class="card mb-4 shadow">
+<div class="card-body text-center">
 <h2>Here's your recommendation for the day:</h2>
 <br>
+<table class="table table-striped table-bordered table-hover">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Dish</th>
+      <th scope="col">Category</th>
+      <th scope="col">Dietary Restrictions</th>
+      <th scope="col">Rating</th>
+    </tr>
+  </thead>
+  <tbody id="Category">
 
-<div class="card mb-4 shadow">
-  <div class="card-body text-center">
-<form action="{% url 'rate' %}" method="post" id="rating-form">
-  <h3><span class = "text-primary">{{ recommended_food }}</h1> </h3>
-  {% csrf_token %}
-  <div class="star-rating">
-    <input type="radio" id="rating-5" name="rating" value="5">
-    <label for="rating-5">5</label>
-    <input type="radio" id="rating-4" name="rating" value="4">
-    <label for="rating-4">4</label>
-    <input type="radio" id="rating-3" name="rating" value="3">
-    <label for="rating-3">3</label>
-    <input type="radio" id="rating-2" name="rating" value="2">
-    <label for="rating-2">2</label>
-    <input type="radio" id="rating-1" name="rating" value="1">
-    <label for="rating-1">1</label>
-  </div>
-  <br>
-  <input type="hidden" id="food" name="food" value="{{ recommended_food }}">
-  <button class="btn btn-success btn-wide" type="submit">Rate it</button>
-</form>
-<br>
+      {% for foodid, food_obj in recommendations.items %}
+      <!-- <tr class = "clickable-row">
+          <th scope="row">{{ food_obj.foodName }}</td> -->
+          <tr class="clickable-row">
+          <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
+          <td>{{ food_obj.foodCategory }}</td>
+          <td>{{ food_obj.dietary_restrictions }}</td>
+
+          <td><form action="{% url 'rate' %}" method="post" id="rating-form">
+            {% csrf_token %}
+            <div class="star-rating">
+              <input type="radio" id="rating-5" name="rating" value="5">
+              <label for="rating-5">5</label>
+              <input type="radio" id="rating-4" name="rating" value="4">
+              <label for="rating-4">4</label>
+              <input type="radio" id="rating-3" name="rating" value="3">
+              <label for="rating-3">3</label>
+              <input type="radio" id="rating-2" name="rating" value="2">
+              <label for="rating-2">2</label>
+              <input type="radio" id="rating-1" name="rating" value="1">
+              <label for="rating-1">1</label>
+            </div>
+            <br>
+            <input type="hidden" id="food" name="food" value="{{ recommendations}}">
+            <button class="btn btn-success btn-wide" type="submit">Rate it</button>
+          </form></td>
+          <!-- above code is confirmed working!! -->
+      </tr>
+  {% endfor %}
+
+  </tbody>
+</table>
 </div>
 </div>
 
@@ -50,6 +71,8 @@
   <input type="text" class="form-control" placeholder="Search for a specific hawker" aria-label="Search hawkers" aria-describedby="button-addon2" id="searchCategory">
 </div>
 
+<div class="card mb-4 shadow">
+<div class="card-body text-center">
 <table class="table table-bordered table-hover">
   <thead class="thead-dark">
     <tr>
@@ -88,6 +111,8 @@
             </tr>
   </tbody>
 </table>
+</div>
+</div>
 
 <!-- <div class="container">
   <div class="row">
@@ -115,6 +140,17 @@ document.querySelectorAll('input[name="rating"]').forEach(function(radio) {
       console.log('Selected rating: ' + event.target.value);
     });
   });
+
+function searchOnMaps(query) {
+// encode the query string to make it URL-safe
+var encodedQuery = encodeURIComponent(query);
+
+// construct the Google Maps search URL with the encoded query string
+var searchUrl = "https://www.google.com/maps/search/?api=1&query=" + encodedQuery;
+
+// open the search URL in a new tab
+window.open(searchUrl, "_blank");
+}
 
 </script>
 
