@@ -159,7 +159,7 @@ def get_recommendations(user_id):
 
     top_ten_ranked = pred_data[~index_1.isin(index_2)]
     top_ten_ranked = top_ten_ranked.sort_values(['userid', 'rating'], ascending=[True, False])
-    top_ten_ranked = top_ten_ranked.groupby('userid').head(10)
+    #top_ten_ranked = top_ten_ranked.groupby('userid').head(50)
 
     recommendations = top_ten_ranked.loc[top_ten_ranked['userid'] == user_id]
     recommendations_food = recommendations['foodid'].values.tolist()

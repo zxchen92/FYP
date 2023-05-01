@@ -28,7 +28,7 @@
           <h2 class="card-title text-center mb-4">Food Recommendations based on Collaborative filtering</h2>
           <p class="card-text">Feeling adventurous today? Click on the recommend button below to get food recommendations based on users like you!</p>
           <div class="d-flex justify-content-center">
-            <a href="{% if has_rating %} {% url 'recommenderresults' %} {% else %} {% url 'foodquiz' %} {%endif%}" class="btn btn-primary btn-block">Recommend me!</a>
+           <a href="{% url 'recommenderresults' %} " class="btn btn-primary btn-block">Recommend me!</a>
           </div>
         </div>
       </div>

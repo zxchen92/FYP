@@ -387,8 +387,16 @@ def view_promotion(request, promotion_id=None):
 @login_required
 def recommender_results(request):
 	user_id = request.user.id
-	rand= 0
 	recommendations, recommendationsTwo = get_recommendations(user_id)
+	################################################
+
+	#user_profile = User.objects.get(user=request.user)
+	profile = UserProfile.objects.get(user=request.user)
+	diet = profile.dietary_restrictions
+	print(diet)
+
+
+
 
 
 
@@ -401,12 +409,7 @@ def recommender_results(request):
 	context = {
 	'user_type': user_type,
 	'form': form,
-	#'full_recommendations' : full_recommendations,
-	#'recommendations': recommendations,
-	#'recommendationsTwo' : recommendationsTwo,
-	#'food_name' : food_name,
-	#'maps_link' : maps_link,
-	#'food_dict' : food_dict,
+	'diet' : diet,
 	}
 
 	ratings = Rating.objects.filter(user=request.user).values('food')
@@ -415,34 +418,32 @@ def recommender_results(request):
 
 	if rating_count > 30 :
 		food_dict = {}
+
 		food_id = recommendations[0]  # get the first food id from the recommendations list
 		food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
 		food_dict[0] = food
-		# food_name = food.foodName  # get the name of the food
-		# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
-		# maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
-		#food_dict={}
-		# for foodid in recommendations:
-		# 	try:
-		# 		food2 =  get_object_or_404(Food, id=foodid)
-		# 		food_dict[foodid] = food2
-				
-		# 	except Food.DoesNotExist:
-		# 		pass
+		for food_id, food in food_dict.items():
+			if not all(d in food.dietary_restrictions for d in diet):
+				del food_dict[food_id]
+
 
 		context['recommendations'] = food_dict
-		#context['maps_link'] = maps_link
+		
 
 	else:
 		food_dict={}
 		for foodid in recommendationsTwo:
 			try:
 				food2 =  get_object_or_404(Food, id=foodid)
-				food_dict[foodid] = food2
+				if all(d in food2.dietary_restrictions for d in diet):
+					food_dict[foodid] = food2
+
+			
 
 			except Food.DoesNotExist:
 				pass
 		context['recommendations'] = food_dict
+		
 
 
 	return render(request, 'recommenderresults.html',context)
