@@ -463,7 +463,9 @@ def recommender_normal(request):
 	user_profile = UserProfile.objects.get(user=request.user)
 	recommendations, recommendationsTwo = get_recommendations(user_id)
 
-	food_category = request.GET.get('food_category')
+	food_category = request.POST.get('food-category')
+
+	print(food_category)
 
 	####### Below is the prototype code ########
 	user_type = UserType.objects.get(user=request.user)
@@ -476,11 +478,13 @@ def recommender_normal(request):
 	'user_profile' : user_profile
 	}
 
+
 	food_dict={}
 	for foodid in recommendationsTwo:
 		try:
+			category = get_object_or_404(FoodCategory, id=food_category)
 			food2 =  get_object_or_404(Food, id=foodid)
-			if all(d in food2.foodCategory.categoryName for d in food_category):
+			if category.categoryName in food2.foodCategory.categoryName:
 				food_dict[foodid] = food2
 		except Food.DoesNotExist:
 			pass
