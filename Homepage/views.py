@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
 
 from django.db import IntegrityError
 from django.db.models import Count
@@ -268,6 +269,24 @@ def customer_support(request):
 	if request.user.is_authenticated:
 		user_type = UserType.objects.get(user=request.user)
 		context = {'user_type': user_type}
+	if request.method == 'POST':
+		first_name = request.POST.get('firstName')
+		last_name = request.POST.get('lastName')
+		email = request.POST.get('email')
+		category = request.POST.get('category')
+		details = request.POST.get('details')
+		print("first_name: ",first_name)
+		message = f"Customer Support Request:\n\nName: {first_name} {last_name}\nEmail: {email}\nCategory: {category}\nDetails: {details}"
+		messages.success(request, ('An email has been sent to our customer support officers! We will get back to you within 3 working days.'))
+		send_mail(
+			'New Customer Support Request',
+			message,
+			'customersup.collabfood@outlook.com',
+			['customersup.collabfood@outlook.com', email], # replace with the email address where you want to receive the support requests
+			fail_silently=False,
+		)
+		return redirect(landing)
+
 	return render(request, 'customersupport.html', context)
 
 @login_required
@@ -879,7 +898,7 @@ def data_insight(request):
 	user_type = UserType.objects.get(user=request.user)
 	if user_type.userType in ['user','business']:
 
-		image_data , image_data2 = data_insights()
+		image_data , image_data2, image_data3 = data_insights()
 
 		#Generate the plot image data
 		# image_data = data_insights()
@@ -889,6 +908,7 @@ def data_insight(request):
 		'user_type': user_type, 
 		'image_data':image_data,
 		'image_data2' : image_data2,
+		'image_data3' : image_data3,
 		}
 	return render(request, 'datainsights.html', context)
 
