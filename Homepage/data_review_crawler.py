@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup
 import re
 import time
@@ -30,13 +31,21 @@ def data_review_crawler():
         driver.get(url)
         time.sleep(5)
 
-        #click review tab
-        driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]/div/div/button[2]').click()
-        time.sleep(1)
-
-        #click Sort button
-        driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]/div[7]/div[2]/button').click()
-        time.sleep(1)
+        try:
+            #click review tab
+            driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]/div/div/button[2]').click()
+            time.sleep(1)
+        except NoSuchElementException:
+            print(f"Review tab not found for {url}")
+            continue
+        
+        try:
+            #click Sort button
+            driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]/div[7]/div[2]/button').click()
+            time.sleep(1)
+        except NoSuchElementException:
+            print(f"Review tab not found for {url}")
+            continue
 
         #click sort by newest
         driver.find_element(By.XPATH, '//*[@id="action-menu"]/div[2]').click()
