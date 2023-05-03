@@ -102,7 +102,7 @@ def data_review_crawler():
 
             for j,k,l,p in zip(userID, name, stars, duration):
                 foodID_list.append(food)
-                userID_Rlist.append(j.get_attribute('href'))
+                userID_Rlist.append(j.get_attribute('data-href'))
                 name_list.append(k.text)
                 stars_Rlist.append(l.get_attribute("aria-label"))
                 duration_list.append(p.text)
