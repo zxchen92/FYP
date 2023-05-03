@@ -116,9 +116,12 @@ def data_review_crawler():
     print(dfTwo)
 
     dfTwo["userid;name"] = dfTwo['userID'] +";"+ dfTwo["name"]
-
+    dfTwo["userid;foodid;rating"] = dfTwo['userID'] +";"+ dfTwo["Food ID"] +";"+ dfTwo["rating"]
     dfTwo.to_excel(r'google_review.xlsx',index=False)
+    
     dfTwo["userid;name"].to_excel(r'UserID.xlsx',index=False)
+    dfTwo["userid;name"].to_excel(r'FoodRatings.xlsx',index=False)
+
 
     messageComplete = "Completed!"
         
