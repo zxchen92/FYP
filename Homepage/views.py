@@ -267,8 +267,12 @@ def recommender_page(request):
 def customer_support(request):
 	context = {}
 	if request.user.is_authenticated:
-		user_type = UserType.objects.get(user=request.user)
-		context = {'user_type': user_type}
+		user = request.user
+		user_type = UserType.objects.get(user=user)
+		context = {
+			'user_type': user_type,
+			'user': user,
+			}
 	if request.method == 'POST':
 		first_name = request.POST.get('firstName')
 		last_name = request.POST.get('lastName')
