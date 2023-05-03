@@ -946,14 +946,7 @@ def place_crawler(request):
 			context = {
 				'error': str(e),
 			}
-		# dfPlace , messageTwo = data_place_crawler()
-		# dfPlace
-		# context = {
-		# 	#'data_place_crawler' : data_place_crawler,
-		# 	'dfPlace' : dfPlace
-		# 	'messageTwo' : messageTwo,
 
-		# }
 		return render(request,'dataplacecrawler.html', context)
 
 @login_required	
@@ -961,9 +954,15 @@ def review_crawler(request):
 	user_type = UserType.objects.get(user=request.user)
 
 	if 	user_type.userType in ['user', 'admin']:
-		context = {
-			'data_review_crawler' : data_review_crawler,
-		}
+		try:
+			messageTwo = data_review_crawler()
+			context = {
+				'messageTwo': messageTwo,
+			}
+		except Exception as e:
+			context = {
+				'error': str(e),
+			}
 		return render(request,'datareviewcrawler.html', context)
 	
 	

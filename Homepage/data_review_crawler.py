@@ -110,8 +110,10 @@ def data_review_crawler():
 
     dfTwo.to_excel(r'google_review.xlsx',index=False)
     dfTwo["userid;name"].to_excel(r'UserID.xlsx',index=False)
+
+    messageComplete = "Completed!"
         
-    return df, dfTwo
+    return messageComplete
 
 
 
