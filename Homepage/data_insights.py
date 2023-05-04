@@ -97,4 +97,27 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    return most_rated_food_graph, favourite_categories_graph, pref_location_graph
+    ################################################
+    gender_count = UserProfile.objects.values('gender').annotate(count=Count('gender')).order_by('-count')
+
+    gender = [g['gender'] for g in gender_count[:10]]
+    print("" + str(pref_location))
+
+    # Create a pie chart for gender
+    countsG = [g['count'] for g in gender_count[:2]]
+
+    #add colors
+    colors = ['#007fbf', 'pink']
+    plt.pie(countsG, labels=gender, autopct='%1.1f%%', colors=colors)
+    plt.title('Gender')
+
+
+    # Save the chart as a PNG image in memory
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    gender_graph = base64.b64encode(buffer.read()).decode('utf-8')
+    plt.close()
+    buffer.close()
+
+    return most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph

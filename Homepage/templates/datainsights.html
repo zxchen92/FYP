@@ -1,9 +1,45 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<head>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+</style>
+</head>
+
 <h1>Most Rated Foods</h1>
-<img src="data:image/png;base64,{{ image_data }}" alt="Most Rated Foods Chart">
-<img src="data:image/png;base64,{{ image_data2 }}" alt="Most Rated Foods Chart">
-<img src="data:image/png;base64,{{ image_data3 }}" alt="Most Rated Foods Chart">
+
+<div class="row">
+  <div class="column">
+    <img src="data:image/png;base64,{{ image_data }}" alt="Most Rated Foods Chart" style="width:100%">
+  </div>
+  <div class="column">
+    <img src="data:image/png;base64,{{ image_data2 }}" alt="Most Rated Foods Chart" style="width:100%">
+  </div>
+</div>
+
+<div class="row">
+  <div class="column">
+    <img src="data:image/png;base64,{{ image_data3 }}" alt="Most Rated Foods Chart" style="width:100%">
+  </div>
+  <div class="column">
+    <img src="data:image/png;base64,{{ image_data4 }}" alt="Most Rated Foods Chart" style="width:100%">
+  </div>
+</div>
 
 {% endblock %}
