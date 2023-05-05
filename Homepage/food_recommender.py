@@ -22,7 +22,8 @@ def get_recommendations(user_id):
     ratings_df['userid'] = ratings_df['user_id']
     ratings_df.drop(columns=['food','id','user_id'], inplace=True)
     #cell[2]
-    rating = pd.read_csv('FoodRatings2.csv', sep=';', on_bad_lines='skip', encoding="latin-1")
+    rating = pd.read_csv('FoodRatings_v1.csv', sep=',', on_bad_lines='skip', encoding="latin-1")
+
     #get the rating from db and insert to df
     food_rating = rating.copy()
     food_rating = pd.concat([ratings_df, food_rating])
