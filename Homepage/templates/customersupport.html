@@ -5,40 +5,60 @@
 	.card {
   border-radius: 10px;
 }
+
+.form-group.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.buttons a, .buttons button {
+  flex-basis: 15%;
+}
+
+.form-group a {
+        margin-right: 10px;
+}
+
+h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
 </style>
 
 <div class="container">
-  <h1 class="text-center">Customer Support</h1>
+  <h1 class="text-center display-4">Customer Support</h1>
   <br>
   <div class="card shadow">
   <div class="card-body">
-    <form id="support-form" method="post" action="{% url 'customersupport' %}">
-      {% csrf_token %}
-      <div class="form-row">
+  <form id="support-form">
+    <div class="form-row">
       <div class="form-group col-md-6">
         <label for="firstName">First Name</label>
-        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="eg. John" {% if user.is_authenticated %} value="{{ user.first_name }}" {% endif %} required>
+        <input type="text" class="form-control" id="firstName" placeholder="eg. John">
       </div>
       <div class="form-group col-md-6">
         <label for="lastName">Last Name</label>
-        <input type="text" class="form-control" id="lastName" name="lastName" placeholder="eg. Doe" {% if user.is_authenticated %} value="{{ user.last_name }}" {% endif %} required>
+        <input type="text" class="form-control" id="lastName" placeholder="eg. Doe">
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col-md-12">
         <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" {% if user.is_authenticated %} value="{{ user.email }}" {% endif %} required>
+        <input type="email" class="form-control" id="email" placeholder="eg. name@example.com">
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col-md-12">
         <label for="category">What can we help you with?</label>
-        <select class="custom-select custom-select-lg mb-3" id="category" name="category" required>
-          <option value="" selected>Select one</option>
-          <option value="General Enquiries">General Enquiries</option>
-          <option value="Check on UEN Verification Status">Check on UEN Verification Status</option>
-          <option value="Report a bug">Report a bug</option>
-          <option value="Feedback">Feedback</option>
+        <select class="custom-select" id="category">
+          <option selected>Select one</option>
+          <option value="1">General Enquiries</option>
+          <option value="2">Check on UEN Verification Status</option>
+          <option value="3">Report a bug</option>
+          <option value="3">Feedback</option>
         </select>
 		<div class="invalid-feedback">Please select a valid topic.</div>
       </div>
@@ -46,67 +66,64 @@
     <div class="form-row">
       <div class="form-group col-md-12">
         <label for="details">Details</label>
-        <textarea class="form-control" id="details" name="details" maxlength="300" rows="5" placeholder="Maximum 300 words" required></textarea>
+        <textarea class="form-control" id="details" maxlength="300" rows="5" placeholder="Maximum 300 words"></textarea>
       </div>
     </div>
-	<center>
-    <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
-	<button type="button" class="btn btn-danger" onclick="clearForm()">Clear</button>
-	</center>
+  </div>
+  </div>
+    <br>
+    <div class="form-group buttons">
+  <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
+  <button type="button" class="btn btn-danger" onclick="clearForm()">Clear</button>
+  </div>
   </form>
 </div>
 
+{% block scripts %}
 <script>
-    function clearForm() {
-  	  document.getElementById("support-form").reset();
+	function clearForm() {
+		document.getElementById("support-form").reset();
+	}
+	function submitForm() {
+    // Get form data
+    const firstName = document.getElementById("firstName").value;
+    const lastName = document.getElementById("lastName").value;
+    const email = document.getElementById("email").value;
+    const category = document.getElementById("category").value;
+    const details = document.getElementById("details").value;
+
+    // Validate form data
+    if (!firstName || !lastName || !email || !category || !details) {
+      alert("Please fill in all fields.");
+      return;
     }
+
+    // Send form data to server
+    // Example using fetch API
+    fetch("/submit-form", {
+      method: "POST",
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        category,
+        details,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to submit form.");
+        }
+        alert("Form submitted successfully.");
+        clearForm();
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+	}
 </script>
-
-<!-- {% block scripts %}
-<script>
-	// function clearForm() {
-	// 	document.getElementById("support-form").reset();
-	// }
-	// function submitForm() {
-  //   // Get form data
-  //   const firstName = document.getElementById("firstName").value;
-  //   const lastName = document.getElementById("lastName").value;
-  //   const email = document.getElementById("email").value;
-  //   const category = document.getElementById("category").value;
-  //   const details = document.getElementById("details").value;
-
-  //   // Validate form data
-  //   if (!firstName || !lastName || !email || !category || !details) {
-  //     alert("Please fill in all fields.");
-  //     return;
-  //   }
-
-  //   // Send form data to server
-  //   // Example using fetch API
-  // //   fetch("/submit-form", {
-  // //     method: "POST",
-  // //     body: JSON.stringify({
-  // //       firstName,
-  // //       lastName,
-  // //       email,
-  // //       category,
-  // //       details,
-  // //     }),
-  // //     headers: {
-  // //       "Content-Type": "application/json",
-  // //     },
-  // //   })
-  // //     .then((response) => {
-  // //       if (!response.ok) {
-  // //         throw new Error("Failed to submit form.");
-  // //       }
-  // //       alert("Form submitted successfully.");
-  // //       clearForm();
-  // //     })
-  // //     .catch((error) => {
-  // //       alert(error.message);
-  // //     });
-	// }
-</script>
-{% endblock %} -->
+{% endblock %}
 {% endblock %}
