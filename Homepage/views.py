@@ -296,12 +296,16 @@ def customer_support(request):
 @login_required
 def admin_home(request):
 	user_type = UserType.objects.get(user=request.user)
+	business_count = UserType.objects.filter(userType='business').count()
+	user_count = UserType.objects.filter(userType='user').count()
 	businesses = BusinessProfile.objects.filter(isVerified=False)
 	not_verified_count = businesses.count()
 	context = {
 		'user_type': user_type,
 		'businesses':businesses,
-		'not_verified_count':not_verified_count
+		'not_verified_count':not_verified_count,
+		'business_count': business_count,
+		'user_count': user_count,
 		}
 	return render(request, 'adminhome.html', context)
 
@@ -429,7 +433,7 @@ def recommender_results(request):
 	rating_count = ratings.distinct().count()
 
 
-	if rating_count > 10 :
+	if rating_count > 30 :
 		food_dict = {}
 
 		food_id = recommendations[0]  # get the first food id from the recommendations list
@@ -931,6 +935,7 @@ def data_crawler_page(request):
 	if user_type.userType in ['user','admin']:
 		
 		context = {
+			'user_type': user_type,
 			# 'place_crawler', place_crawler,
 			# 'review_crawler', review_crawler,
 		}
@@ -949,6 +954,7 @@ def place_crawler(request):
 			}
 		except Exception as e:
 			context = {
+				'user_type': user_type,
 				'error': str(e),
 			}
 
@@ -966,6 +972,7 @@ def review_crawler(request):
 			}
 		except Exception as e:
 			context = {
+				'user_type': user_type,
 				'error': str(e),
 			}
 		return render(request,'datareviewcrawler.html', context)

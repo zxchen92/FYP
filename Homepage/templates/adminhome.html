@@ -1,7 +1,61 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Welcome {{ user.first_name }} {{ user.last_name }}</h1>
-<br>
-<div>There are {{not_verified_count}} business(es) awaiting verification.</div>
 
+<style>
+
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+	h3 {
+  margin-bottom: 15px;
+  color: #555;
+  font-size: 1.3em;
+}
+
+.grid-container {
+	  display: grid;
+	  grid-template-columns: repeat(2, 1fr);
+	  grid-gap: 35px;
+	}
+
+h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+</style>
+
+<head>
+	<title>Admin Control Panel</title>
+</head>
+
+<h1 class="text-center display-4">Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+<br>
+<div class="grid-container">
+    <div class="card mb-5">
+        <div class="card-body">
+        <h3>Administration</h3>
+    <p class="text-center">Total User count: {{user_count}}</p>
+    <p class="text-center">Number of registered Businesses: {{business_count}}</p>
+    <p class="text-center">Business(es) awaiting verification: {{not_verified_count}}</p>
+    </div>
+    </div>
+
+<div class="card mb-5">
+    <div class="card-body">
+    <h3>Quick Access</h3>
+    <div><a href="{% url 'searchusers' %}">User list</a></div>
+    <div><a href="{% url 'searchbusinesses' %}">Business list</a></div>
+    <div><a href="{% url 'foodcategory' %}">Manage Food Categories</a></div>
+    <div><a href="{% url 'recommenderpage' %}">Check Food Recommender</a></div>
+    <div><a href="https://fyp23s122p.wixsite.com/home">CollabFood's Marketing Website</a></div>
+</div>
+</div>
+</div>
+</div>
+    
+    
 {% endblock %}
