@@ -27,8 +27,8 @@ def data_review_crawler():
     stars_Rlist = []
     duration_list = []
 
-    placeURL_list = (pd.read_csv("google_place_test.csv")['URL Link'])
-    food_list = (pd.read_csv("google_place_test.csv")['Food ID'])
+    placeURL_list = (pd.read_csv("google_place.csv")['URL Link'])
+    food_list = (pd.read_csv("google_place.csv")['Food ID'])
     foodPlace_dict = dict(zip(placeURL_list, food_list))
 
     for url, food in foodPlace_dict.items():
