@@ -27,8 +27,8 @@ def data_review_crawler():
     stars_Rlist = []
     duration_list = []
 
-    placeURL_list = (pd.read_csv("google_place.csv")['URL Link'])
-    food_list = (pd.read_csv("google_place.csv")['Food ID'])
+    placeURL_list = (pd.read_csv("google_place_test.csv")['URL Link'])
+    food_list = (pd.read_csv("google_place_test.csv")['Food ID'])
     foodPlace_dict = dict(zip(placeURL_list, food_list))
 
     for url, food in foodPlace_dict.items():
@@ -122,8 +122,8 @@ def data_review_crawler():
                             columns=['Food ID','userID', 'name', 'rating', 'duration'])
     print(dfTwo)
 
-    dfTwo["userid;name"] = dfTwo['userID'] +";"+ dfTwo["name"]
-    dfTwo["userid;foodid;rating"] = dfTwo['userID'] +";"+ dfTwo["Food ID"].map(str) +";"+ dfTwo["rating"]
+    # dfTwo["userid;name"] = dfTwo['userID'] +";"+ dfTwo["name"]
+    # dfTwo["userid;foodid;rating"] = dfTwo['userID'] +";"+ dfTwo["Food ID"].map(str) +";"+ dfTwo["rating"]
 
     #initial load
     # dfTwo["userid;name"].to_csv(r'UserID_v1.csv',index=False)
@@ -131,8 +131,8 @@ def data_review_crawler():
 
 
     #delta load
-    dfTwo["userid;name"].to_csv(r'UserID_v1.csv', mode='a', index=False, header=False)
-    dfTwo["userid;foodid;rating"].to_csv(r'FoodRatings_v1.csv', mode='a', index=False, header=False)
+    dfTwo.to_csv(r'UserID_v1.csv', columns=['userID','name'], mode='a', index=False, header=False)
+    dfTwo.to_csv(r'FoodRatings_v1.csv', columns=['userID','Food ID','rating'], mode='a', index=False, header=False)
 
     messageComplete = "Completed!"
         
