@@ -807,7 +807,7 @@ def update_promotion(request, promotion_id=None):
 				promotion_to_edit.isActive = is_active
 			promotion_to_edit.save()
 			messages.success(request, 'Promotion has been updated successfully.')
-			return redirect('businesshome')
+			return redirect('searchpromotions')
 		else:
 			messages.error(request, 'There was an error in updating the promotion. Please check your input(s).')
 	else:
@@ -817,7 +817,7 @@ def update_promotion(request, promotion_id=None):
 		'user_type': user_type,
 		'promotion': promotion_to_edit
 	}
-	return render(request, 'updatepromotion.html', context)
+	return render(request, 'viewpromotion.html', context)
 
 # @login_required
 # def promotion_list(request):

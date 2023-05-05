@@ -78,6 +78,9 @@ h1 {
           <th scope="col">Company</th>
           <th scope="col">Start Date</th>
           <th scope="col">End Date</th>
+          {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
+            <th scope="col">Status</th>
+          {%endif%}
       </tr>
     </thead>
     {% if promotions %}
@@ -88,6 +91,13 @@ h1 {
             <td>{{ item.createdBy }}</td>
             <td>{{ item.startDate }}</td>
             <td>{{ item.endDate }}</td>
+            {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
+              {% if item.isActive %}
+                <td>Active</td>
+              {% else %}
+                <td>Inactivated</td>
+              {%endif%}
+            {%endif%}
         </tr>
       {% endfor %}
       {% else %}
