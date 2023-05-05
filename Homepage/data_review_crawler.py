@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import re
 import time
@@ -14,8 +15,11 @@ import pandas as pd
 def data_review_crawler():
     chrome_driver_path = 'chromedriver.exe'
 
-    options = webdriver.ChromeOptions()
-    driver = webdriver.Chrome(executable_path=chrome_driver_path, options=options)
+
+    chrome_options = Options()
+    # headless
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(executable_path=chrome_driver_path, options=chrome_options)
 
     foodID_list =[]
     userID_Rlist = []
@@ -29,7 +33,7 @@ def data_review_crawler():
 
     for url, food in foodPlace_dict.items():
         driver.get(url)
-        time.sleep(5)
+        time.sleep(3)
 
         try:
             #click review tab
@@ -47,10 +51,13 @@ def data_review_crawler():
             print(f"Review tab not found for {url}")
             continue
 
-        #click sort by newest
-        driver.find_element(By.XPATH, '//*[@id="action-menu"]/div[2]').click()
-
-        time.sleep(5)
+        try:
+            #click sort by newest
+            driver.find_element(By.XPATH, '//*[@id="action-menu"]/div[2]').click()
+            time.sleep(2)
+        except NoSuchElementException:
+            print(f"Sort newest not found for {url}")
+            continue
 
         SCROLL_PAUSE_TIME = 1
 
@@ -73,13 +80,13 @@ def data_review_crawler():
             time.sleep(SCROLL_PAUSE_TIME)
 
             # Calculate new scroll height and compare with last scroll height
-            print(f'last height: {last_height}')
+            # print(f'last height: {last_height}')
 
             ele = driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]')
 
             new_height = driver.execute_script("return arguments[0].scrollHeight", ele)
 
-            print(f'new height: {new_height}')
+            # print(f'new height: {new_height}')
 
             if number == 2:
                 break
@@ -117,11 +124,15 @@ def data_review_crawler():
 
     dfTwo["userid;name"] = dfTwo['userID'] +";"+ dfTwo["name"]
     dfTwo["userid;foodid;rating"] = dfTwo['userID'] +";"+ dfTwo["Food ID"].map(str) +";"+ dfTwo["rating"]
-    dfTwo.to_excel(r'google_review.xlsx',index=False)
-    
-    dfTwo["userid;name"].to_excel(r'UserID.xlsx',index=False)
-    dfTwo["userid;foodid;rating"].to_excel(r'FoodRatings.xlsx',index=False)
 
+    #initial load
+    # dfTwo["userid;name"].to_csv(r'UserID_v1.csv',index=False)
+    # dfTwo["userid;foodid;rating"].to_csv(r'FoodRatings_v1.csv',index=False)
+
+
+    #delta load
+    dfTwo["userid;name"].to_csv(r'UserID_v1.csv', mode='a', index=False, header=False)
+    dfTwo["userid;foodid;rating"].to_csv(r'FoodRatings_v1.csv', mode='a', index=False, header=False)
 
     messageComplete = "Completed!"
         
