@@ -19,7 +19,6 @@ urlpatterns = [
 	path('recommendernormal',views.recommender_normal ,name='recommendernormal'),
 	path('recommenderresults',views.recommender_results ,name='recommenderresults'),
 	path('recommenderresults/rate',views.create_rating, name='rate'),
-	path('register',views.register, name='register'),
 	path('register/business',views.register_business, name='registerbusiness'),
 	path('register/user',views.register_user, name='registeruser'),
 	path('searchbusinesses',views.search_businesses,name='searchbusinesses'),

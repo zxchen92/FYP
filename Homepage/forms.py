@@ -54,7 +54,7 @@ class UserRegistrationForm(forms.Form):
 	favorite_food = forms.CharField(max_length=30)
 	preferred_location = forms.ChoiceField(choices=location_choices)
 	food_category = forms.ModelChoiceField(queryset=FoodCategory.objects.all())
-	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple())
+	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple, required=False)
 	username = forms.CharField(max_length=30)
 	password = forms.CharField(widget=forms.PasswordInput)
 	gender = forms.ChoiceField(choices=GENDER_CHOICES, label='Gender')
@@ -111,7 +111,8 @@ class UserRegistrationForm(forms.Form):
 		return (user, user_profile, user_type)
 
 class UserUpdateForm(UserRegistrationForm):
-    password = forms.CharField(
+	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple, required=False)
+	password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
         required=False,
         help_text="Leave this field empty if you don't want to change the password.",

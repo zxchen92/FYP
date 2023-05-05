@@ -123,9 +123,6 @@ def user_profile(request):
 		user_profile=None
 	return render(request, 'userprofile.html', context)
 
-def register(request):
-	return render(request, 'register.html', {})
-
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
 	form = UserRegistrationForm(request.POST)
@@ -718,7 +715,7 @@ def update_business_profile(request, user_id=None):
 
 			messages.success(request, 'Business profile has been updated successfully.')
 			if is_admin_editing and user_id:
-				return redirect('viewbusinessprofile', user_id=user_id)
+				return redirect('searchbusinesses')
 			else:
 				return redirect('profile')
 		else:

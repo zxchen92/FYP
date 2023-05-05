@@ -70,8 +70,11 @@ select {
 }
 
 </style>
-
+{% if user_type.userType == 'user' %}
+  <h1 class="text-center display-4">View Business: {{ selected_business.username }}</h1><br>
+{%else%}
 <h1 class="text-center display-4">Manage Business: {{ selected_business.username }}</h1><br>
+{%endif%}
 <div id="grid-container2">
   <div class="card mb-5">
     <div class="card-body">
@@ -79,27 +82,33 @@ select {
 <form method="post" action="{% url 'updatebusiness' user_id=selected_business.id %}">
   {% csrf_token %}
 
-  {% if user_type.userType == 'admin' %}
+
     <h3>Account Details</h3>
     <div class="form-group">
       <label for="username">Username</label>
-      <input type="text" class="form-control" id="username" name="username" value="{{ selected_business.username }}">
+      <input type="text" class="form-control" id="username" name="username" value="{{ selected_business.username }}" {{disabled}}>
     </div>
     <div class="form-group>
       <label for="password">Password</label>
-      <input type="password" class="form-control" id="password" name="password">
+      <input type="password" class="form-control" id="password" name="password" {{disabled}}>
     </div>
+    
   <div class="form-row user-status">
     <div class="form-group col-md-6">
+      {% if user_type.userType == 'admin' %}
       <!-- <label>User Status: {% if selected_business.is_active %}Active{% else %}Deactivated{% endif %}</label><br> -->
       <input type="checkbox" id="is_active" name="is_active" {% if not selected_business.is_active %}checked{% endif %}>
       <label for="is_active">Deactivate User</label>
+      {%endif%}
     </div>
     <div class="form-group col-md-6">
+      {% if user_type.userType == 'admin' %}
       <!-- <label>Business Verification Status: {% if selected_business_profile.isVerified %}Verified{% else %}Not Verified{% endif %}</label><br> -->
         <input type="checkbox" id="is_verified" name="is_verified" {% if selected_business_profile.isVerified %}checked{% endif %}>
         <label for="is_verified">Verify Business</label>
+        {%endif%}
     </div>
+    
   </div>
   </div>
   </div>
@@ -161,10 +170,11 @@ select {
 </div>
 </div>
 
-  {% endif %}
   <div class="form-group buttons">
   <a href="javascript:history.back()" class="btn btn-danger">Back</a>
+  {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
   <button type="submit" class="btn btn-primary">Save</button>
+  {%endif%}
   </div>
 </form>
 {% endblock %}

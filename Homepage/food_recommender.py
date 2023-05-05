@@ -36,7 +36,7 @@ def get_recommendations(user_id):
         [['foodid', 'RatingCount_Food']])
     
 
-    threshold = 10
+    threshold = 8 #original is 10
     rating_count = rating_count.query('RatingCount_Food >= @threshold')
 
     user_rating = pd.merge(rating_count, food_rating, left_on='foodid', right_on='foodid', how='left')
@@ -49,7 +49,7 @@ def get_recommendations(user_id):
         [['userid', 'RatingCount_user']])
     
 
-    threshold = 9
+    threshold = 8 #original is 9
     user_count = user_count.query('RatingCount_user >= @threshold')
     user_count
 
