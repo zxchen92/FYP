@@ -429,7 +429,7 @@ def recommender_results(request):
 	rating_count = ratings.distinct().count()
 
 
-	if rating_count > 30 :
+	if rating_count > 10 :
 		food_dict = {}
 
 		food_id = recommendations[0]  # get the first food id from the recommendations list
