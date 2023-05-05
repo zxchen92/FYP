@@ -1,128 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<style>
-	.card {
-  border-radius: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-	h3 {
-  margin-bottom: 15px;
-  color: #555;
-  font-size: 1.3em;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-input[type="date"],
-input[type="password"],
-select {
-  background-color: #f9f9f9;
-  padding: 10px; 
-  border-radius: 5px;
-  border: none;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-  font-size: 1.1em; 
-  width: 100%;
-  margin-bottom: 10px; 
-}
-
-  .dietary-restrictions-options {
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .dietary-restrictions-options .form-check {
-    margin-right: 10px;
-  }
-
-  .grid-container {
-	  display: grid;
-	  grid-template-columns: repeat(3, 1fr);
-	  grid-gap: 35px;
-	}
-
-  #grid-container2 {
-    justify-content: center;
-    display: center;
-    max-width: 800px;
-	  margin: 0 auto;
-	}
-
-	h1 {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: bold;
-    text-align: center;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-  }
-
-  .user-status {
-    text-align: center;
-    justify-content: center;
-    margin-top: 35px;
-}
-
-.form-group.buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.buttons a, .buttons button {
-  flex-basis: 30%;
-}
-
-.form-group a {
-        margin-right: 10px;
-}
-
-</style>
-
-<h1 class="text-center display-4">Manage User: {{ selected_user.username }}</h1><br>
-<div id="grid-container2">
-  <div class="card mb-5">
-    <div class="card-body">
-
+<h1>Manage User: {{ selected_user.username }}</h1><br>
 <form method="post" action="{% url 'updateuser' user_id=selected_user.id %}">
   {% csrf_token %}
-
-        <h3>Account Details</h3>
-      <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" class="form-control" id="username" name="username" value="{{ selected_user.username }}" {{disabled}}>
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" class="form-control" id="password" name="password" {{disabled}}>
-          </div>
-          <div class="form-group user-status">
-            <label for="is_active" class="form-check-label">User Status: {% if selected_user.is_active %}Active{% else %}Deactivated{% endif %}</label>
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="is_active" name="is_active" {% if not selected_user.is_active %}checked{% endif %}>
-              <label for="is_active" class="form-check-label">Deactivate User</label>
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
-        <div class="grid-container">
-          <div class="card mb-5">
-            <div class="card-body">
-  <h3>Personal Details</h3>
-	<div class="form-group">
+  <div class="form-row">
+    <div class="form-group col-md-4">
       <label for="first_name">First Name</label>
       <input type="text" class="form-control" id="first_name" name="first_name" placeholder="eg. John" value="{{ selected_user.first_name }}" {{disabled}}>
     </div>
-    <div class="form-group">
+    <div class="form-group col-md-4">
       <label for="last_name">Last Name</label>
       <input type="text" class="form-control" id="last_name" name="last_name" placeholder="eg. Doe" value="{{ selected_user.last_name }}" {{disabled}}>
     </div>
-    <div class="form-group">
+    <div class="form-group col-md-2">
       <label for="birthdate">Birth date:</label>
       <input type="date" id="birthdate" name="birthdate" class="form-control" value="{{ selected_user_profile.birthdate|date:'Y-m-d' }}" {{disabled}}>
     </div>
-    <div class="form-group">
+    <div class="form-group col-md-2">
       <label for="gender">Gender</label>
       <select class="custom-select"name="gender" {{disabled}}>
           <option selected>Gender</option>
@@ -131,42 +26,34 @@ select {
           {% endfor %}
       </select>
     </div>
-    </div>
   </div>
-
-  <div class="card mb-5">
-    <div class="card-body">
-    <h3>Contact Details</h3>
-    <div class="form-group">
+  <div class="form-row">
+    <div class="form-group col-md-6">
       <label for="email">Email</label>
       <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" value="{{ selected_user.email }}" {{disabled}}>
     </div>
-    <div class="form-group">
+    <div class="form-group col-md-6">
       <label for="phone">Phone Number</label>
       <input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" value="{{ selected_user_profile.phone }}" {{disabled}}>
     </div>
   </div>
-  </div>
-
-<div class="card mb-5">
-	<div class="card-body">
-	<h3>Preferences</h3>
-  <div class="form-group">
+    <div class="form-group">
       <label for="favorite_food">Favourite food</label>
       <input type="text" class="form-control" id="favorite_food" name="favorite_food" placeholder="eg. Duck Rice" value="{{ selected_user_profile.favFood }}" {{disabled}}>
     </div>
-    <div class="form-group">
+    <div class="form-row">
+    <div class="form-group col-md-6">
       <label for="preferred_location">Prefered Location</label>
-      <select class="custom-select" id="preferred_location" name="preferred_location" {{disabled}}>
+      <select class="custom-select custom-select-lg mb-3" id="preferred_location" name="preferred_location" {{disabled}}>
         <option selected>Select your preferred Location</option>
           {% for value, label in location_options %}
             <option value="{{ value }}" {% if selected_user_profile.prefLocation == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
       </select>
     </div>
-    <div class="form-group">
+    <div class="form-group col-md-6">
       <label for="food_category">Food Genre</label>
-      <select class="custom-select" id="food_category" name="food_category" value="{{selected_user_profile.foodCategory.categoryName}}" {{disabled}}>
+      <select class="custom-select custom-select-lg mb-3" id="food_category" name="food_category" value="{{selected_user_profile.foodCategory.categoryName}}" {{disabled}}>
         <option selected>Select your prefered food genre</option>
           {% if foodCategory %}
           {% for item in foodCategory %}
@@ -175,12 +62,10 @@ select {
         {% endif %}
       </select>
     </div>
-
+  </div>
   {% if user_type.userType == 'admin' %}
-
   <div class="form-group">
     <label for="dietary_restrictions">Dietary Restrictions:</label>
-    <div class="dietary-restrictions-options">
     {% for value, label in DIETARY_RESTRICTIONS_OPTIONS %}
     <div class="form-check">
       <input class="form-check-input" type="checkbox" name="dietary_restrictions" value="{{ value }}" id="dietary_restrictions_{{ forloop.counter }}" {% if label in dietary_restrictions %}checked{% endif %}>
@@ -188,25 +73,25 @@ select {
     </div>
     {% endfor %}			
   </div>
-</div>
-</div>
-</div>
-</div>
-
-
-
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="username">Username</label>
+      <input type="text" class="form-control" id="username" name="username" value="{{ selected_user.username }}" {{disabled}}>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="password">Password</label>
+      <input type="password" class="form-control" id="password" name="password" {{disabled}}>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>User Status: {% if selected_user.is_active %}Active{% else %}Deactivated{% endif %}</label><br>
+    <input type="checkbox" id="is_active" name="is_active" {% if not selected_user.is_active %}checked{% endif %}>
+    <label for="is_active">Deactivate User</label>
+  </div>
+  <a href="javascript:history.back()" class="btn btn-primary">Back</a>
+  <button type="submit" class="btn btn-primary">Save</button>
   {% endif %}
-        <div class="form-group buttons">
-        <a href="javascript:history.back()" class="btn btn-danger">Back</a>
-        <button type="submit" class="btn btn-primary">Save</button>
-      </div>
-    </div>
-  </div>
-    </form>
-    </div>
-  </div>
-</div>
-</div>
+</form>
 
 {% endblock %}
 

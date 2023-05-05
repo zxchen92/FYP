@@ -1,96 +1,203 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Business Profile</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+* {
+  box-sizing: border-box;
+  font-family: Helvetica, sans-serif;
+}
 
-.card {
+body {
+  margin: 0;
+  font-family: Helvetica, sans-serif;
+}
+
+h2 {
+  background-color: #08B3E5;
+  color: white;
+  padding: 15px;
+  margin-top: 55px;
+  margin-left: 25%;
+  margin-right: 25%;
+  margin-bottom: 55px;
+  text-align: center;
   border-radius: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-	h3 {
-  margin-bottom: 15px;
-  color: #555;
-  font-size: 1.3em;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-input[type="date"],
-input[type="password"],
-select {
-  background-color: #f9f9f9;
-  padding: 10px; 
-  border-radius: 5px;
-  border: none;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-  font-size: 1.1em; 
-  width: 100%;
-  margin-bottom: 10px; 
+h3 {
+  margin-left: 15%;
+  margin-right: 100%;
 }
 
-.grid-container {
-	  display: grid;
-	  grid-template-columns: repeat(2, 1fr);
-	  grid-gap: 35px;
-	}
-
-  #grid-container2 {
-    justify-content: center;
-    display: center;
-    max-width: 800px;
-	  margin: 0 auto;
-	}
-
-  h1 {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: bold;
-    text-align: center;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-  }
-
-  .user-status {
-    text-align: center;
-    justify-content: center;
-    margin-top: 35px;
+table {
+  width: 80%;
+  padding: 15px;
+  border-spacing: 25px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
-.form-group.buttons {
-  display: flex;
-  justify-content: space-between;
+td {
+  padding: 3%;
+  background: #fff;
+  border-radius: 15px;
 }
 
-.buttons a, .buttons button {
-  flex-basis: 30%;
+/* Style the content */
+.bizprofile {
+  background-color: #F4FAFB;
+  padding: 15px;
+  margin-top: 55px;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-bottom: 55px;
+  text-align: center;
+  border-radius: 15px;
 }
 
-.form-group a {
-        margin-right: 10px;
+#updateAccount {
+    color: white;
+    background-color: #77D;
+    border-radius: 10px;
+    border-color: transparent;
+    padding: 10px;
+    height: 40px;
+    width: 135px;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+#deleteAccount {
+    color: white;
+    background-color: #E66360;
+    border-radius: 10px;
+    border-color: transparent;
+    padding: 10px;
+    height: 40px;
+    width: 135px;
+    font-size: 15px;
 }
 
 </style>
+</head>
+<body>
 
-<h1 class="text-center display-4">Manage Business: {{ selected_business.username }}</h1><br>
-<div id="grid-container2">
-  <div class="card mb-5">
-    <div class="card-body">
 
+<div class="bizprofile">
+<h2>Company Name</h2>
+<h3><u>Contact</u></h3>
+  <table>
+    <tr>
+    <th>Point of Contact (POC)</th>
+    <th>POC Mobile</th>
+  </tr>
+  <tr>
+    <td>Mr. Hooman</td>
+    <td>+65 9876 5432</td>
+  </tr>
+    <th>UEN Number</th>
+    </tr>
+    <tr>
+    <td>15171921A</td>
+  </tr>
+  </table>
+<h3><u>Details</u></h3>
+  <table>
+  	<tr>
+    <th>Email</th>
+    <th>Address</th>
+  </tr>
+  	<tr>
+    <td>doge@hoomancorp.com</td>
+    <td>221B Baker Street</td>
+  </tr>
+    <tr>
+    <th>Postal Code</th>
+  </tr>
+  	<tr>
+    <td>654321</td>
+  </tr>
+</table>
+<button type="button" id="updateAccount">Update</button>
+<button type="button" id="deleteAccount">Delete Account</button>
+</div>
+
+</body>
+</html> -->
+<h1>Manage Business: {{ selected_business.username }}</h1><br>
 <form method="post" action="{% url 'updatebusiness' user_id=selected_business.id %}">
   {% csrf_token %}
-
+  <div class="form-row">
+    <div class="form-group col-md-8">
+      <label for="companyName">Company Name</label>
+      <input type="text" class="form-control" id="companyName" name="company_name" placeholder="eg. Ah Huat Duck Rice" value="{{ selected_business_profile.companyName }}" {{disabled}}>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="uen">Company UEN</label>
+      <input type="text" class="form-control" id="uen" name="uen" placeholder="eg. T09LL0001B" readonly value="{{ selected_business_profile.uen }}">
+    </div>
+    </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="firstName">Contact Person First Name</label>
+      <input type="text" class="form-control" id="firstName" name="first_name" placeholder="eg. John" value="{{ selected_business.first_name }}" {{disabled}}>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="lastName">Contact Person Last Name</label>
+      <input type="text" class="form-control" id="lastName" name="last_name" placeholder="eg. Doe" value="{{ selected_business.last_name }}" {{disabled}}>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="phone">Contact Person Phone Number</label>
+      <input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" value="{{selected_business_profile.phone}}" {{disabled}}>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="email">Contact Person Email</label>
+      <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" value="{{ selected_business.email }}" {{disabled}}>
+    </div>
+  </div>
+    <div class="form-row">
+    <div class="form-group col-md-9">
+      <label for="address">Address</label>
+      <input type="text" class="form-control" id="address" name="address" placeholder="eg. 1234 Main St" value="{{ selected_business_profile.address }}" {{disabled}}>
+    </div>
+    <div class="form-group col-md-3">
+      <label for="postal_code">Postal code</label>
+      <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ selected_business_profile.postalCode }}" {{disabled}}>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="food_category">Food Genre</label>
+    <select class="custom-select custom-select-lg mb-3" name="food_category" id="food_category" {{disabled}} >
+      <option selected>Select your business's food genre</option>
+        {% if foodCategory %}
+          {% for item in foodCategory %}
+          <option value="{{ item.pk }}" {% if selected_business_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
+          {% endfor %}
+        {% endif %}
+    </select>
+  </div>
   {% if user_type.userType == 'admin' %}
-    <h3>Account Details</h3>
-    <div class="form-group">
+  <div class="form-row">
+    <div class="form-group col-md-6">
       <label for="username">Username</label>
       <input type="text" class="form-control" id="username" name="username" value="{{ selected_business.username }}">
     </div>
-    <div class="form-group>
+    <div class="form-group col-md-6">
       <label for="password">Password</label>
       <input type="password" class="form-control" id="password" name="password">
     </div>
-  <div class="form-row user-status">
-    <div class="form-group col-md-6">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-4">
       <!-- <label>User Status: {% if selected_business.is_active %}Active{% else %}Deactivated{% endif %}</label><br> -->
       <input type="checkbox" id="is_active" name="is_active" {% if not selected_business.is_active %}checked{% endif %}>
       <label for="is_active">Deactivate User</label>
@@ -101,70 +208,9 @@ select {
         <label for="is_verified">Verify Business</label>
     </div>
   </div>
-  </div>
-  </div>
-      </div>
-  <div class="grid-container">
-    <div class="card mb-5">
-      <div class="card-body">
-  <h3>About</h3>
-  <div class="form-group">
-      <label for="companyName">Company Name</label>
-      <input type="text" class="form-control" id="companyName" name="company_name" placeholder="eg. Ah Huat Duck Rice" value="{{ selected_business_profile.companyName }}" {{disabled}}>
-    </div>
-    <div class="form-group">
-      <label for="uen">Company UEN</label>
-      <input type="text" class="form-control" id="uen" name="uen" placeholder="eg. T09LL0001B" readonly value="{{ selected_business_profile.uen }}">
-    </div>
-    <div class="form-group">
-      <label for="food_category">Food Genre</label>
-      <select class="custom-select" name="food_category" id="food_category" {{disabled}} >
-        <option selected>Select your business's food genre</option>
-          {% if foodCategory %}
-            {% for item in foodCategory %}
-            <option value="{{ item.pk }}" {% if selected_business_profile.foodCategory.categoryName == item.categoryName %}selected{% endif %}>{{ item.categoryName }}</option>
-            {% endfor %}
-          {% endif %}
-      </select>
-    </div>
-    </div>
-  </div>
-
-<div class="card mb-5">
-  <div class="card-body">
-  <h3>Contact</h3>
-  <div class="form-group">
-      <label for="firstName">Contact Person First Name</label>
-      <input type="text" class="form-control" id="firstName" name="first_name" placeholder="eg. John" value="{{ selected_business.first_name }}" {{disabled}}>
-    </div>
-    <div class="form-group">
-      <label for="lastName">Contact Person Last Name</label>
-      <input type="text" class="form-control" id="lastName" name="last_name" placeholder="eg. Doe" value="{{ selected_business.last_name }}" {{disabled}}>
-    </div>
-  <div class="form-group">
-      <label for="phone">Contact Person Phone Number</label>
-      <input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" value="{{selected_business_profile.phone}}" {{disabled}}>
-    </div>
-    <div class="form-group">
-      <label for="email">Contact Person Email</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" value="{{ selected_business.email }}" {{disabled}}>
-    </div>
-    <div class="form-group">
-      <label for="address">Address</label>
-      <input type="text" class="form-control" id="address" name="address" placeholder="eg. 1234 Main St" value="{{ selected_business_profile.address }}" {{disabled}}>
-    </div>
-    <div class="form-group">
-      <label for="postal_code">Postal code</label>
-      <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ selected_business_profile.postalCode }}" {{disabled}}>
-    </div>
-  </div>
-</div>
-</div>
-
-  {% endif %}
-  <div class="form-group buttons">
-  <a href="javascript:history.back()" class="btn btn-danger">Back</a>
+  
+  <a href="javascript:history.back()" class="btn btn-primary">Back</a>
   <button type="submit" class="btn btn-primary">Save</button>
-  </div>
+  {% endif %}
 </form>
 {% endblock %}

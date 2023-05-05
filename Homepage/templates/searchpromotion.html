@@ -4,21 +4,25 @@
 <h1>Search Promotions</h1>
 <br>
 
+{% if user_type.userType == 'business' %}
+  <a class="btn btn-primary" href="{% url 'createpromotion' %}">Create Promotions</a><br><br>
+{% endif %}
+
 <input class="form-control" id="searchPromotions" type="text" placeholder="Search..">
 <br>
 
-<table class="table table-striped table-bordered table-hover">
-  <thead class="thead-dark">
-    <tr>
-        <th scope="col">Title</th>
-        <th scope="col">Company</th>
-        <th scope="col">Start Date</th>
-        <th scope="col">End Date</th>
-    </tr>
-  </thead>
 
-  <tbody id="Promotions">
+  <table class="table table-striped table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Company</th>
+          <th scope="col">Start Date</th>
+          <th scope="col">End Date</th>
+      </tr>
+    </thead>
     {% if promotions %}
+    <tbody id="Promotions">
       {% for item in promotions %}
         <tr>
             <td><a href="{% url 'viewpromotion' item.id %}">{{ item.title }}</a></td>
@@ -27,9 +31,12 @@
             <td>{{ item.endDate }}</td>
         </tr>
       {% endfor %}
-    {% endif %}
-  </tbody>
-</table>
+      {% else %}
+      <tr><td colspan="4" text>No current promotions.</td> <tr>
+      {% endif %}
+    </tbody>
+  </table>
+
 
 <script>
     $(document).ready(function(){

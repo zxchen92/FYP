@@ -296,16 +296,12 @@ def customer_support(request):
 @login_required
 def admin_home(request):
 	user_type = UserType.objects.get(user=request.user)
-	business_count = UserType.objects.filter(userType='business').count()
-	user_count = UserType.objects.filter(userType='user').count()
 	businesses = BusinessProfile.objects.filter(isVerified=False)
 	not_verified_count = businesses.count()
 	context = {
 		'user_type': user_type,
 		'businesses':businesses,
-		'not_verified_count':not_verified_count,
-		'business_count': business_count,
-		'user_count': user_count,
+		'not_verified_count':not_verified_count
 		}
 	return render(request, 'adminhome.html', context)
 
