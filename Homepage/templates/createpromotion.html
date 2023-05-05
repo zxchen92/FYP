@@ -53,8 +53,7 @@ h1 {
 
 <div class="card shadow">
   <div class="card-body">
-    <form id="promotion-form">
-<form method="post" action="{% url 'createpromotion' %}">
+<form method="post" id="promotion-form" action="{% url 'createpromotion' %}">
   {% csrf_token %}
   <div class="form-group">
     <label for="title">Title</label>
@@ -80,6 +79,7 @@ h1 {
   </div>
 </form>
 </div>
+
 <script>
   	function clearForm() {
 		document.getElementById("promotion-form").reset();
