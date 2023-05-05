@@ -1,19 +1,78 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Search Promotions</h1>
-<br>
+<style>
+  .card {
+    border-radius: 10px;
+    margin-bottom: 50px;
+  }
+
+  table {
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: none;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  border: none;
+}
+
+th {
+  border-top: 1px solid #ddd;
+}
+
+tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #F8F8F8;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+  background-color: #FFFFFF;
+}
+
+table td, table th {
+  border: none;
+}
+
+h1 {
+  margin-top: 15px;
+}
+
+</style>
+
+<div class="row">
+  <div class="col-md-3">
+    <h1 class="text-center display-4">Promotions List</h1><br>
+  </div>
+  <div class="col-md-9">
+    <div class="card shadow">
+      <div class="card-body">
+        <h3 class="text-center mb-4">Search for a Promotion</h3>
+        <div class="form-group">
+          <input class="form-control" id="searchPromotions" type="text" placeholder="Enter the name of the promotion">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% if user_type.userType == 'business' %}
-  <a class="btn btn-primary" href="{% url 'createpromotion' %}">Create Promotions</a><br><br>
+<div style="text-align: center; margin-bottom: 20px;">
+<a class="btn btn-primary" href="{% url 'createpromotion' %}">Create Promotions</a><br><br>
+</div>
 {% endif %}
 
-<input class="form-control" id="searchPromotions" type="text" placeholder="Search..">
-<br>
-
-
-  <table class="table table-striped table-bordered table-hover">
-    <thead class="thead-dark">
+<table class="table-hover">
+  <thead style="color: #fff; background-color: #6c7ae0;">
       <tr>
           <th scope="col">Title</th>
           <th scope="col">Company</th>
@@ -36,7 +95,6 @@
       {% endif %}
     </tbody>
   </table>
-
 
 <script>
     $(document).ready(function(){
