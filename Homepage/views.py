@@ -318,9 +318,17 @@ def search_businesses(request):
 
 @login_required
 def user_home(request):
-	user_type = UserType.objects.get(user=request.user)
-	context = {'user_type': user_type}
-	return render(request, 'userhome.html', context)
+    user_type = UserType.objects.get(user=request.user)
+    readonly = ''
+    if user_type.userType == "user":
+        readonly = "readonly"
+    promotion = Promotion.objects.order_by('-createdDate').first()
+    context = {
+        'user_type': user_type,
+        'promotion': promotion,
+        'readonly': readonly,
+    }
+    return render(request, 'userhome.html', context)
 
 @login_required
 def business_home(request):
