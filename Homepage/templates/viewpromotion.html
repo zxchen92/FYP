@@ -92,7 +92,7 @@
   <div class="grid-container">
     <div class="card mb-5">
       <div class="card-body">
-  <h3>Duration</h3>
+  <h3>Promotion Period</h3>
       <div class="form-group">
         <label for="startDate">Start date</label>
         <input type="date" class="form-control" id="startDate" name="startDate" value = "{{ promotion.startDate|date:'Y-m-d' }}" {{readonly}}>
@@ -129,9 +129,17 @@
 </div>
       <div class="form-group buttons" style="margin-top: -25px;">
         <a href="javascript:history.back()" class="btn btn-danger">Back</a>
-
+    {% endif %}
+    {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
     <button type="submit" class="btn btn-primary">Update</button>
     {% endif %}
+    </div>
+    {% if user_type.userType == 'user' %}
+    </div>
+  </div>
+    <div class="form-group buttons" style="justify-content:center; margin-top: -25px;" >
+      <a href="javascript:history.back()" class="btn btn-danger">Back</a>
+      {% endif %}
     </div>
 </form>
 
