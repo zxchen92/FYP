@@ -26,6 +26,10 @@ h1 {
     letter-spacing: 2px;
     margin-bottom: 20px;
   }
+
+  th {
+      font-size:smaller;
+}
 </style>
 
 <head>
@@ -37,21 +41,31 @@ h1 {
 <div class="grid-container">
     <div class="card mb-5">
         <div class="card-body">
-        <h3>Latest Promotion</h3>
-        {% if promotions %}
-        <tbody id="Promotions">
-            <tr>
-                <td><a href="{% url 'viewpromotion' item.id %}">{{ item.title }}</a></td>
-                <td>{{ item.createdBy }}</td>
-                <td>{{ item.startDate }}</td>
-                <td>{{ item.endDate }}</td>
-            </tr>
-          {% else %}
-          <tr><td colspan="4" text>There are no ongoing promotions.</td> <tr>
-          {% endif %}
-        </tbody>
+            <h3>Latest Promotion</h3>
+            {% if promotion %}
+            <div class="table-responsive">
+              <table class="table table-bordered" style="margin-top: 15px;">
+                <thead>
+                  <tr>
+                    <th>Details</th>
+                    <th>Period</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>This promo is brought to you by: <span style="color: rgb(83, 31, 204);">{{ promotion.createdBy }}</span></tr>
+                  <tr> <!-- <a href="{% url 'userhome' %}?promotion_id={{ promotion.id }}"> -->
+                    <td>{{ promotion.title }}</a></td>
+                    <td>{{ promotion.startDate }} to {{ promotion.endDate }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <p>There are no ongoing promotions.</p>
+            {% endif %}
+        </div>
     </div>
-    </div>
+
 
 <div class="card mb-5">
     <div class="card-body">

@@ -50,10 +50,10 @@ h1 {
 </style>
 
 <div class="row">
-  <div class="col-md-3">
+  <div class="col-md-4">
     <h1 class="text-center display-4">Promotions List</h1><br>
   </div>
-  <div class="col-md-9">
+  <div class="col-md-8">
     <div class="card shadow">
       <div class="card-body">
         <h3 class="text-center mb-4">Search for a Promotion</h3>
@@ -80,6 +80,7 @@ h1 {
           <th scope="col">End Date</th>
           {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
             <th scope="col">Status</th>
+            <th scope="col">Tools</th>
           {%endif%}
       </tr>
     </thead>
@@ -93,10 +94,11 @@ h1 {
             <td>{{ item.endDate }}</td>
             {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
               {% if item.isActive %}
-                <td>Active</td>
+                <td style="color: rgb(22, 184, 22);">Active</td>
               {% else %}
-                <td>Inactivated</td>
+                <td style="color: red;">Inactivated</td>
               {%endif%}
+              <td><a href="{% url 'deletepromotion' item.id %}">Delete</a><br></td>
             {%endif%}
         </tr>
       {% endfor %}
