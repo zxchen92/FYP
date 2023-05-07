@@ -107,10 +107,10 @@ def user_profile(request):
 			user_profile = UserProfile.objects.get(user=request.user)
 			dietary_restrictions = [dict(UserProfile.DIETARY_RESTRICTIONS)[value] for value in user_profile.dietary_restrictions]
 			context = {
-				'foodCategory':foodCategory, 
-				'user_type':user_type, 
-				'user_profile':user_profile, 
-				'location_options': location_options, 
+				'foodCategory':foodCategory,
+				'user_type':user_type,
+				'user_profile':user_profile,
+				'location_options': location_options,
 				'gender_options':gender_options,
 				'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
 				'dietary_restrictions':dietary_restrictions,
@@ -157,7 +157,7 @@ def register_user(request):
 					messages.success(request, ('User registered!'))
 					user_type = get_object_or_404(UserType, user=user)
 					return redirect('userhome')
-			
+
 			except IntegrityError:
 				# catch the IntegrityError exception raised by trying to create a user with an existing username
 				messages.error(request, 'Username already exists. Please choose a different username.')
@@ -438,7 +438,7 @@ def recommender_results(request):
 	rating_count = ratings.distinct().count()
 
 
-	if rating_count > 30 :
+	if rating_count > 10 :
 		food_dict = {}
 
 		food_id = recommendations[0]  # get the first food id from the recommendations list
@@ -450,7 +450,7 @@ def recommender_results(request):
 
 
 		context['recommendations'] = food_dict
-		
+
 
 	else:
 		food_dict={}
@@ -460,12 +460,12 @@ def recommender_results(request):
 				if all(d in food2.dietary_restrictions for d in diet):
 					food_dict[foodid] = food2
 
-			
+
 
 			except Food.DoesNotExist:
 				pass
 		context['recommendations'] = food_dict
-		
+
 
 
 	return render(request, 'recommenderresults.html',context)
@@ -859,7 +859,7 @@ def delete_promotion(request, promotion_id):
 # @login_required
 # def data_insights(request):
 # 	user_type = UserType.objects.get(user=request.user)
-	
+
 # 	if user_type.userType in ['user','business']:
 # 		# Get the count of ratings for each food
 # 		food_rating_counts = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
@@ -891,8 +891,8 @@ def delete_promotion(request, promotion_id):
 # 		image_data = base64.b64encode(buffer.read()).decode('utf-8')
 # 		plt.close()
 # 		try:
-# 			context = {'user_type': user_type, 
-			
+# 			context = {'user_type': user_type,
+
 # 			'image_data':image_data,
 # 			}
 # 			return render(request, 'datainsights.html', context)
@@ -909,9 +909,9 @@ def data_insight(request):
 		#Generate the plot image data
 		# image_data = data_insights()
 		# image_data2 = data_insights()
-		
+
 		context = {
-		'user_type': user_type, 
+		'user_type': user_type,
 		'image_data':image_data,
 		'image_data2' : image_data2,
 		'image_data3' : image_data3,
@@ -942,9 +942,9 @@ def create_stars(rating):
 @login_required
 def data_crawler_page(request):
 	user_type = UserType.objects.get(user=request.user)
-	
+
 	if user_type.userType in ['user','admin']:
-		
+
 		context = {
 			'user_type': user_type,
 			# 'place_crawler', place_crawler,
@@ -955,7 +955,7 @@ def data_crawler_page(request):
 @login_required
 def place_crawler(request):
 	user_type = UserType.objects.get(user=request.user)
-	
+
 	if 	user_type.userType in ['user', 'admin']:
 		try:
 			dfPlace, messageTwo = data_place_crawler()
@@ -971,7 +971,7 @@ def place_crawler(request):
 
 		return render(request,'dataplacecrawler.html', context)
 
-@login_required	
+@login_required
 def review_crawler(request):
 	user_type = UserType.objects.get(user=request.user)
 
@@ -987,5 +987,4 @@ def review_crawler(request):
 				'error': str(e),
 			}
 		return render(request,'datareviewcrawler.html', context)
-	
-	
+
