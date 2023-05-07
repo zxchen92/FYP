@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3m9$yw8)q3wq_mmtb54cs$)#i00(7r^3@1elhz1c0%p8rp1in(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['collabfood-smtan041.pythonanywhere.com']
+ALLOWED_HOSTS = ['collabfood-smtan041.pythonanywhere.com', 'localhost']
 
 
 # Application definition
