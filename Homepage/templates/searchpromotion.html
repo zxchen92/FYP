@@ -80,6 +80,7 @@ h1 {
           <th scope="col">End Date</th>
           {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
             <th scope="col">Status</th>
+            <th scope="col">Tools</th>
           {%endif%}
       </tr>
     </thead>
@@ -97,6 +98,7 @@ h1 {
               {% else %}
                 <td style="color: red;">Inactivated</td>
               {%endif%}
+              <td><a href="{% url 'deletepromotion' item.id %}">Delete</a><br></td>
             {%endif%}
         </tr>
       {% endfor %}

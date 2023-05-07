@@ -12,6 +12,7 @@ urlpatterns = [
 	path('customersupport',views.customer_support,name='customersupport'),
 	path('createpromotion',views.create_promotion,name='createpromotion'),
 	path('datainsights', views.data_insight, name='datainsights'),
+	path('deletepromotion/<promotion_id>', views.delete_promotion, name='deletepromotion'),
 	path('foodquiz',views.food_quiz, name ='foodquiz'),
 	path('login',views.login_user, name="login"),
 	path('logout',views.logout_user, name='logout'),

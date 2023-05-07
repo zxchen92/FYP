@@ -322,7 +322,7 @@ def user_home(request):
     readonly = ''
     if user_type.userType == "user":
         readonly = "readonly"
-    promotion = Promotion.objects.order_by('-createdDate').first()
+    promotion = Promotion.objects.filter(isActive=True, endDate__gte=timezone.now()).order_by('-createdDate').first()
     context = {
         'user_type': user_type,
         'promotion': promotion,
@@ -787,7 +787,7 @@ def create_promotion(request):
 		if form.is_valid():
 			promotion = form.save(commit=False)
 			promotion.createdBy = request.user
-			promotion.isActive = promotion.startDate <= timezone.now().date() <= promotion.endDate
+			# promotion.isActive = promotion.startDate <= timezone.now().date() <= promotion.endDate
 			promotion.save()
 			messages.success(request, 'Promotion has been created successfully.')
 			return redirect('searchpromotions')
@@ -841,7 +841,7 @@ def search_promotion(request):
 	user_type = UserType.objects.get(user=request.user)
 	promotions = Promotion.objects.all()
 	if user_type.userType in ['user']:
-		promotions = Promotion.objects.filter(isActive=True, startDate__lte=timezone.now(), endDate__gte=timezone.now())
+		promotions = Promotion.objects.filter(isActive=True, endDate__gte=timezone.now())
 	elif user_type.userType in ['business']:
 		promotions = Promotion.objects.filter(createdBy = request.user)
 	else:
@@ -850,6 +850,12 @@ def search_promotion(request):
 	context = {'user_type': user_type, 'promotions':promotions}
 	return render(request, 'searchpromotion.html', context)
 
+@login_required
+def delete_promotion(request, promotion_id):
+	item = Promotion.objects.get(pk=promotion_id)
+	item.delete()
+	messages.success(request,("Promotion Deleted!"))
+	return redirect(search_promotion)
 # @login_required
 # def data_insights(request):
 # 	user_type = UserType.objects.get(user=request.user)
