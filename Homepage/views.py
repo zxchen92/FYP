@@ -123,6 +123,9 @@ def user_profile(request):
 		user_profile=None
 	return render(request, 'userprofile.html', context)
 
+def register(request):
+	return render(request, 'register.html', {})
+
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
 	form = UserRegistrationForm(request.POST)
@@ -293,16 +296,12 @@ def customer_support(request):
 @login_required
 def admin_home(request):
 	user_type = UserType.objects.get(user=request.user)
-	business_count = UserType.objects.filter(userType='business').count()
-	user_count = UserType.objects.filter(userType='user').count()
 	businesses = BusinessProfile.objects.filter(isVerified=False)
 	not_verified_count = businesses.count()
 	context = {
 		'user_type': user_type,
 		'businesses':businesses,
-		'not_verified_count':not_verified_count,
-		'business_count': business_count,
-		'user_count': user_count,
+		'not_verified_count':not_verified_count
 		}
 	return render(request, 'adminhome.html', context)
 
@@ -424,10 +423,9 @@ def recommender_results(request):
 	diet = profile.dietary_restrictions
 	print(diet)
 
-	####### Below is the prototype code ########
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
-	############################################
+
 	context = {
 	'user_type': user_type,
 	'form': form,
@@ -447,11 +445,13 @@ def recommender_results(request):
 		for food_id, food in food_dict.items():
 			if not all(d in food.dietary_restrictions for d in diet):
 				del food_dict[food_id]
-
-
 		context['recommendations'] = food_dict
+<<<<<<< Updated upstream
 
 
+=======
+		
+>>>>>>> Stashed changes
 	else:
 		food_dict={}
 		for foodid in recommendationsTwo:
@@ -460,6 +460,7 @@ def recommender_results(request):
 				if all(d in food2.dietary_restrictions for d in diet):
 					food_dict[foodid] = food2
 
+<<<<<<< Updated upstream
 
 
 			except Food.DoesNotExist:
@@ -468,6 +469,12 @@ def recommender_results(request):
 
 
 
+=======
+			except Food.DoesNotExist:
+				pass
+		context['recommendations'] = food_dict
+		
+>>>>>>> Stashed changes
 	return render(request, 'recommenderresults.html',context)
 
 @login_required
@@ -723,7 +730,7 @@ def update_business_profile(request, user_id=None):
 
 			messages.success(request, 'Business profile has been updated successfully.')
 			if is_admin_editing and user_id:
-				return redirect('searchbusinesses')
+				return redirect('viewbusinessprofile', user_id=user_id)
 			else:
 				return redirect('profile')
 		else:
@@ -815,7 +822,7 @@ def update_promotion(request, promotion_id=None):
 				promotion_to_edit.isActive = is_active
 			promotion_to_edit.save()
 			messages.success(request, 'Promotion has been updated successfully.')
-			return redirect('searchpromotions')
+			return redirect('businesshome')
 		else:
 			messages.error(request, 'There was an error in updating the promotion. Please check your input(s).')
 	else:
@@ -825,7 +832,7 @@ def update_promotion(request, promotion_id=None):
 		'user_type': user_type,
 		'promotion': promotion_to_edit
 	}
-	return render(request, 'viewpromotion.html', context)
+	return render(request, 'updatepromotion.html', context)
 
 # @login_required
 # def promotion_list(request):
@@ -904,18 +911,25 @@ def data_insight(request):
 	user_type = UserType.objects.get(user=request.user)
 	if user_type.userType in ['user','business']:
 
-		image_data , image_data2, image_data3, image_data4 = data_insights()
+		image_data , image_data2, image_data3, image_data4, image_data5 = data_insights()
 
+
+<<<<<<< Updated upstream
 		#Generate the plot image data
 		# image_data = data_insights()
 		# image_data2 = data_insights()
 
+=======
+		
+>>>>>>> Stashed changes
 		context = {
 		'user_type': user_type,
 		'image_data':image_data,
 		'image_data2' : image_data2,
 		'image_data3' : image_data3,
 		'image_data4' : image_data4,
+		'image_data5' : image_data5,
+		#'image_data6' : image_data6,
 		}
 	return render(request, 'datainsights.html', context)
 
@@ -946,7 +960,6 @@ def data_crawler_page(request):
 	if user_type.userType in ['user','admin']:
 
 		context = {
-			'user_type': user_type,
 			# 'place_crawler', place_crawler,
 			# 'review_crawler', review_crawler,
 		}
@@ -965,7 +978,6 @@ def place_crawler(request):
 			}
 		except Exception as e:
 			context = {
-				'user_type': user_type,
 				'error': str(e),
 			}
 
@@ -983,7 +995,6 @@ def review_crawler(request):
 			}
 		except Exception as e:
 			context = {
-				'user_type': user_type,
 				'error': str(e),
 			}
 		return render(request,'datareviewcrawler.html', context)
