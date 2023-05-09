@@ -63,9 +63,11 @@ h1 {
         <h2 class="text-center">Food Lovers</h2>
         <p class="text-center">Don't know what to eat for today's lunch? Let us recommend some food to you based on users with similar preferences! Join us now to discover more!</p>
         <p class="text-center">We have a total of <strong>{{business_count}}</strong> registered Businesses and the numbers are still climbing! Register now in order to find out more!</p>
+        {% if not user.is_authenticated %}
         <div class="d-flex justify-content-center">
         <a href="{% url 'registeruser' %}" class="btn btn-primary btn-block rounded user-button" aria-current="true">Register as a User</a>
       </div>
+      {% endif %}
     </div>
     </div>
     <div class="card mb-5">
@@ -73,9 +75,11 @@ h1 {
         <h2 class="text-center">Business Owners</h2>
         <p class="text-center">Ever wondered what directions you should steer your food stall/resturant to for success? Let our Big Data tell you the stories! Join us now to have more insights of what the local preferences are!</p>
         <p class="text-center">We have a total of <strong>{{user_count}}</strong> registered Users and the numbers are still increasing daily! Register now to reach out to all these users!</p>
+        {% if not user.is_authenticated %}
         <div class="d-flex justify-content-center">
         <a href="{% url 'registerbusiness' %}" class="btn btn-primary btn-block rounded business-button" aria-current="true">Register as a Business</a>
       </div>
+      {% endif %}
     </div>
   </div>
   </div>
