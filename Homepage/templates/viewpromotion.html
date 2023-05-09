@@ -131,7 +131,7 @@
         <a href="javascript:history.back()" class="btn btn-danger">Back</a>
     {% endif %}
     {% if user_type.userType == 'admin' or user_type.userType == 'business' %}
-    <button type="submit" class="btn btn-danger">delete</button>
+    <button type="submit" class="btn btn-danger" formaction="{% url 'deletepromotion' promotion_id=promotion.id %}" formmethod="post">Delete</button>
     <button type="submit" class="btn btn-primary">Update</button>
    
     {% endif %}
