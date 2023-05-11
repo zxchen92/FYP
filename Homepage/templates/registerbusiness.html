@@ -67,19 +67,19 @@ select {
 	<h3>Company Information</h3>
 	<div class="form-group">
 			<label for="companyName">Company Name</label>
-			<input type="text" class="form-control" id="companyName" name="company_name" placeholder="eg. Ah Huat Duck Rice" required>
+			<input type="text" class="form-control" id="companyName" name="company_name" placeholder="eg. Ah Huat Duck Rice" value="{{ request.POST.company_name }}" required>
 		</div>
 		<div class="form-group">
 			<label for="uen">Company UEN</label>
-			<input type="text" class="form-control" id="uen" name="uen" placeholder="eg. T09LL0001B" required>
+			<input type="text" class="form-control" id="uen" name="uen" placeholder="eg. T09LL0001B" value="{{ request.POST.uen }}" required>
 		</div>
 		<div class="form-group">
 				<label for="address">Address</label>
-				<input type="text" class="form-control" id="address" name="address" placeholder="eg. 1234 Main St" required>
+				<input type="text" class="form-control" id="address" name="address" placeholder="eg. 1234 Main St" value="{{ request.POST.address }}" required>
 			</div>
 			<div class="form-group">
 				<label for="postal_code">Postal code</label>
-				<input type="text" class="form-control" id="postal_code" name="postal_code" required>
+				<input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ request.POST.postal_code }}" required>
 			</div>
 		</div>
 	</div>
@@ -89,19 +89,19 @@ select {
 	<h3>Contact Information</h3>
 	<div class="form-group">
 			<label for="firstName">Contact Person First Name</label>
-			<input type="text" class="form-control" id="firstName" name="first_name" placeholder="eg. John" required>
+			<input type="text" class="form-control" id="firstName" name="first_name" placeholder="eg. John" value="{{ request.POST.first_name }}" required>
 		</div>
 		<div class="form-group">
 			<label for="lastName">Contact Person Last Name</label>
-			<input type="text" class="form-control" id="lastName" name="last_name" placeholder="eg. Doe" required>
+			<input type="text" class="form-control" id="lastName" name="last_name" placeholder="eg. Doe" value="{{ request.POST.last_name }}" required>
 		</div>
 		<div class="form-group">
 			<label for="phone">Contact Person Phone Number</label>
-			<input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" required>
+			<input type="tel" class="form-control" id="phone" name="phone" placeholder="eg. 12345678" value="{{ request.POST.phone }}" required>
 		</div>
 		<div class="form-group">
 		  <label for="email">Contact Person Email</label>
-		  <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" required>
+		  <input type="email" class="form-control" id="email" name="email" placeholder="eg. name@example.com" value="{{ request.POST.email }}" required>
 		</div>
 	</div>
 </div>
@@ -112,10 +112,10 @@ select {
 	<div class="form-group">
 		<label for="food_category">Food Genre</label>
 		<select class="custom-select" name="food_category" id="food_category" required>
-		  <option value="" selected>Select your business's food genre</option>
+			<option value="" {% if not request.POST.food_category %}selected{% endif %}>Your favorite type of food</option>
 			{% if foodCategory %}
 				{% for item in foodCategory %}
-					<option value="{{ item.pk }}">{{ item.categoryName }}</option>
+				<option value="{{ item.pk }}" {% if request.POST.food_category == item.pk|stringformat:"s" %}selected{% endif %}>{{ item.categoryName }}</option>
 				{% endfor %}
 			{% endif %}
 		</select>
@@ -130,7 +130,7 @@ select {
 	<div class="form-row">
 		<div class="form-group col-md-6">
 			<label for="username">Username</label>
-			<input type="text" class="form-control" id="username" name="username" required>
+			<input type="text" class="form-control" id="username" name="username" value="{{ request.POST.username }}" required>
 		</div>
 		<div class="form-group col-md-6">
 			<label for="password">Password</label>

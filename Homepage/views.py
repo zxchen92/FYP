@@ -128,19 +128,23 @@ def register(request):
 
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
-	form = UserRegistrationForm(request.POST)
+	form = UserRegistrationForm(request.POST or None)  # Pass POST data to the form if it exists
+
 	if request.method == 'POST':
 		print("Form errors: ", form.errors, flush=True)
+		checked_dietary_restrictions = request.POST.getlist('dietary_restrictions')
 		if form.is_valid():
 			try:
+				# Save user, user_profile, and user_type
 				user, user_profile, user_type = form.save(commit=False)
-
+				# Set user attributes
 				user.first_name = request.POST.get('first_name')
 				user.last_name = request.POST.get('last_name')
 				user.email = request.POST.get('email')
 				user.username = request.POST.get('username')
 				user.password = request.POST.get('password')
-
+				user.save()
+				# Set user_profile attributes
 				user_profile.birthdate_str = request.POST.get('birthdate')
 				user_profile.gender = request.POST.get('gender')
 				user_profile.phone = request.POST.get('phone')
@@ -148,33 +152,30 @@ def register_user(request):
 				user_profile.preferred_location = request.POST.get('preferred_location')
 				user_profile.food_category_id = request.POST.get('food_category')
 				user_profile.dietary_restrictions = request.POST.getlist('dietary_restrictions')
-
-				user.save()
 				user_profile.user = user
 				user_profile.save()
+				# Set user_type attributes
 				user_type.user = user
 				user_type.save()
 
 				if user is not None:
 					login(request, user)
-					messages.success(request, ('User registered!'))
-					user_type = get_object_or_404(UserType, user=user)
+					messages.success(request, 'User registered!')
 					return redirect('userhome')
-
 			except IntegrityError:
-				# catch the IntegrityError exception raised by trying to create a user with an existing username
+				# Catch the IntegrityError exception raised by trying to create a user with an existing username
 				messages.error(request, 'Username already exists. Please choose a different username.')
 				form.add_error('username', 'Username already exists. Please choose a different username.')
 		else:
-			messages.error(request,('User registration unsuccesful! Please try again!'))
-			form = UserRegistrationForm()
+			messages.error(request, 'User registration unsuccessful! Please try again!')
 
 	context = {
-		'foodCategory':foodCategory,
-		'form':form,
-		'location_options':location_options,
-		'gender_options':gender_options,
-		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+		'checked_dietary_restrictions':checked_dietary_restrictions,
+		'foodCategory': foodCategory,
+		'form': form,
+		'location_options': location_options,
+		'gender_options': gender_options,
+		'DIETARY_RESTRICTIONS_OPTIONS': DIETARY_RESTRICTIONS_OPTIONS,
 	}
 	return render(request, 'registeruser.html', context)
 
@@ -296,12 +297,16 @@ def customer_support(request):
 @login_required
 def admin_home(request):
 	user_type = UserType.objects.get(user=request.user)
+	business_count = UserType.objects.filter(userType='business').count()
+	user_count = UserType.objects.filter(userType='user').count()
 	businesses = BusinessProfile.objects.filter(isVerified=False)
 	not_verified_count = businesses.count()
 	context = {
 		'user_type': user_type,
 		'businesses':businesses,
-		'not_verified_count':not_verified_count
+		'not_verified_count':not_verified_count,
+		'business_count': business_count,
+		'user_count': user_count,
 		}
 	return render(request, 'adminhome.html', context)
 
@@ -446,12 +451,6 @@ def recommender_results(request):
 			if not all(d in food.dietary_restrictions for d in diet):
 				del food_dict[food_id]
 		context['recommendations'] = food_dict
-<<<<<<< Updated upstream
-
-
-=======
-		
->>>>>>> Stashed changes
 	else:
 		food_dict={}
 		for foodid in recommendationsTwo:
@@ -460,21 +459,10 @@ def recommender_results(request):
 				if all(d in food2.dietary_restrictions for d in diet):
 					food_dict[foodid] = food2
 
-<<<<<<< Updated upstream
-
-
 			except Food.DoesNotExist:
 				pass
 		context['recommendations'] = food_dict
 
-
-
-=======
-			except Food.DoesNotExist:
-				pass
-		context['recommendations'] = food_dict
-		
->>>>>>> Stashed changes
 	return render(request, 'recommenderresults.html',context)
 
 @login_required
@@ -822,7 +810,7 @@ def update_promotion(request, promotion_id=None):
 				promotion_to_edit.isActive = is_active
 			promotion_to_edit.save()
 			messages.success(request, 'Promotion has been updated successfully.')
-			return redirect('businesshome')
+			return redirect('searchpromotions')
 		else:
 			messages.error(request, 'There was an error in updating the promotion. Please check your input(s).')
 	else:
@@ -832,7 +820,7 @@ def update_promotion(request, promotion_id=None):
 		'user_type': user_type,
 		'promotion': promotion_to_edit
 	}
-	return render(request, 'updatepromotion.html', context)
+	return render(request, 'viewpromotion.html', context)
 
 # @login_required
 # def promotion_list(request):
@@ -914,14 +902,7 @@ def data_insight(request):
 		image_data , image_data2, image_data3, image_data4, image_data5 = data_insights()
 
 
-<<<<<<< Updated upstream
-		#Generate the plot image data
-		# image_data = data_insights()
-		# image_data2 = data_insights()
-
-=======
 		
->>>>>>> Stashed changes
 		context = {
 		'user_type': user_type,
 		'image_data':image_data,
@@ -973,11 +954,13 @@ def place_crawler(request):
 		try:
 			dfPlace, messageTwo = data_place_crawler()
 			context = {
+				'user_type': user_type,
 				'dfPlace': dfPlace,
 				'messageTwo': messageTwo,
 			}
 		except Exception as e:
 			context = {
+				'user_type': user_type,
 				'error': str(e),
 			}
 
@@ -995,6 +978,7 @@ def review_crawler(request):
 			}
 		except Exception as e:
 			context = {
+				'user_type': user_type,
 				'error': str(e),
 			}
 		return render(request,'datareviewcrawler.html', context)
