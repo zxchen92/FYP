@@ -60,7 +60,7 @@ def data_insights():
 
 
 
-    # Create a bar chart of the top 10 most rated categories
+    # Create a bar chart of the top food categories
     countsOne = [fC['count'] for fC in favourite_category_count[:10]]
     plt.bar(category_names, countsOne, 
         color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#A5D8DD'])
