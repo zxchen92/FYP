@@ -7,14 +7,14 @@ import django
 django.setup()
 
 from django.contrib.auth.models import User
-from Homepage.models import UserProfile, UserType, FoodCategory, Food
+from Homepage.models import UserProfile, UserType, FoodCategory, Food, Rating
 
 # Get the list of food categories
 food_categories = FoodCategory.objects.all()
 food = Food.objects.all()
 
 # Create 100 new users
-for i in range(200):
+for i in range(1):
     # Generate a random username
     username = f'cloneusers{i}'
     password = 'test'
@@ -41,3 +41,11 @@ for i in range(200):
     user_type = UserType.objects.create(user=user, userType='user')
 
     print(f'Created user {username} with password {password}')
+
+    # Add 10 ratings for the user
+    for j in range(10):
+        rating = random.randint(1, 5)
+        food_item = random.choice(food).foodName
+        Rating.objects.create(user=user, food=food_item, rating=rating)
+
+    print(f'Added 10 ratings for user {username}')
