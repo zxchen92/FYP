@@ -211,7 +211,7 @@ def register_business(request):
 				return redirect('landing')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
-			form = UserRegistrationForm()
+			form = BusinessRegistrationForm()
 
 	context = {
 		'foodCategory':foodCategory,
