@@ -20,7 +20,7 @@
 <div class="card mb-4 shadow">
 <div class="card-body text-center">
 <h2>Here's your recommendation for the day:</h2>
-<h2>category is{{ food_category }}</h2>
+<h2>Your prefered category is {{ food_category_name }}</h2>
 <br>
 <table class="table table-striped table-bordered table-hover">
   <thead class="thead-dark">
@@ -33,32 +33,32 @@
   </thead>
   <tbody id="Category">
 
-      {% for foodid, food_obj in recommendationsByAge.items %}
-          <tr class="clickable-row">
-          <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
-          <td>{{ food_obj.foodCategory.categoryName }}</td>
-          <td>{{ food_obj.dietary_restrictions }}</td>
-
-          <td><form action="{% url 'rate' %}" method="post" id="rating-form">
-            {% csrf_token %}
-            <div class="star-rating">
-              <input type="radio" id="rating-5" name="rating" value="5">
-              <label for="rating-5">5</label>
-              <input type="radio" id="rating-4" name="rating" value="4">
-              <label for="rating-4">4</label>
-              <input type="radio" id="rating-3" name="rating" value="3">
-              <label for="rating-3">3</label>
-              <input type="radio" id="rating-2" name="rating" value="2">
-              <label for="rating-2">2</label>
-              <input type="radio" id="rating-1" name="rating" value="1">
-              <label for="rating-1">1</label>
-            </div>
-            <br>
-            <input type="hidden" id="food" name="food" value="{{ food_obj.foodName  }}">
-            <button class="btn btn-success btn-wide" type="submit">Rate it</button>
-          </form></td>
-          <!-- above code is confirmed working!! -->
-      </tr>
+  {% for foodid, food_obj in recommendationsByAge.items %}
+    <tr class="clickable-row">
+        <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
+        <td>{{ food_obj.foodCategory.categoryName }}</td>
+        <td>{{ food_obj.dietary_restrictions }}</td>
+        <td>
+            <form action="{% url 'rate' %}" method="post" id="rating-form-{{ foodid }}">
+                {% csrf_token %}
+                <div class="star-rating">
+                    <input type="radio" id="rating-5-{{ foodid }}" name="rating" value="5">
+                    <label for="rating-5-{{ foodid }}">5</label>
+                    <input type="radio" id="rating-4-{{ foodid }}" name="rating" value="4">
+                    <label for="rating-4-{{ foodid }}">4</label>
+                    <input type="radio" id="rating-3-{{ foodid }}" name="rating" value="3">
+                    <label for="rating-3-{{ foodid }}">3</label>
+                    <input type="radio" id="rating-2-{{ foodid }}" name="rating" value="2">
+                    <label for="rating-2-{{ foodid }}">2</label>
+                    <input type="radio" id="rating-1-{{ foodid }}" name="rating" value="1">
+                    <label for="rating-1-{{ foodid }}">1</label>
+                </div>
+                <br>
+                <input type="hidden" id="food" name="food" value="{{ food_obj.foodName  }}">
+                <button class="btn btn-success btn-wide" type="submit">Rate it</button>
+            </form>
+        </td>
+    </tr>
   {% endfor %}
 
   </tbody>
