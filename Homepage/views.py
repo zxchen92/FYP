@@ -30,6 +30,9 @@ from .food_recommender import get_recommendations
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
 from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm
 
+from datetime import date
+from datetime import datetime
+
 
 import sys
 
@@ -496,7 +499,66 @@ def recommender_normal(request):
 				food_dict[foodid] = food2
 		except Food.DoesNotExist:
 			pass
+	###################### Recommender by age #############################
+	# Get current year and user's age
+	now = datetime.now()
+	current_year = now.year
+	user_profiles = get_object_or_404(UserProfile, user=request.user)
+	user_age = current_year - user_profiles.birthdate.year
+
+	# Get all users and their age groups
+	users = UserProfile.objects.all()
+	age_groups = [(current_year - user.birthdate.year) // 10 for user in UserProfile.objects.all()]
+
+	# Find the index of the current user within the queryset
+	user_index = list(users).index(request.user.userprofile)
+
+	# Determine the user's age group
+	user_age_group = age_groups[user_index]
+
+	# Get most rated food data
+	food_ratings_count = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
+	food_names = [fr['food'] for fr in food_ratings_count]
+	food_counts_all = [fr['count'] for fr in food_ratings_count]
+
+	# Create dictionary to store food counts for each age group
+	food_counts = {}
+	for age_group in age_groups:
+		food_counts[age_group] = {}
+		for food in food_ratings_count:
+			ratings = Rating.objects.filter(food=food['food'], 
+											user__userprofile__birthdate__year__lte=current_year-age_group*10, 
+											user__userprofile__birthdate__year__gt=current_year-(age_group+1)*10)
+			food_counts[age_group][food['food']] = ratings.count()
+
+	# Determine most popular food for the user's age group
+	food_counts_age_group = food_counts[user_age_group]
+	food_counts_age_group_sorted = sorted(food_counts_age_group.items(), key=lambda x: x[1], reverse=True)
+
+	# Create list of recommended food objects
+	recommended_food = []
+	currentUserRatings = []
+	currentUserRatings = Rating.objects.filter(user=request.user)
+	
+	for food_count in food_counts_age_group_sorted:
+		foods = Food.objects.get(foodName=food_count[0])
+		#if food not in request.user.ratings.all():
+		if foods not in currentUserRatings:
+			recommended_food.append(foods)
+			if len(recommended_food) >= 100:
+				break
+	food_dict2={}
+	for foodid in recommended_food:
+		try:
+			category = get_object_or_404(FoodCategory, id=food_category)
+			food3 =  foodid #get_object_or_404(Food, foodid)
+			if category.categoryName in food2.foodCategory.categoryName:
+				food_dict2[foodid] = food3
+		except Food.DoesNotExist:
+			pass
+	########################################################################
 	context['recommendations'] = food_dict
+	context['recommendationsByAge'] = food_dict2
 	return render(request, 'nomlrecommender.html',context)
 
 
@@ -900,8 +962,6 @@ def data_insight(request):
 	if user_type.userType in ['user','business']:
 
 		image_data , image_data2, image_data3, image_data4, image_data5 = data_insights()
-
-
 		
 		context = {
 		'user_type': user_type,

@@ -20,7 +20,7 @@
 <div class="card mb-4 shadow">
 <div class="card-body text-center">
 <h2>Here's your recommendation for the day:</h2>
-<h2>diet is{{ food_category }}</h2>
+<h2>category is{{ food_category }}</h2>
 <br>
 <table class="table table-striped table-bordered table-hover">
   <thead class="thead-dark">
@@ -33,9 +33,7 @@
   </thead>
   <tbody id="Category">
 
-      {% for foodid, food_obj in recommendations.items %}
-      <!-- <tr class = "clickable-row">
-          <th scope="row">{{ food_obj.foodName }}</td> -->
+      {% for foodid, food_obj in recommendationsByAge.items %}
           <tr class="clickable-row">
           <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
           <td>{{ food_obj.foodCategory.categoryName }}</td>
