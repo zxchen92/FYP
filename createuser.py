@@ -14,7 +14,7 @@ food_categories = FoodCategory.objects.all()
 food = Food.objects.all()
 
 # Create 100 new users
-for i in range(1):
+for i in range(200):
     # Generate a random username
     username = f'cloneusers{i}'
     password = 'test'

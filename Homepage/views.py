@@ -539,9 +539,11 @@ def recommender_normal(request):
 	recommended_food = []
 	currentUserRatings = []
 	currentUserRatings = Rating.objects.filter(user=request.user)
+	print("current user rating is " + str(currentUserRatings), flush=True)
 	
 	for food_count in food_counts_age_group_sorted:
 		foods = Food.objects.get(foodName=food_count[0])
+		print("foods " + str(foods), flush=True)
 		#if food not in request.user.ratings.all():
 		if foods not in currentUserRatings:
 			recommended_food.append(foods)
@@ -550,13 +552,16 @@ def recommender_normal(request):
 	food_dict2={}
 	for foodid in recommended_food:
 		try:
+			print("foodid" + str(foodid), flush=True)
 			category = get_object_or_404(FoodCategory, id=food_category)
 			food3 =  foodid #get_object_or_404(Food, foodid)
-			if category.categoryName in food2.foodCategory.categoryName:
+			print("food3" + str(food3), flush=True)
+			if category.categoryName in food3.foodCategory.categoryName:
 				food_dict2[foodid] = food3
 		except Food.DoesNotExist:
 			pass
 	########################################################################
+	print("This is the food_dict2" + str(food_dict2), flush=True)
 	context['recommendations'] = food_dict
 	context['recommendationsByAge'] = food_dict2
 	return render(request, 'nomlrecommender.html',context)
@@ -962,7 +967,7 @@ def data_insight(request):
 	if user_type.userType in ['user','business']:
 
 		image_data , image_data2, image_data3, image_data4, image_data5 = data_insights()
-		
+
 		context = {
 		'user_type': user_type,
 		'image_data':image_data,
