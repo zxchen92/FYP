@@ -14,6 +14,67 @@ from datetime import datetime
 
 
 def data_insights():
+    ################################## combine rating
+    ratings_dict = Rating.objects.all().values()
+    ratings_df = pd.DataFrame.from_records(ratings_dict)
+
+    food_ids = {}
+    foods = Food.objects.all().values()
+    for food in foods:
+        food_ids[food['foodName']] = food['id']
+    ratings_df['foodid'] = ratings_df['food'].apply(lambda x: food_ids[x])
+    ratings_df['userid'] = ratings_df['user_id']
+    ratings_df.drop(columns=['food','id','user_id'], inplace=True)
+    #cell[2]
+    rating = pd.read_csv('FoodRatings_v1.csv', sep=',', on_bad_lines='skip', encoding="latin-1")
+    #get the rating from db and insert to df
+    food_rating = rating.copy()
+    food_rating = pd.concat([ratings_df, food_rating])
+
+    print (food_rating)
+
+    # rating_count = (food_rating.
+    #     groupby(by = ['foodid'])['rating'].
+    #     count().
+    #     reset_index().
+    #     rename(columns = {'rating': 'RatingCount_Food'})
+    #     [['foodid', 'RatingCount_Food']])
+    rating_count=  food_rating['foodid'].value_counts().nlargest(10)
+
+
+    # foodName = dict(Food.foodName)
+    # for item in rating_count:
+    #     item['foodName'] = foodName[item['foodName']]
+
+
+    rating_count.plot.bar()
+
+    # plt.bar(foodName, rating_count,
+    #     color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#48abf1', '#fce3b4'
+    #     , '#F0C0A8', '#ee91ad'])
+    plt.title('Top Most Rated Foods')
+    plt.ylabel('Number of Ratings')
+
+    #Create a bar chart of the top 10 most rated foods    
+    # plt.bar(combined_val, rating_count,
+    #     color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#48abf1', '#fce3b4'
+    #     , '#F0C0A8', '#ee91ad'])
+    # plt.xlabel('Food Name')
+    # plt.xticks(rotation=45, ha='right')
+    # plt.tight_layout()
+
+    # Set the y-axis range
+    # plt.ylim([0, max(counts_food_combined) + 1])
+
+    # Save the chart as a PNG image in memory
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    combined_ratings = base64.b64encode(buffer.read()).decode('utf-8')
+    plt.close()
+    buffer.close()
+
+
     ################################# Top Rated Foods
     # Get the count of ratings for each food
     food_rating_counts = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
@@ -27,7 +88,7 @@ def data_insights():
     plt.bar(top_foods, counts,
         color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#48abf1', '#fce3b4'
         , '#F0C0A8', '#ee91ad'])
-    plt.title('Top 10 Most Rated Foods')
+    plt.title('Top Most Rated Foods by Users')
     plt.xlabel('Food Name')
     plt.ylabel('Number of Ratings')
     plt.xticks(rotation=45, ha='right')
@@ -209,4 +270,4 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    return most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group, #age_group_food
+    return combined_ratings, most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group, #age_group_food
