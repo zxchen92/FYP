@@ -37,8 +37,9 @@ from datetime import datetime
 
 
 import sys
+import os
 
-SENDGRID_API_KEY = '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'
+sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
 
 location_options = [
 	('1', 'North'),
