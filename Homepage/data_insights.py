@@ -3,13 +3,18 @@ import base64
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
+import pandas as pd
+import numpy as np
 from django.db.models import Count
 from .models import Rating
 from .models import UserProfile
 from .models import FoodCategory
+from datetime import date
+from datetime import datetime
 
 
 def data_insights():
+    ################################# Top Rated Foods
     # Get the count of ratings for each food
     food_rating_counts = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
 
@@ -39,7 +44,7 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    #################################
+    ################################# Top Food Categories
 
     favourite_category_count = UserProfile.objects.values('foodCategory').annotate(count=Count('foodCategory')).order_by('-count')
 
@@ -55,7 +60,7 @@ def data_insights():
 
 
 
-    # Create a bar chart of the top 10 most rated foods
+    # Create a bar chart of the top food categories
     countsOne = [fC['count'] for fC in favourite_category_count[:10]]
     plt.bar(category_names, countsOne, 
         color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#A5D8DD'])
@@ -77,7 +82,7 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    ################################################
+    ################################################ Most popular preferred locations
     pref_location_count = UserProfile.objects.values('prefLocation').annotate(count=Count('prefLocation')).order_by('-count')
 
     pref_location = [PL['prefLocation'] for PL in pref_location_count[:10]]
@@ -101,7 +106,7 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    ################################################
+    ################################################ Gender
     gender_count = UserProfile.objects.values('gender').annotate(count=Count('gender')).order_by('-count')
 
     gender = [g['gender'] for g in gender_count[:10]]
@@ -124,4 +129,84 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    return most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph
+    ############################################### Age group
+    birth_dates = UserProfile.objects.values_list('birthdate', flat=True)
+    ages = [(date.today() - birthdate).days // 365 for birthdate in birth_dates]
+
+    age_groups = {
+    '18-24': range(18, 25),
+    '25-34': range(25, 35),
+    '35-44': range(35, 45),
+    '45-54': range(45, 55),
+    '55+': range(55, 110),
+}
+
+    # Count the number of users in each age group
+    age_counts = {group: 0 for group in age_groups}
+    for age in ages:
+        for group, age_range in age_groups.items():
+            if age in age_range:
+                age_counts[group] += 1
+                break
+    
+    labels = list(age_counts.keys())
+    values = list(age_counts.values())
+
+    plt.bar(labels, values)
+    plt.title('Age Group Distribution')
+    plt.xlabel('Age Group')
+    plt.ylabel('Number of Users')
+    
+    # Save the chart as a PNG image in memory
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    age_group = base64.b64encode(buffer.read()).decode('utf-8')
+    plt.close()
+    buffer.close()
+
+    # #################################### Favourite food by Age Group
+    now = datetime.now()
+    current_year = now.year
+    users = UserProfile.objects.all()
+    age_groups = [(current_year - user.birthdate.year) // 10 for user in users]
+    age_group_counts = pd.Series(age_groups).value_counts().sort_index()
+
+    # get the most rated food data
+    food_ratings_count = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
+        
+    food_names = [fr['food'] for fr in food_ratings_count]
+    food_counts_all = [fr['count'] for fr in food_ratings_count]
+
+    # create dictionary to store food counts for each age group
+    food_counts = {}
+    for age_group in age_groups:
+        food_counts[age_group] = {}
+        for food in food_ratings_count:
+            ratings = Rating.objects.filter(food=food['food'], user__userprofile__birthdate__year__lte=current_year-age_group*10, user__userprofile__birthdate__year__gt=current_year-(age_group+1)*10)
+            food_counts[age_group][food['food']] = ratings.count()
+
+    # create stacked bar chart
+    fig, ax = plt.subplots()
+    ax.set_xlabel('Number of Ratings')
+    ax.set_ylabel('Age Group')
+    ax.set_title('Most Rated Foods by Age Group')
+    y_pos = np.arange(len(age_groups))
+
+    for i, food in enumerate(food_names):
+        counts = [food_counts[age_group].get(food, 0) for age_group in age_groups]
+        ax.barh(y_pos, counts, label=food, left=np.sum([food_counts_all[j] if j < i else 0 for j in range(len(food_names))], axis=0))
+
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(age_groups)
+    ax.legend()
+
+    # Save the chart as a PNG image in memory
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    age_group_food = base64.b64encode(buffer.read()).decode('utf-8')
+    plt.close()
+    buffer.close()
+
+    return most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group, #age_group_food

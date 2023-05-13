@@ -13,7 +13,7 @@ urlpatterns = [
 	path('createpromotion',views.create_promotion,name='createpromotion'),
 	path('datainsights', views.data_insight, name='datainsights'),
 	path('deletepromotion/<promotion_id>', views.delete_promotion, name='deletepromotion'),
-    path('delete_promotion2/<int:promotion_id>/', views.delete_promotion2, name='delete_promotion2'),
+  path('delete_promotion2/<int:promotion_id>/', views.delete_promotion2, name='delete_promotion2'),
 	path('foodquiz',views.food_quiz, name ='foodquiz'),
 	path('login',views.login_user, name="login"),
 	path('logout',views.logout_user, name='logout'),
@@ -38,8 +38,8 @@ urlpatterns = [
 	path('viewpromotion/<int:promotion_id>/',views.view_promotion ,name='viewpromotion'),
 	path('viewratings', views.view_ratings, name='viewratings'),
 	path('viewuserprofile/<int:user_id>/', views.view_user_profile, name='viewuserprofile'),
-    path('datacrawler', views.data_crawler_page, name='datacrawler'),
-    path('dataplacecrawler', views.place_crawler, name='dataplacecrawler'),
-    path('datareviewcrawler', views.review_crawler, name='datareviewcrawler'),
+  path('datacrawler', views.data_crawler_page, name='datacrawler'),
+  path('dataplacecrawler', views.place_crawler, name='dataplacecrawler'),
+  path('datareviewcrawler', views.review_crawler, name='datareviewcrawler'),
 
 ]

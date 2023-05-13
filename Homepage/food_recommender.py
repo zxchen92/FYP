@@ -22,8 +22,7 @@ def get_recommendations(user_id):
     ratings_df['userid'] = ratings_df['user_id']
     ratings_df.drop(columns=['food','id','user_id'], inplace=True)
     #cell[2]
-    rating = pd.read_csv('FoodRatings_v1.csv', sep=',', on_bad_lines='skip', encoding="latin-1")
-
+    rating = pd.read_csv('FoodRatings_test.csv', sep=',', on_bad_lines='skip', encoding="latin-1")
     #get the rating from db and insert to df
     food_rating = rating.copy()
     food_rating = pd.concat([ratings_df, food_rating])
@@ -37,7 +36,7 @@ def get_recommendations(user_id):
         [['foodid', 'RatingCount_Food']])
     
 
-    threshold = 8 #original is 10
+    threshold = 8 #original 10
     rating_count = rating_count.query('RatingCount_Food >= @threshold')
 
     user_rating = pd.merge(rating_count, food_rating, left_on='foodid', right_on='foodid', how='left')
@@ -50,7 +49,7 @@ def get_recommendations(user_id):
         [['userid', 'RatingCount_user']])
     
 
-    threshold = 8 #original is 9
+    threshold = 8 #original 9
     user_count = user_count.query('RatingCount_user >= @threshold')
     user_count
 
@@ -175,8 +174,8 @@ def get_recommendations(user_id):
     recommendations_food2 = recommendations2['foodid'].values.tolist()
 
     print('RANDOM: user id is' + str(user_id) +'end' +  str(recommendations_food2), flush=True)
+    # #################################### Favourite food by Age Group Recommender ###################################################
 
-    
     # Return recommendations
     # ...
-    return recommendations_food, recommendations_food2
+    return recommendations_food, recommendations_food2, 

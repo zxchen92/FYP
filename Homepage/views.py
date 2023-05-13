@@ -30,6 +30,9 @@ from .food_recommender import get_recommendations
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
 from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm
 
+from datetime import date
+from datetime import datetime
+
 
 import sys
 
@@ -123,21 +126,28 @@ def user_profile(request):
 		user_profile=None
 	return render(request, 'userprofile.html', context)
 
+def register(request):
+	return render(request, 'register.html', {})
+
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
-	form = UserRegistrationForm(request.POST)
+	form = UserRegistrationForm(request.POST or None)  # Pass POST data to the form if it exists
+
 	if request.method == 'POST':
 		print("Form errors: ", form.errors, flush=True)
+		checked_dietary_restrictions = request.POST.getlist('dietary_restrictions')
 		if form.is_valid():
 			try:
+				# Save user, user_profile, and user_type
 				user, user_profile, user_type = form.save(commit=False)
-
+				# Set user attributes
 				user.first_name = request.POST.get('first_name')
 				user.last_name = request.POST.get('last_name')
 				user.email = request.POST.get('email')
 				user.username = request.POST.get('username')
 				user.password = request.POST.get('password')
-
+				user.save()
+				# Set user_profile attributes
 				user_profile.birthdate_str = request.POST.get('birthdate')
 				user_profile.gender = request.POST.get('gender')
 				user_profile.phone = request.POST.get('phone')
@@ -145,33 +155,30 @@ def register_user(request):
 				user_profile.preferred_location = request.POST.get('preferred_location')
 				user_profile.food_category_id = request.POST.get('food_category')
 				user_profile.dietary_restrictions = request.POST.getlist('dietary_restrictions')
-
-				user.save()
 				user_profile.user = user
 				user_profile.save()
+				# Set user_type attributes
 				user_type.user = user
 				user_type.save()
 
 				if user is not None:
 					login(request, user)
-					messages.success(request, ('User registered!'))
-					user_type = get_object_or_404(UserType, user=user)
+					messages.success(request, 'User registered!')
 					return redirect('userhome')
-
 			except IntegrityError:
-				# catch the IntegrityError exception raised by trying to create a user with an existing username
+				# Catch the IntegrityError exception raised by trying to create a user with an existing username
 				messages.error(request, 'Username already exists. Please choose a different username.')
 				form.add_error('username', 'Username already exists. Please choose a different username.')
 		else:
-			messages.error(request,('User registration unsuccesful! Please try again!'))
-			form = UserRegistrationForm()
+			messages.error(request, 'User registration unsuccessful! Please try again!')
 
 	context = {
-		'foodCategory':foodCategory,
-		'form':form,
-		'location_options':location_options,
-		'gender_options':gender_options,
-		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+		'checked_dietary_restrictions':checked_dietary_restrictions,
+		'foodCategory': foodCategory,
+		'form': form,
+		'location_options': location_options,
+		'gender_options': gender_options,
+		'DIETARY_RESTRICTIONS_OPTIONS': DIETARY_RESTRICTIONS_OPTIONS,
 	}
 	return render(request, 'registeruser.html', context)
 
@@ -207,7 +214,7 @@ def register_business(request):
 				return redirect('landing')
 		else:
 			messages.error(request,('User registration unsuccesful! Please try again!'))
-			form = UserRegistrationForm()
+			form = BusinessRegistrationForm()
 
 	context = {
 		'foodCategory':foodCategory,
@@ -424,10 +431,9 @@ def recommender_results(request):
 	diet = profile.dietary_restrictions
 	print(diet)
 
-	####### Below is the prototype code ########
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
-	############################################
+
 	context = {
 	'user_type': user_type,
 	'form': form,
@@ -447,11 +453,7 @@ def recommender_results(request):
 		for food_id, food in food_dict.items():
 			if not all(d in food.dietary_restrictions for d in diet):
 				del food_dict[food_id]
-
-
 		context['recommendations'] = food_dict
-
-
 	else:
 		food_dict={}
 		for foodid in recommendationsTwo:
@@ -460,13 +462,9 @@ def recommender_results(request):
 				if all(d in food2.dietary_restrictions for d in diet):
 					food_dict[foodid] = food2
 
-
-
 			except Food.DoesNotExist:
 				pass
 		context['recommendations'] = food_dict
-
-
 
 	return render(request, 'recommenderresults.html',context)
 
@@ -501,7 +499,71 @@ def recommender_normal(request):
 				food_dict[foodid] = food2
 		except Food.DoesNotExist:
 			pass
+	###################### Recommender by age #############################
+	# Get current year and user's age
+	now = datetime.now()
+	current_year = now.year
+	user_profiles = get_object_or_404(UserProfile, user=request.user)
+	user_age = current_year - user_profiles.birthdate.year
+
+	# Get all users and their age groups
+	users = UserProfile.objects.all()
+	age_groups = [(current_year - user.birthdate.year) // 10 for user in UserProfile.objects.all()]
+
+	# Find the index of the current user within the queryset
+	user_index = list(users).index(request.user.userprofile)
+
+	# Determine the user's age group
+	user_age_group = age_groups[user_index]
+
+	# Get most rated food data
+	food_ratings_count = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
+	food_names = [fr['food'] for fr in food_ratings_count]
+	food_counts_all = [fr['count'] for fr in food_ratings_count]
+
+	# Create dictionary to store food counts for each age group
+	food_counts = {}
+	for age_group in age_groups:
+		food_counts[age_group] = {}
+		for food in food_ratings_count:
+			ratings = Rating.objects.filter(food=food['food'], 
+											user__userprofile__birthdate__year__lte=current_year-age_group*10, 
+											user__userprofile__birthdate__year__gt=current_year-(age_group+1)*10)
+			food_counts[age_group][food['food']] = ratings.count()
+
+	# Determine most popular food for the user's age group
+	food_counts_age_group = food_counts[user_age_group]
+	food_counts_age_group_sorted = sorted(food_counts_age_group.items(), key=lambda x: x[1], reverse=True)
+
+	# Create list of recommended food objects
+	recommended_food = []
+	currentUserRatings = []
+	currentUserRatings = Rating.objects.filter(user=request.user)
+	print("current user rating is " + str(currentUserRatings), flush=True)
+	
+	for food_count in food_counts_age_group_sorted:
+		foods = Food.objects.get(foodName=food_count[0])
+		print("foods " + str(foods), flush=True)
+		#if food not in request.user.ratings.all():
+		if foods not in currentUserRatings:
+			recommended_food.append(foods)
+			if len(recommended_food) >= 100:
+				break
+	food_dict2={}
+	for foodid in recommended_food:
+		try:
+			print("foodid" + str(foodid), flush=True)
+			category = get_object_or_404(FoodCategory, id=food_category)
+			food3 =  foodid #get_object_or_404(Food, foodid)
+			print("food3" + str(food3), flush=True)
+			if category.categoryName in food3.foodCategory.categoryName:
+				food_dict2[foodid] = food3
+		except Food.DoesNotExist:
+			pass
+	########################################################################
+	print("This is the food_dict2" + str(food_dict2), flush=True)
 	context['recommendations'] = food_dict
+	context['recommendationsByAge'] = food_dict2
 	return render(request, 'nomlrecommender.html',context)
 
 
@@ -723,7 +785,7 @@ def update_business_profile(request, user_id=None):
 
 			messages.success(request, 'Business profile has been updated successfully.')
 			if is_admin_editing and user_id:
-				return redirect('searchbusinesses')
+				return redirect('viewbusinessprofile', user_id=user_id)
 			else:
 				return redirect('profile')
 		else:
@@ -911,11 +973,7 @@ def data_insight(request):
 	user_type = UserType.objects.get(user=request.user)
 	if user_type.userType in ['user','business']:
 
-		image_data , image_data2, image_data3, image_data4 = data_insights()
-
-		#Generate the plot image data
-		# image_data = data_insights()
-		# image_data2 = data_insights()
+		image_data , image_data2, image_data3, image_data4, image_data5 = data_insights()
 
 		context = {
 		'user_type': user_type,
@@ -923,6 +981,8 @@ def data_insight(request):
 		'image_data2' : image_data2,
 		'image_data3' : image_data3,
 		'image_data4' : image_data4,
+		'image_data5' : image_data5,
+		#'image_data6' : image_data6,
 		}
 	return render(request, 'datainsights.html', context)
 
@@ -953,7 +1013,6 @@ def data_crawler_page(request):
 	if user_type.userType in ['user','admin']:
 
 		context = {
-			'user_type': user_type,
 			# 'place_crawler', place_crawler,
 			# 'review_crawler', review_crawler,
 		}
@@ -967,6 +1026,7 @@ def place_crawler(request):
 		try:
 			dfPlace, messageTwo = data_place_crawler()
 			context = {
+				'user_type': user_type,
 				'dfPlace': dfPlace,
 				'messageTwo': messageTwo,
 			}

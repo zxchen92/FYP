@@ -75,22 +75,22 @@ select {
 	<h3>Personal Information</h3>
 	<div class="form-group">
 		<label for="first_name">First Name</label>
-		<input type="text" class="form-control" id="first_name" name="first_name" placeholder="e.g. John" required> 
+		<input type="text" class="form-control" id="first_name" name="first_name" placeholder="e.g. John" value="{{ request.POST.first_name }}" required> 
 	</div>
 	<div class="form-group">
 		<label for="last_name">Last Name</label>
-		<input type="text" class="form-control" id="last_name" name="last_name" placeholder="e.g. Doe" required>
+		<input type="text" class="form-control" id="last_name" name="last_name" placeholder="e.g. Doe" value="{{ request.POST.last_name }}" required>
 	</div>
 	<div class="form-group">
 		<label for="birthdate">Birth Date:</label>
-		<input type="date" id="birthdate" name="birthdate" class="form-control" required>
+		<input type="date" id="birthdate" name="birthdate" class="form-control" value="{{ request.POST.birthdate }}" required>
 	</div>
 	<div class="form-group">
 		<label for="gender">Gender</label>
 		<select class="custom-select" id="gender" name="gender" required>
-			<option value="" selected>Select your gender</option>
+			<option value="" {% if not request.POST.gender %}selected{% endif %}>Select your gender</option>
 			{% for value, label in gender_options %}
-				<option value="{{ value }}">{{ label }}</option>
+            	<option value="{{ value }}" {% if request.POST.gender == value %}selected{% endif %}>{{ label }}</option>
 			{% endfor %}
 		</select>
 	</div>
@@ -102,11 +102,11 @@ select {
 	<h3>How may we contact you?</h3>
 	<div class="form-group">
 		<label for="email">Email</label>
-		<input type="email" class="form-control" id="email" name="email" placeholder="e.g. name@example.com" required>
+		<input type="email" class="form-control" id="email" name="email" placeholder="e.g. name@example.com" value="{{ request.POST.email }}" required>
 	</div>
 	<div class="form-group">
 		<label for="phone">Phone Number</label>
-		<input type="tel" class="form-control" id="phone" name="phone" placeholder="e.g. 91234567" required>
+		<input type="tel" class="form-control" id="phone" name="phone" placeholder="e.g. 91234567" value="{{ request.POST.phone }}" required>
 	</div>
 </div>
 </div>	
@@ -116,40 +116,45 @@ select {
 	<h3>Let us know you better</h3>
 	<div class="form-group">
 		<label for="favorite_food">Favourite food</label>
-		<input type="text" class="form-control" id="favorite_food" name="favorite_food" placeholder="e.g. Duck rice" required>
+		<input type="text" class="form-control" id="favorite_food" name="favorite_food" placeholder="e.g. Duck rice" value="{{ request.POST.favorite_food }}" required>
 	</div>
 	<div class="form-group">
 		<label for="preferred_location">Prefered Location</label>
 		<select class="custom-select" id="preferred_location" name="preferred_location" required>
-			<option value="" selected>Where do you frequent?</option>
+			<option value="" {% if not request.POST.preferred_location %}selected{% endif %}>Where do you frequent?</option>
 			{% for value, label in location_options %}
-				<option value="{{ value }}">{{ label }}</option>
+				<option value="{{ value }}" {% if request.POST.preferred_location == value %}selected{% endif %}>{{ label }}</option>
 			{% endfor %}
 		</select>
 	</div>
-		<div class="form-group">
-			<label for="food_category">Food Genre</label>
-			<select class="custom-select" id="food_category" name="food_category" required>
-				<option value="" selected>Your favorite type of food</option>
-				{% if foodCategory %}
-					{% for item in foodCategory %}
-						<option value="{{ item.pk }}">{{ item.categoryName }}</option>
-					{% endfor %}
-				{% endif %}
-			</select>
-		</div>
-		
 	<div class="form-group">
+		<label for="food_category">Food Genre</label>
+		<select class="custom-select" id="food_category" name="food_category" required>
+		  <option value="" {% if not request.POST.food_category %}selected{% endif %}>Your favorite type of food</option>
+		  {% if foodCategory %}
+			{% for item in foodCategory %}
+			  <option value="{{ item.pk }}" {% if request.POST.food_category == item.pk|stringformat:"s" %}selected{% endif %}>{{ item.categoryName }}</option>
+			{% endfor %}
+		  {% endif %}
+		</select>
+	  </div>
+		
+	  <div class="form-group">
 		<label for="dietary_restrictions">Dietary Restrictions:</label>
-		<div class="dietary-restrictions-options">
-		{% for value, label in DIETARY_RESTRICTIONS_OPTIONS %}
-			<div class="form-check">
-				<input class="form-check-input" type="checkbox" name="dietary_restrictions" value="{{ value }}" id="dietary_restrictions_{{ forloop.counter }}" {% if value in dietary_restrictions %}checked{% endif %}>
-				<label class="form-check-label" for="dietary_restrictions_{{ forloop.counter }}">{{ label }}</label>
-			</div>
-		{% endfor %}
+		<div class="dietary_restrictions_options">
+			{% for value, label in DIETARY_RESTRICTIONS_OPTIONS %}
+				<div class="form-check">
+					{% if value|stringformat:"s" in checked_dietary_restrictions %}
+						<input class="form-check-input" type="checkbox" name="dietary_restrictions" value="{{ value }}" id="dietary_restrictions_{{ forloop.counter }}" checked>
+					{% else %}
+						<input class="form-check-input" type="checkbox" name="dietary_restrictions" value="{{ value }}" id="dietary_restrictions_{{ forloop.counter }}">
+					{% endif %}
+					<label class="form-check-label" for="dietary_restrictions_{{ forloop.counter }}">{{ label }}</label>
+				</div>
+			{% endfor %}
+		</div>
 	</div>
-</div>
+				
 </div>
 </div>
 </div>
@@ -159,7 +164,7 @@ select {
 	<div class="form-row">
 		<div class="form-group col-md-6">
 			<label for="username">Username</label>
-			<input type="text" class="form-control" id="username" name="username" required>
+			<input type="text" class="form-control" id="username" name="username" value="{{ request.POST.username }}" required>
 		</div>
 		<div class="form-group col-md-6">
 			<label for="password">Password</label>
