@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 from django.db import IntegrityError
 from django.db.models import Count
@@ -35,6 +37,8 @@ from datetime import datetime
 
 
 import sys
+
+SENDGRID_API_KEY = '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'
 
 location_options = [
 	('1', 'North'),
@@ -269,33 +273,40 @@ def recommender_page(request):
 	return render(request, 'recommender.html', context)
 
 def customer_support(request):
-	context = {}
-	if request.user.is_authenticated:
-		user = request.user
-		user_type = UserType.objects.get(user=user)
-		context = {
-			'user_type': user_type,
-			'user': user,
-			}
-	if request.method == 'POST':
-		first_name = request.POST.get('firstName')
-		last_name = request.POST.get('lastName')
-		email = request.POST.get('email')
-		category = request.POST.get('category')
-		details = request.POST.get('details')
-		print("first_name: ",first_name)
-		message = f"Customer Support Request:\n\nName: {first_name} {last_name}\nEmail: {email}\nCategory: {category}\nDetails: {details}"
-		messages.success(request, ('An email has been sent to our customer support officers! We will get back to you within 3 working days.'))
-		send_mail(
-			'New Customer Support Request',
-			message,
-			'customersup.collabfood@outlook.com',
-			['customersup.collabfood@outlook.com', email], # replace with the email address where you want to receive the support requests
-			fail_silently=False,
-		)
-		return redirect(landing)
+    context = {}
+    if request.user.is_authenticated:
+        user = request.user
+        user_type = UserType.objects.get(user=user)
+        context = {
+            'user_type': user_type,
+            'user': user,
+            }
+    if request.method == 'POST':
+        first_name = request.POST.get('firstName')
+        last_name = request.POST.get('lastName')
+        email = request.POST.get('email')
+        category = request.POST.get('category')
+        details = request.POST.get('details')
+        print("first_name: ",first_name)
+        message_content = f"Customer Support Request:\n\nName: {first_name} {last_name}\nEmail: {email}\nCategory: {category}\nDetails: {details}"
 
-	return render(request, 'customersupport.html', context)
+        messages.success(request, ('An email has been sent to our customer support officers! We will get back to you within 3 working days.'))
+
+        message = Mail(
+            from_email='customersup.collabfood@outlook.com',
+            to_emails=['customersup.collabfood@outlook.com', email],
+            subject='New Customer Support Request',
+            plain_text_content=message_content)
+
+        try:
+            sg = SendGridAPIClient(SENDGRID_API_KEY)  # replace 'SENDGRID_API_KEY' with your SendGrid API key
+            response = sg.send(message)
+        except Exception as e:
+            print(str(e))
+
+        return redirect(landing)
+
+    return render(request, 'customersupport.html', context)
 
 @login_required
 def admin_home(request):
@@ -475,6 +486,7 @@ def recommender_normal(request):
 	recommendations, recommendationsTwo = get_recommendations(user_id)
 
 	food_category = request.POST.get('food-category')
+	food_category_name = get_object_or_404(FoodCategory, id=food_category).categoryName
 
 	print(food_category)
 
@@ -486,7 +498,8 @@ def recommender_normal(request):
 	'user_type': user_type,
 	'form': form,
 	'food_category' : food_category,
-	'user_profile' : user_profile
+	'food_category_name': food_category_name,
+	'user_profile' : user_profile,
 	}
 
 

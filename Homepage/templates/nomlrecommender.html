@@ -35,7 +35,7 @@
 
   {% for foodid, food_obj in recommendationsByAge.items %}
     <tr class="clickable-row">
-        <td onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</td>
+        <td><a href="javascript:void(0);" onclick="searchOnMaps('{{ food_obj.foodName }}')">{{ food_obj.foodName }}</a></td>
         <td>{{ food_obj.foodCategory.categoryName }}</td>
         <td>{{ food_obj.dietary_restrictions }}</td>
         <td>

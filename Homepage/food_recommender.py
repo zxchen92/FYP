@@ -5,6 +5,7 @@ import tensorflow.compat.v1 as tf
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
 from .models import Rating,Food
+from django.shortcuts import get_object_or_404
 
 
 # Your code here
@@ -27,6 +28,16 @@ def get_recommendations(user_id):
     food_rating = rating.copy()
     food_rating = pd.concat([ratings_df, food_rating])
     print('combined: \n',food_rating, flush=True)
+    food_rating_filtered = food_rating[food_rating['userid'] == 7]
+    print('food_rating_filtered: \n',food_rating_filtered, flush=True)
+    food1 =  get_object_or_404(Food, id=15)
+    print('food1: ',food1, flush=True)
+    food2 =  get_object_or_404(Food, id=62)
+    print('food2: ',food2, flush=True)
+    food3 =  get_object_or_404(Food, id=46)
+    print('food3: ',food3, flush=True)
+    food4 =  get_object_or_404(Food, id=56)
+    print('food4: ',food4, flush=True)
     
     rating_count = (food_rating.
         groupby(by = ['foodid'])['rating'].
