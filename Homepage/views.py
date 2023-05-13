@@ -300,7 +300,7 @@ def customer_support(request):
             plain_text_content=message_content)
 
         try:
-            sg = SendGridAPIClient(SENDGRID_API_KEY)  # replace 'SENDGRID_API_KEY' with your SendGrid API key
+            sg = SendGridAPIClient(sendgrid_api_key)  # replace 'SENDGRID_API_KEY' with your SendGrid API key
             response = sg.send(message)
         except Exception as e:
             print(str(e))
