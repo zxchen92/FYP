@@ -36,8 +36,8 @@ urlpatterns = [
 	path('viewpromotion/<int:promotion_id>/',views.view_promotion ,name='viewpromotion'),
 	path('viewratings', views.view_ratings, name='viewratings'),
 	path('viewuserprofile/<int:user_id>/', views.view_user_profile, name='viewuserprofile'),
-    path('datacrawler', views.data_crawler_page, name='datacrawler'),
-    path('dataplacecrawler', views.place_crawler, name='dataplacecrawler'),
-    path('datareviewcrawler', views.review_crawler, name='datareviewcrawler'),
+	path('datacrawler', views.data_crawler_page, name='datacrawler'),
+	path('dataplacecrawler', views.place_crawler, name='dataplacecrawler'),
+	path('datareviewcrawler', views.review_crawler, name='datareviewcrawler'),
 
 ]

@@ -918,6 +918,7 @@ def delete_promotion(request, promotion_id):
 	item.delete()
 	messages.success(request,("Promotion Deleted!"))
 	return redirect(search_promotion)
+
 # @login_required
 # def data_insights(request):
 # 	user_type = UserType.objects.get(user=request.user)
