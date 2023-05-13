@@ -15,23 +15,23 @@ from datetime import datetime
 
 def data_insights():
     ################################## combine rating
-    ratings_dict = Rating.objects.all().values()
-    ratings_df = pd.DataFrame.from_records(ratings_dict)
+    # ratings_dict = Rating.objects.all().values()
+    # ratings_df = pd.DataFrame.from_records(ratings_dict)
 
-    food_ids = {}
-    foods = Food.objects.all().values()
-    for food in foods:
-        food_ids[food['foodName']] = food['id']
-    ratings_df['foodid'] = ratings_df['food'].apply(lambda x: food_ids[x])
-    ratings_df['userid'] = ratings_df['user_id']
-    ratings_df.drop(columns=['food','id','user_id'], inplace=True)
+    # food_ids = {}
+    # foods = Food.objects.all().values()
+    # for food in foods:
+    #     food_ids[food['foodName']] = food['id']
+    # ratings_df['foodid'] = ratings_df['food'].apply(lambda x: food_ids[x])
+    # ratings_df['userid'] = ratings_df['user_id']
+    # ratings_df.drop(columns=['food','id','user_id'], inplace=True)
     #cell[2]
-    rating = pd.read_csv('FoodRatings_v1.csv', sep=',', on_bad_lines='skip', encoding="latin-1")
+    food_rating = pd.read_csv('FoodRatings_v1.csv', sep=',', on_bad_lines='skip', encoding="latin-1")
     #get the rating from db and insert to df
-    food_rating = rating.copy()
-    food_rating = pd.concat([ratings_df, food_rating])
+    # food_rating = rating.copy()
+    # food_rating = pd.concat([ratings_df, food_rating])
 
-    print (food_rating)
+    # print (food_rating)
 
     # rating_count = (food_rating.
     #     groupby(by = ['foodid'])['rating'].
