@@ -559,7 +559,7 @@ def recommender_normal(request):
 		foods = Food.objects.get(foodName=food_count[0])
 		print("foods " + str(foods), flush=True)
 		#if food not in request.user.ratings.all():
-		if foods not in currentUserRatings:
+		if not currentUserRatings.filter(food=foods).exists():
 			recommended_food.append(foods)
 			if len(recommended_food) >= 100:
 				break
@@ -981,7 +981,7 @@ def data_insight(request):
 	user_type = UserType.objects.get(user=request.user)
 	if user_type.userType in ['user','business']:
 
-		image_data1 , image_data2, image_data3, image_data4, image_data5, image_data6 = data_insights()
+		image_data1 , image_data2, image_data3, image_data4, image_data5, image_data6, image_data7 = data_insights()
 
 
 		
@@ -993,7 +993,7 @@ def data_insight(request):
 		'image_data4' : image_data4,
 		'image_data5' : image_data5,
 		'image_data6' : image_data6,
-		# 'image_data7' : image_data7,
+		'image_data7' : image_data7,
 		}
 	return render(request, 'datainsights.html', context)
 

@@ -9,62 +9,29 @@ from django.db.models import Count
 from .models import Rating
 from .models import UserProfile
 from .models import FoodCategory
+from .models import Food
 from datetime import date
 from datetime import datetime
 
 
 def data_insights():
-    ################################## combine rating
-    # ratings_dict = Rating.objects.all().values()
-    # ratings_df = pd.DataFrame.from_records(ratings_dict)
 
-    # food_ids = {}
-    # foods = Food.objects.all().values()
-    # for food in foods:
-    #     food_ids[food['foodName']] = food['id']
-    # ratings_df['foodid'] = ratings_df['food'].apply(lambda x: food_ids[x])
-    # ratings_df['userid'] = ratings_df['user_id']
-    # ratings_df.drop(columns=['food','id','user_id'], inplace=True)
-    #cell[2]
     food_rating = pd.read_csv('FoodRatings_v1.csv', sep=',', on_bad_lines='skip', encoding="latin-1")
-    #get the rating from db and insert to df
-    # food_rating = rating.copy()
-    # food_rating = pd.concat([ratings_df, food_rating])
-
-    # print (food_rating)
-
-    # rating_count = (food_rating.
-    #     groupby(by = ['foodid'])['rating'].
-    #     count().
-    #     reset_index().
-    #     rename(columns = {'rating': 'RatingCount_Food'})
-    #     [['foodid', 'RatingCount_Food']])
     rating_count=  food_rating['foodid'].value_counts().nlargest(10)
+    
 
+    food_ids= rating_count.index.tolist()
+    foods_names = [Food.objects.get(id=food_id).foodName for food_id in food_ids]
+    rating_count.index = foods_names
 
-    # foodName = dict(Food.foodName)
-    # for item in rating_count:
-    #     item['foodName'] = foodName[item['foodName']]
+    rating_count.plot.bar(color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#48abf1', '#fce3b4'
+        , '#F0C0A8', '#ee91ad'])
 
-
-    rating_count.plot.bar()
-
-    # plt.bar(foodName, rating_count,
-    #     color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#48abf1', '#fce3b4'
-    #     , '#F0C0A8', '#ee91ad'])
     plt.title('Top Most Rated Foods')
     plt.ylabel('Number of Ratings')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
 
-    #Create a bar chart of the top 10 most rated foods    
-    # plt.bar(combined_val, rating_count,
-    #     color=['#C0C0C0', '#202020', '#7E909A', '#1C4E80', '#A5D8DD', '#EA6A47', '#48abf1', '#fce3b4'
-    #     , '#F0C0A8', '#ee91ad'])
-    # plt.xlabel('Food Name')
-    # plt.xticks(rotation=45, ha='right')
-    # plt.tight_layout()
-
-    # Set the y-axis range
-    # plt.ylim([0, max(counts_food_combined) + 1])
 
     # Save the chart as a PNG image in memory
     buffer = io.BytesIO()
@@ -213,6 +180,7 @@ def data_insights():
     labels = list(age_counts.keys())
     values = list(age_counts.values())
 
+    plt.figure(figsize=(10, 6))
     plt.bar(labels, values)
     plt.title('Age Group Distribution')
     plt.xlabel('Age Group')
@@ -226,48 +194,50 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    # #################################### Favourite food by Age Group
-    # now = datetime.now()
-    # current_year = now.year
-    # users = UserProfile.objects.all()
-    # age_groups = [(current_year - user.birthdate.year) // 10 for user in users]
-    # age_group_counts = pd.Series(age_groups).value_counts().sort_index()
+    #################################### Favourite food by Age Group
+    now = datetime.now()
+    current_year = now.year
+    users = UserProfile.objects.all()
+    age_groups = [(current_year - user.birthdate.year) // 10 for user in users]
+    age_group_counts = pd.Series(age_groups).value_counts().sort_index()
 
-    # # get the most rated food data
-    # food_ratings_count = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
+    # get the most rated food data
+    food_ratings_count = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
 
-    # food_names = [fr['food'] for fr in food_ratings_count]
-    # food_counts_all = [fr['count'] for fr in food_ratings_count]
+    food_names = [fr['food'] for fr in food_ratings_count]
+    food_counts_all = [fr['count'] for fr in food_ratings_count]
 
-    # # create dictionary to store food counts for each age group
-    # food_counts = {}
-    # for age_group in age_groups:
-    #     food_counts[age_group] = {}
-    #     for food in food_ratings_count:
-    #         ratings = Rating.objects.filter(food=food['food'], user__userprofile__birthdate__year__lte=current_year-age_group*10, user__userprofile__birthdate__year__gt=current_year-(age_group+1)*10)
-    #         food_counts[age_group][food['food']] = ratings.count()
+    # create dictionary to store food counts for each age group
+    food_counts = {}
+    for age_group in age_groups:
+        food_counts[age_group] = {}
+        for food in food_ratings_count:
+            ratings = Rating.objects.filter(food=food['food'], user__userprofile__birthdate__year__lte=current_year-age_group*10, user__userprofile__birthdate__year__gt=current_year-(age_group+1)*10)
+            food_counts[age_group][food['food']] = ratings.count()
 
-    # # create stacked bar chart
-    # fig, ax = plt.subplots()
-    # ax.set_xlabel('Number of Ratings')
-    # ax.set_ylabel('Age Group')
-    # ax.set_title('Most Rated Foods by Age Group')
-    # y_pos = np.arange(len(age_groups))
+    # create stacked bar chart
+    fig, ax = plt.subplots()
+    ax.set_xlabel('Number of Ratings')
+    ax.set_ylabel('Age Group')
+    ax.set_title('Most Rated Foods by Age Group')
+    y_pos = np.arange(len(age_groups))
 
-    # for i, food in enumerate(food_names):
-    #     counts = [food_counts[age_group].get(food, 0) for age_group in age_groups]
-    #     ax.barh(y_pos, counts, label=food, left=np.sum([food_counts_all[j] if j < i else 0 for j in range(len(food_names))], axis=0))
+    for i, food in enumerate(food_names):
+        counts = [food_counts[age_group].get(food, 0) for age_group in age_groups]
+        ax.barh(y_pos, counts, label=food, left=np.sum([food_counts_all[j] if j < i else 0 for j in range(len(food_names))], axis=0))
 
-    # ax.set_yticks(y_pos)
-    # ax.set_yticklabels(age_groups)
-    # ax.legend()
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(age_groups)
+    ax.legend()
 
-    # # Save the chart as a PNG image in memory
-    # buffer = io.BytesIO()
-    # plt.savefig(buffer, format='png')
-    # buffer.seek(0)
-    # age_group_food = base64.b64encode(buffer.read()).decode('utf-8')
-    # plt.close()
-    # buffer.close()
 
-    return combined_ratings, most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group, #age_group_food
+
+    # Save the chart as a PNG image in memory
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    age_group_food = base64.b64encode(buffer.read()).decode('utf-8')
+    plt.close()
+    buffer.close()
+
+    return combined_ratings, most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group, age_group_food
