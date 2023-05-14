@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .card {
+    border-radius: 10px;
+    margin-top: 35px;
+    margin-bottom: 70px;
+  }
+
+  table {
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: none;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  border: none;
+}
+
+th {
+  border-top: 1px solid #ddd;
+}
+
+tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #F8F8F8;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+  background-color: #FFFFFF;
+}
+
+table td, table th {
+  border: none;
+}
+
+</style>
+
+<div class="row">
+    <div class="col-md-4">
+        <h1 class="text-center display-4">Food List</h1><br>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow">
+        <div class="card-body">
+            <h3 class="text-center mb-4">Search for a Food</h3>
+            <div class="form-group">
+            <input class="form-control" id="searchFood" type="text" placeholder="Enter the name of the food">
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; margin-bottom: 20px;">
+    <a class="btn btn-primary" href="{% url 'createfood' %}">Create Food</a><br><br>
+</div>
+  
+<table class="table-hover">
+  <thead style="color: #fff; background-color: #6c7ae0;">
+    <tr>
+      <th scope="col">Food Name</th>
+      <th scope="col">Food Category</th>
+      <th scope="col">Tools</th>
+    </tr>
+  </thead>
+  <tbody id="Category">
+  	
+  	{% if food %}
+  		{% for item in food%}
+  			<tr>
+  			<td scope="row"><a href="{% url 'viewfood' item.id %}">{{ item.foodName }}</a></td>
+            <td scope="row">{{ item.foodCategory.categoryName }}</td>
+            <td><a href="{% url 'deletefood' item.id %}">Delete</a><br></td>
+        </tr>
+  		{% endfor %}
+  	{% endif %}
+
+  </tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+  $("#searchFood").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#Category tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+</script>
+
+{% endblock %}

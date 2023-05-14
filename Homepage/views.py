@@ -19,6 +19,7 @@ from django.utils import timezone
 import matplotlib.pyplot as plt
 import io
 import base64
+import csv
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -30,7 +31,7 @@ from .data_place_crawler import data_place_crawler
 
 from .food_recommender import get_recommendations
 from .models import FoodCategory,UserProfile,UserType,BusinessProfile,Rating,Food,Promotion
-from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm
+from .forms import UserRegistrationForm,BusinessRegistrationForm,FoodCategoryForm,RatingForm,UserUpdateForm,BusinessUpdateForm,PromotionForm,FoodForm
 
 from datetime import date
 from datetime import datetime
@@ -137,6 +138,7 @@ def register(request):
 def register_user(request):
 	foodCategory = FoodCategory.objects.all()
 	form = UserRegistrationForm(request.POST or None)  # Pass POST data to the form if it exists
+	checked_dietary_restrictions = []
 
 	if request.method == 'POST':
 		print("Form errors: ", form.errors, flush=True)
@@ -1024,6 +1026,7 @@ def data_crawler_page(request):
 	if user_type.userType in ['user','admin']:
 
 		context = {
+			'user_type':user_type,
 			# 'place_crawler', place_crawler,
 			# 'review_crawler', review_crawler,
 		}
@@ -1066,3 +1069,91 @@ def review_crawler(request):
 			}
 		return render(request,'datareviewcrawler.html', context)
 
+@login_required
+def search_food(request):
+	user_type = UserType.objects.get(user=request.user)
+	food = Food.objects.all()
+	context = {'user_type': user_type, 'food':food}
+	return render(request, 'searchfood.html', context)
+
+@login_required
+def create_food(request):
+	foodCategory = FoodCategory.objects.all()
+	user_type = UserType.objects.get(user=request.user)
+	checked_dietary_restrictions = []
+	form = FoodForm(request.POST or None)
+	if request.method == 'POST':
+		print("Form errors: ", form.errors, flush=True)
+		checked_dietary_restrictions = request.POST.getlist('dietary_restrictions')
+		if form.is_valid():
+			food = form.save(commit=False)
+			food.foodName = request.POST.get('foodName')
+			food.foodCategory = FoodCategory.objects.get(id=request.POST.get('foodCategory'))
+			food.save()
+			messages.success(request, 'The food has been created successfully.')
+
+			with open('place_url.csv', 'a', newline='') as csvfile:
+				writer = csv.writer(csvfile)
+				writer.writerow([food.id, f"https://www.google.com/maps/search/{food.foodName.replace(' ', '+')}+in+singapore"])
+
+			return redirect(search_food)
+		else:
+			messages.error(request, 'There was an error in creating the food. Please check your input(s).')
+	else:
+		form = FoodForm()
+	context = {
+		'checked_dietary_restrictions':checked_dietary_restrictions,
+		'form':form,
+		'user_type':user_type,
+		'foodCategory':foodCategory,
+		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+	}
+	return render(request, 'createfood.html', context)
+
+@login_required
+def delete_food(request, food_id):
+	item = Food.objects.get(pk=food_id)
+	item.delete()
+	messages.success(request,("Food Deleted!"))
+	return redirect(search_food)
+
+@login_required
+def view_food(request, food_id=None):
+	foodCategory = FoodCategory.objects.all()
+	users = User.objects.all()
+	user_type = UserType.objects.get(user=request.user)
+	food = Food.objects.get(id=food_id)
+	dietary_restrictions = [dict(UserProfile.DIETARY_RESTRICTIONS)[value] for value in food.dietary_restrictions]
+	context = {
+		'user_type': user_type,
+		'users':users,
+		'food':food,
+		'foodCategory':foodCategory,
+		'dietary_restrictions':dietary_restrictions,
+		'DIETARY_RESTRICTIONS_OPTIONS':DIETARY_RESTRICTIONS_OPTIONS,
+		}
+	return render(request, 'viewfood.html', context)
+
+@login_required
+def update_food(request, food_id=None):
+	food_to_edit = Food.objects.get(id=food_id)
+	user_type = UserType.objects.get(user=request.user)
+	if request.method == 'POST':
+		form = FoodForm(request.POST, instance=food_to_edit)
+		if form.is_valid():
+			food_to_edit = form.save(commit=False)
+			food_to_edit.foodName = request.POST.get('foodName')
+			food_to_edit.foodCategory = FoodCategory.objects.get(id=request.POST.get('foodCategory'))
+			food_to_edit.save()
+			messages.success(request, 'Food has been updated successfully.')
+			return redirect(search_food)
+		else:
+			messages.error(request, 'There was an error in updating the food. Please check your input(s).')
+	else:
+		form = FoodForm(instance=food_to_edit)
+	context = {
+		'form': form,
+		'user_type': user_type,
+		'food': food_to_edit
+	}
+	return render(request, 'viewfood.html', context)
