@@ -461,13 +461,37 @@ def recommender_results(request):
 	if rating_count > 10 :
 		food_dict = {}
 
-		food_id = recommendations[0]  # get the first food id from the recommendations list
-		food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
-		food_dict[0] = food
+		for foodid in recommendations:
+			food_dict[foodid] = get_object_or_404(Food, id=foodid)
+			
+
+		# food_id = recommendations  # get the first food id from the recommendations list
+		# food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
+		#food_dict[0] = food
+		remove_ids = []  # list to store food IDs to be removed
 		for food_id, food in food_dict.items():
 			if not all(d in food.dietary_restrictions for d in diet):
-				del food_dict[food_id]
-		context['recommendations'] = food_dict
+				remove_ids.append(food_id)
+				#del food_dict[food_id]
+		# Remove the food IDs that don't meet the dietary restrictions
+		for food_id in remove_ids:
+			del food_dict[food_id]
+		
+		print("food dictbefore itr" + str(food_dict) , flush= True)
+		predicted_highest_rating_food = next(iter(food_dict))
+		print("HIGHSET FOOD" + str(predicted_highest_rating_food), flush=True)
+		remove_keys = []
+		for key in food_dict.keys():
+			if key != predicted_highest_rating_food :
+				remove_keys.append(key)
+		for key in remove_keys:
+			del food_dict[key]
+			print(str(food_dict))
+		
+		print("food dict" + str(food_dict) , flush= True)
+
+		context['recommendations'] =  food_dict
+
 	else:
 		food_dict={}
 		for foodid in recommendationsTwo:
@@ -475,7 +499,6 @@ def recommender_results(request):
 				food2 =  get_object_or_404(Food, id=foodid)
 				if all(d in food2.dietary_restrictions for d in diet):
 					food_dict[foodid] = food2
-
 			except Food.DoesNotExist:
 				pass
 		context['recommendations'] = food_dict

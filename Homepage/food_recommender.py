@@ -175,8 +175,5 @@ def get_recommendations(user_id):
     recommendations_food2 = recommendations2['foodid'].values.tolist()
 
     print('RANDOM: user id is' + str(user_id) +'end' +  str(recommendations_food2), flush=True)
-    # #################################### Favourite food by Age Group Recommender ###################################################
 
-    # Return recommendations
-    # ...
     return recommendations_food, recommendations_food2, 
