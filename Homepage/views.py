@@ -894,7 +894,7 @@ def data_insight(request):
 	user_type = UserType.objects.get(user=request.user)
 	if user_type.userType in ['user','business']:
 
-		image_data1 , image_data2, image_data3, image_data4, image_data5, image_data6, image_data7 = data_insights()
+		image_data1 , image_data2, image_data3, image_data4, image_data5, image_data6 = data_insights()
 
 		context = {
 		'user_type': user_type,
@@ -904,7 +904,6 @@ def data_insight(request):
 		'image_data4' : image_data4,
 		'image_data5' : image_data5,
 		'image_data6' : image_data6,
-		'image_data7' : image_data7,
 		}
 	return render(request, 'datainsights.html', context)
 

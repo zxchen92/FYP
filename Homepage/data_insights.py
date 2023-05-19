@@ -241,4 +241,4 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    return combined_ratings, most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group_bar, age_group_food
+    return combined_ratings, most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group_bar, #age_group_food
