@@ -112,7 +112,7 @@ select {
 	<div class="form-group">
 		<label for="food_category">Food Genre</label>
 		<select class="custom-select" name="food_category" id="food_category" required>
-			<option value="" {% if not request.POST.food_category %}selected{% endif %}>Your favorite type of food</option>
+			<option value="" {% if not request.POST.food_category %}selected{% endif %}>Your business food category</option>
 			{% if foodCategory %}
 				{% for item in foodCategory %}
 				<option value="{{ item.pk }}" {% if request.POST.food_category == item.pk|stringformat:"s" %}selected{% endif %}>{{ item.categoryName }}</option>

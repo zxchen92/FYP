@@ -79,26 +79,58 @@ def about(request):
 		context = {'user_type': user_type}
 	return render(request, 'about.html', context)
 
+# def login_user(request):
+# 	if request.method == 'POST':
+# 		username = request.POST['username']
+# 		password = request.POST['password']
+# 		user = authenticate(request, username=username, password=password)
+# 		if user is not None:
+# 			login(request, user)
+# 			messages.success(request,('Login succesful!'))
+# 			user_type = get_object_or_404(UserType, user=user)
+# 			if user_type.userType == 'admin':
+# 				return redirect('adminhome')
+# 			elif user_type.userType == 'user':
+# 				return redirect('userhome')
+# 			else:
+# 				return redirect('businesshome')
+# 		else:
+# 			messages.error(request,('Login unsuccesful! Please try again!'))
+# 			print(f"Authentication error: {request.session.get('django.contrib.auth.error_messages')}",flush=True)
+
+# 			return redirect('login')
+# 	else:
+# 		return render(request, 'login.html', {})
+
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
+
 def login_user(request):
-	if request.method == 'POST':
-		username = request.POST['username']
-		password = request.POST['password']
-		user = authenticate(request, username=username, password=password)
-		if user is not None:
-			login(request, user)
-			messages.success(request,('Login succesful!'))
-			user_type = get_object_or_404(UserType, user=user)
-			if user_type.userType == 'admin':
-				return redirect('adminhome')
-			elif user_type.userType == 'user':
-				return redirect('userhome')
-			else:
-				return redirect('businesshome')
-		else:
-			messages.error(request,('Login unsuccesful! Please try again!'))
-			return redirect('login')
-	else:
-		return render(request, 'login.html', {})
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Login successful!')
+            user_type = get_object_or_404(UserType, user=user)
+            if user_type.userType == 'admin':
+                return redirect('adminhome')
+            elif user_type.userType == 'user':
+                return redirect('userhome')
+            else:
+                return redirect('businesshome')
+        else:
+            form = AuthenticationForm(request, data=request.POST)
+            if form.is_valid():
+                messages.error(request, 'Login unsuccessful! Please try again!')
+            else:
+                error_message = form.errors.get_json_data(escape_html=True)
+                messages.error(request, error_message)
+            return redirect('login')
+    else:
+        return render(request, 'login.html', {})
+
 
 def logout_user(request):
 	logout(request)
@@ -210,6 +242,9 @@ def register_business(request):
 			business_profile.food_category_id = request.POST.get('food_category')
 
 			user.is_active = False
+			print('user.username:',user.username, flush=True)
+			print('user.password:',user.password, flush=True)
+			user.set_password(form.cleaned_data['password'])
 			user.save()
 			business_profile.user = user
 			business_profile.save()
@@ -303,8 +338,9 @@ def customer_support(request):
 
 		try:
 			print('sendgrid_api_key',sendgrid_api_key,flush=True)
-			sg = SendGridAPIClient(sendgrid_api_key)  # replace 'SENDGRID_API_KEY' with your SendGrid API key
+			sg = SendGridAPIClient(sendgrid_api_key) 
 			response = sg.send(message)
+			print('response: ',response,flush=True)
 		except Exception as e:
 			print(str(e))
 
@@ -610,47 +646,6 @@ def create_rating(request):
 	return redirect(request, 'recommenderresults.html')
 
 @login_required
-def food_quiz(request):
-	foodQuizList = [
-        ('Nasi Lemak'),
-		('Fried Chicken'),
-		('Chicken Rice'),
-		('Chao Kway Tiao'),
-		('Mixed Veg Rice'),
-		('Mala'),
-		('Nasi Biryani'),
-		('Rojak'),
-		('Mc Chicken'),
-		('Dim Sum'),
-    ]
-	user_type = UserType.objects.get(user=request.user)
-	has_rating = Rating.objects.filter(user=request.user).count() > 0
-
-	context = {
-		"foodQuizList": foodQuizList,
-		"user_type": user_type,
-	}
-	if not has_rating:
-		messages.warning(request, ('Please complete the Food Quiz before using the recommender for the first time!'))
-
-	if request.method == 'POST':
-		user = request.user
-		for i in range(1,11):
-			food = request.POST.get(f'food-{i}')
-			rating_value = request.POST.get(f'rating-{i}')
-			if rating_value is not None:
-				rating_value = int(rating_value)
-				if 1 <= rating_value <= 5:
-					rating, created = Rating.objects.get_or_create(user=user, food=food, defaults={'rating': rating_value})
-					rating.rating = rating_value
-					rating.save()
-		messages.success(request, ('Successfully rated! We will take these ratings into account in your next reccomendation!'))
-		return render(request, 'foodquiz.html', context)
-
-	return render(request, 'foodquiz.html', context)
-
-
-@login_required
 def update_user_profile(request, user_id=None):
 	# Check if the user is an admin and a user_id is provided
 	is_admin_editing = user_id is not None and UserType.objects.get(user=request.user).userType == 'admin'
@@ -734,20 +729,19 @@ def update_business_profile(request, user_id=None):
 			user_to_edit.last_name = form.cleaned_data['last_name']
 			user_to_edit.email = form.cleaned_data['email']
 			user_to_edit.username = form.cleaned_data['username']
-			user_to_edit.save()
 			if form.cleaned_data['password']:
 				user_to_edit.set_password(form.cleaned_data['password'])
-			user_to_edit.save()
-
+			
 			# If admin is editing, update the is_active status
 			if is_admin_editing:
 				is_active = request.POST.get('is_active') != 'on'
 				user_to_edit.is_active = is_active
-				user_to_edit.save()
-			else:
-				if form.cleaned_data['password']:
-					login(request, user_to_edit)
 
+			user_to_edit.save()
+
+			if form.cleaned_data['password']:
+				login(request, user_to_edit)
+			
 			business_profile, created = BusinessProfile.objects.get_or_create(user=user_to_edit)
 			business_profile.companyName = form.cleaned_data['company_name']
 			business_profile.phone = form.cleaned_data['phone']
@@ -761,7 +755,8 @@ def update_business_profile(request, user_id=None):
 				is_verified = request.POST.get('is_verified') == 'on'
 				business_profile.isVerified = is_verified
 				business_profile.save()
-
+			print('user_to_edit.username:',user_to_edit.username, flush=True)
+			print('user_to_edit.password:',user_to_edit.password, flush=True)
 			messages.success(request, 'Business profile has been updated successfully.')
 			if is_admin_editing and user_id:
 				return redirect(search_businesses)
