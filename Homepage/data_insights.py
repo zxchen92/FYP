@@ -185,12 +185,13 @@ def data_insights():
     plt.title('Age Group Distribution')
     plt.xlabel('Age Group')
     plt.ylabel('Number of Users')
+    plt.tight_layout()
 
     # Save the chart as a PNG image in memory
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
     buffer.seek(0)
-    age_group = base64.b64encode(buffer.read()).decode('utf-8')
+    age_group_bar = base64.b64encode(buffer.read()).decode('utf-8')
     plt.close()
     buffer.close()
 
@@ -228,7 +229,7 @@ def data_insights():
 
     ax.set_yticks(y_pos)
     ax.set_yticklabels(age_groups)
-    ax.legend()
+    ax.legend(bbox_to_anchor=(1, 1), loc='upper left', borderaxespad=0, fontsize="8")
 
 
 
@@ -240,4 +241,4 @@ def data_insights():
     plt.close()
     buffer.close()
 
-    return combined_ratings, most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group, age_group_food
+    return combined_ratings, most_rated_food_graph, favourite_categories_graph, pref_location_graph, gender_graph, age_group_bar, age_group_food
