@@ -185,7 +185,7 @@ class RatingForm(forms.ModelForm):
         fields = ['user', 'food', 'rating']
 
 class FoodForm(forms.ModelForm):
-	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple())
+	dietary_restrictions = forms.MultipleChoiceField(choices=DIETARY_RESTRICTIONS, widget=forms.CheckboxSelectMultiple, required=False)
 
 	class Meta:
 		model = Food

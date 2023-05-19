@@ -13,13 +13,13 @@ from Homepage.models import UserProfile, UserType, FoodCategory, Food, Rating
 food_categories = FoodCategory.objects.all()
 food = Food.objects.all()
 
-# Create 100 new users
+# Create new users
 for i in range(200):
     # Generate a random username
     username = f'cloneusers{i}'
     password = 'test'
 
-    # Create a new user
+    # Create a new user object
     user = User.objects.create_user(username=username, password=password)
 
     # Create a new user profile

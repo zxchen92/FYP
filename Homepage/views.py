@@ -276,40 +276,41 @@ def recommender_page(request):
 	return render(request, 'recommender.html', context)
 
 def customer_support(request):
-    context = {}
-    if request.user.is_authenticated:
-        user = request.user
-        user_type = UserType.objects.get(user=user)
-        context = {
-            'user_type': user_type,
-            'user': user,
-            }
-    if request.method == 'POST':
-        first_name = request.POST.get('firstName')
-        last_name = request.POST.get('lastName')
-        email = request.POST.get('email')
-        category = request.POST.get('category')
-        details = request.POST.get('details')
-        print("first_name: ",first_name)
-        message_content = f"Customer Support Request:\n\nName: {first_name} {last_name}\nEmail: {email}\nCategory: {category}\nDetails: {details}"
+	context = {}
+	if request.user.is_authenticated:
+		user = request.user
+		user_type = UserType.objects.get(user=user)
+		context = {
+			'user_type': user_type,
+			'user': user,
+			}
+	if request.method == 'POST':
+		first_name = request.POST.get('firstName')
+		last_name = request.POST.get('lastName')
+		email = request.POST.get('email')
+		category = request.POST.get('category')
+		details = request.POST.get('details')
+		print("first_name: ",first_name)
+		message_content = f"Customer Support Request:\n\nName: {first_name} {last_name}\nEmail: {email}\nCategory: {category}\nDetails: {details}"
 
-        messages.success(request, ('An email has been sent to our customer support officers! We will get back to you within 3 working days.'))
+		messages.success(request, ('An email has been sent to our customer support officers! We will get back to you within 3 working days.'))
 
-        message = Mail(
-            from_email='customersup.collabfood@outlook.com',
-            to_emails=['customersup.collabfood@outlook.com', email],
-            subject='New Customer Support Request',
-            plain_text_content=message_content)
+		message = Mail(
+			from_email='customersup.collabfood@outlook.com',
+			to_emails=['customersup.collabfood@outlook.com', email],
+			subject='New Customer Support Request',
+			plain_text_content=message_content)
 
-        try:
-            sg = SendGridAPIClient(sendgrid_api_key)  # replace 'SENDGRID_API_KEY' with your SendGrid API key
-            response = sg.send(message)
-        except Exception as e:
-            print(str(e))
+		try:
+			print('sendgrid_api_key',sendgrid_api_key,flush=True)
+			sg = SendGridAPIClient(sendgrid_api_key)  # replace 'SENDGRID_API_KEY' with your SendGrid API key
+			response = sg.send(message)
+		except Exception as e:
+			print(str(e))
 
-        return redirect(landing)
+		return redirect(landing)
 
-    return render(request, 'customersupport.html', context)
+	return render(request, 'customersupport.html', context)
 
 @login_required
 def admin_home(request):
@@ -357,7 +358,6 @@ def business_home(request):
 	context = {'user_type': user_type}
 	return render(request, 'businesshome.html', context)
 
-#not yet done
 @login_required
 def search_users(request):
 	# Get all UserType instances with userType equal to 'user'
@@ -385,58 +385,6 @@ def view_promotion(request, promotion_id=None):
 		}
 	return render(request, 'viewpromotion.html', context)
 
-# @login_required
-# def recommender_results(request):
-# 	user_id = request.user.id
-# 	rand= 0
-# 	recommendations, recommendationsTwo = get_recommendations(user_id)
-# 	food_id = recommendations[0]  # get the first food id from the recommendations list
-# 	food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
-# 	food_name = food.foodName  # get the name of the food
-# 	maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
-# 	maps_link = f'<a href="{maps_url}" target="_blank">{food_name}!!</a>'
-
-
-# 	food_dict={}
-# 	for foodid in recommendationsTwo:
-# 		try:
-# 			food2 =  get_object_or_404(Food, id=foodid)#Food.objects.get(Food, id=foodid)
-# 			food_dict[foodid] = food2
-# 			# food_name = food.foodName  # get the name of the food
-# 			# maps_url = f"https://www.google.com/maps/search/?api=1&query={food_name.replace(' ', '+')}"
-# 			# maps_link = f'<a href="{maps_url}" target="_blank">{food_name.foodName}</a>'
-
-# 		except Food.DoesNotExist:
-# 			pass
-
-# 	####### Below is the prototype code ########
-# 	user_type = UserType.objects.get(user=request.user)
-# 	form = RatingForm(request.POST)
-# 	############################################
-# 	context = {
-# 	'user_type': user_type,
-# 	'form': form,
-# 	#'full_recommendations' : full_recommendations,
-# 	#'recommendations': recommendations,
-# 	#'recommendationsTwo' : recommendationsTwo,
-# 	'food_name' : food_name,
-# 	'maps_link' : maps_link,
-# 	#'food_dict' : food_dict,
-# 	}
-
-# 	ratings = Rating.objects.filter(user=request.user).values('food')
-# 	rating_count = ratings.distinct().count()
-
-
-# 	if rating_count > 30 :
-# 		context['recommendations'] = recommendations
-
-# 	else:
-# 		context['recommendations'] = food_dict
-
-
-# 	return render(request, 'recommenderresults.html',context)
-
 @login_required
 def recommender_results(request):
 	user_id = request.user.id
@@ -463,16 +411,11 @@ def recommender_results(request):
 
 		for foodid in recommendations:
 			food_dict[foodid] = get_object_or_404(Food, id=foodid)
-			
 
-		# food_id = recommendations  # get the first food id from the recommendations list
-		# food = get_object_or_404(Food, id=food_id)  # query the database for the food object with the given id
-		#food_dict[0] = food
 		remove_ids = []  # list to store food IDs to be removed
 		for food_id, food in food_dict.items():
 			if not all(d in food.dietary_restrictions for d in diet):
 				remove_ids.append(food_id)
-				#del food_dict[food_id]
 		# Remove the food IDs that don't meet the dietary restrictions
 		for food_id in remove_ids:
 			del food_dict[food_id]
@@ -516,10 +459,9 @@ def recommender_normal(request):
 
 	print(food_category)
 
-	####### Below is the prototype code ########
 	user_type = UserType.objects.get(user=request.user)
 	form = RatingForm(request.POST)
-	############################################
+	
 	context = {
 	'user_type': user_type,
 	'form': form,
@@ -650,8 +592,6 @@ def view_business_profile(request, user_id):
 
 @login_required
 def create_rating(request):
-	# recommended_food = "Curry chicken noodles"  # You may get this from your recommendation algorithm
-
 	if request.method == 'POST':
 		user = request.user
 		food = request.POST.get('food', '')
@@ -824,9 +764,9 @@ def update_business_profile(request, user_id=None):
 
 			messages.success(request, 'Business profile has been updated successfully.')
 			if is_admin_editing and user_id:
-				return redirect('viewbusinessprofile', user_id=user_id)
+				return redirect(search_businesses)
 			else:
-				return redirect('profile')
+				return redirect(business_home)
 		else:
 			messages.error(request, 'There was an error in updating the business profile. Please check your input(s).')
 	else:
@@ -845,9 +785,9 @@ def update_business_profile(request, user_id=None):
 
 	context = {'form': form, 'is_admin_editing': is_admin_editing}
 	if is_admin_editing and user_id:
-		return redirect('viewbusinessprofile', user_id=user_id)
+		return redirect(search_businesses)
 	else:
-		return redirect('profile')
+		return redirect(business_home)
 
 @login_required
 def update_admin_profile(request):
@@ -873,7 +813,7 @@ def update_admin_profile(request):
 		user.save()
 
 		messages.success(request, 'Your profile has been updated successfully.')
-		return redirect('updateadmin')  # Replace with the URL name for your update admin page
+		return redirect('updateadmin')
 
 	context = {
 		'user': request.user,
@@ -928,15 +868,6 @@ def update_promotion(request, promotion_id=None):
 	}
 	return render(request, 'viewpromotion.html', context)
 
-# @login_required
-# def promotion_list(request):
-#     now = timezone.now().date()
-#     promotions = Promotion.objects.filter(endDate__gte=now).order_by('startDate')
-#     context = {
-#         'promotions': promotions,
-#     }
-#     return render(request, 'promotion_list.html', context)
-
 @login_required
 def search_promotion(request):
 	user_type = UserType.objects.get(user=request.user)
@@ -958,49 +889,6 @@ def delete_promotion(request, promotion_id):
 	messages.success(request,("Promotion Deleted!"))
 	return redirect(search_promotion)
 
-# @login_required
-# def data_insights(request):
-# 	user_type = UserType.objects.get(user=request.user)
-
-# 	if user_type.userType in ['user','business']:
-# 		# Get the count of ratings for each food
-# 		food_rating_counts = Rating.objects.values('food').annotate(count=Count('food')).order_by('-count')
-
-# 		    # Get the names of the top 10 most rated foods
-# 		top_foods = [f['food'] for f in food_rating_counts[:10]]
-# 		print(""+ str(top_foods))
-# 		#top_foods = Food.objects.filter(id__in=[int(id) for id in top_food_ids]).values_list('foodName', flat=True)
-
-# 		# Get the names of the top 10 most rated foods
-# 		# top_foods = Food.objects.filter(id__in=[f['food'] for f in food_rating_counts[:10]]).values_list('foodName', flat=True)
-
-# 		# Create a bar chart of the top 10 most rated foods
-# 		counts = [f['count'] for f in food_rating_counts[:10]]
-# 		plt.bar(top_foods, counts)
-# 		plt.title('Top 10 Most Rated Foods')
-# 		plt.xlabel('Food Name')
-# 		plt.ylabel('Number of Ratings')
-# 		plt.xticks(rotation=45, ha='right')
-# 		plt.tight_layout()
-
-# 		# Set the y-axis range
-# 		plt.ylim([0, max(counts) + 1])
-
-# 		# Save the chart as a PNG image in memory
-# 		buffer = io.BytesIO()
-# 		plt.savefig(buffer, format='png')
-# 		buffer.seek(0)
-# 		image_data = base64.b64encode(buffer.read()).decode('utf-8')
-# 		plt.close()
-# 		try:
-# 			context = {'user_type': user_type,
-
-# 			'image_data':image_data,
-# 			}
-# 			return render(request, 'datainsights.html', context)
-# 		finally:
-# 			buffer.close()
-
 @login_required
 def data_insight(request):
 	user_type = UserType.objects.get(user=request.user)
@@ -1008,8 +896,6 @@ def data_insight(request):
 
 		image_data1 , image_data2, image_data3, image_data4, image_data5, image_data6, image_data7 = data_insights()
 
-
-		
 		context = {
 		'user_type': user_type,
 		'image_data1':image_data1,
@@ -1050,8 +936,6 @@ def data_crawler_page(request):
 
 		context = {
 			'user_type':user_type,
-			# 'place_crawler', place_crawler,
-			# 'review_crawler', review_crawler,
 		}
 		return render(request, 'datacrawler.html', context)
 

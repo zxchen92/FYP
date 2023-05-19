@@ -8,10 +8,10 @@ django.setup()
 from django.contrib.auth.models import User
 from Homepage.models import UserProfile, UserType, Rating
 
-# Delete all ratings for the clone users
+# Delete all ratings for the cloned users
 Rating.objects.filter(user__username__startswith='cloneusers').delete()
 
-# Delete all users
+# Delete all users objects
 User.objects.filter(username__startswith='cloneusers').delete()
 
 # Delete all user profiles

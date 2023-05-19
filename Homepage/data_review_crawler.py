@@ -10,15 +10,11 @@ import re
 import time
 import pandas as pd
 
-###########TEST CODE#####################
-
 def data_review_crawler():
     chrome_driver_path = 'chromedriver.exe'
 
 
     chrome_options = Options()
-    # headless
-    chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(executable_path=chrome_driver_path, options=chrome_options)
 
     foodID_list =[]
@@ -80,13 +76,10 @@ def data_review_crawler():
             time.sleep(SCROLL_PAUSE_TIME)
 
             # Calculate new scroll height and compare with last scroll height
-            # print(f'last height: {last_height}')
 
             ele = driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]')
 
             new_height = driver.execute_script("return arguments[0].scrollHeight", ele)
-
-            # print(f'new height: {new_height}')
 
             if number == 2:
                 break
@@ -121,14 +114,6 @@ def data_review_crawler():
     dfTwo = pd.DataFrame(list(zip(foodID_list,userID_list, name_list, stars_list, duration_list)),
                             columns=['Food ID','userID', 'name', 'rating', 'duration'])
     print(dfTwo)
-
-    # dfTwo["userid;name"] = dfTwo['userID'] +";"+ dfTwo["name"]
-    # dfTwo["userid;foodid;rating"] = dfTwo['userID'] +";"+ dfTwo["Food ID"].map(str) +";"+ dfTwo["rating"]
-
-    #initial load
-    # dfTwo["userid;name"].to_csv(r'UserID_v1.csv',index=False)
-    # dfTwo["userid;foodid;rating"].to_csv(r'FoodRatings_v1.csv',index=False)
-
 
     #delta load
     dfTwo.to_csv(r'UserID_v1.csv', columns=['userID','name'], mode='a', index=False, header=False)

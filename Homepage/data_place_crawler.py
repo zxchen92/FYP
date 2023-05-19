@@ -23,7 +23,6 @@ def data_place_crawler():
     dfPlace = []
 
 
-    #time.sleep(100)
     foodID_list =[]
     businessName_list =[]
     url_list =[]
@@ -46,6 +45,8 @@ def data_place_crawler():
 
 
         businessDetail = driver.find_elements(By.CLASS_NAME, "hfpxzc")
+        if businessDetail:
+                businessDetail.pop(0)
 
         for lnk in businessDetail:
             foodID_list.append(food)
